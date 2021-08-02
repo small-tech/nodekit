@@ -1,0 +1,48 @@
+{
+  "name": "@small-tech/nodekit",
+  "version": "1.0.0",
+  "description": "An opinionated Small Web server.",
+  "main": "index.js",
+  "type": "module",
+  "license": "AGPL-version-3.0",
+  "private": false,
+  "engines": {
+    "node": ">= 14.0.0",
+    "npm": ">= 6.0.0"
+  },
+  "homepage": "https://github.com/small-tech/nodekit",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/small-tech/nodekit.git"
+  },
+  "bugs": "https://github.com/small-tech/nodekit/issues",
+  "funding": {
+    "type": "foundation",
+    "url": "https://small-tech.org/fund-us/"
+  },
+  "keywords": [
+    "nodekit",
+    "small web",
+    "small tech",
+    "esbuild",
+    "svelte"
+  ],
+  "author": {
+    "name": "Aral Balkan",
+    "email": "aral@small-tech.org",
+    "url": "https://ar.al"
+  },
+  "contributors": [
+
+  ],
+  "scripts": {
+    "dev": "",
+    "test": ""
+  },
+  "dependencies": {
+
+  },
+  "devDependencies": {
+
+  }
+}
