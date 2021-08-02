@@ -8,12 +8,12 @@ An opinionated Small Web server.
   - Always uses latest Node.js LTS (you don’t need to have Node.js installed)
   - Automatic TLS (https) on development/staging/production
   - Language is a superset of Svelte (you can use any svelte component)
-  - Built-in database
+  - Integrated database ([JSDB](https://github.com/small-tech/jsdb))
   - Simple data exchange and server-side rendering (REST and WebSockets)
   - No scaffolding (no `npm init my-project-template`, just start, it’s easy)
   - No build stage
-
-??? Should we just support WebSocket and not REST at all?
+  - Small as possible in size and dependencies.
+  - As opinionated as possible.
 
 ## Install
 
