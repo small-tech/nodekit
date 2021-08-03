@@ -1,63 +1,78 @@
 # NodeKit
 
-An opinionated Small Web server.
+A [Small Web](https://small-tech.org/research-and-development) server.
 
 ## Features
 
-  - Single-line install on development/staging/production
-  - Always uses latest Node.js LTS (you don’t need to have Node.js installed)
-  - Automatic TLS (https) on development/staging/production
-  - Language is a superset of Svelte (you can use any svelte component)
-  - Integrated database ([JSDB](https://github.com/small-tech/jsdb))
-  - Simple data exchange and server-side rendering (REST and WebSockets)
-  - No scaffolding (no `npm init my-project-template`, just start, it’s easy)
-  - No build stage
+  - Single-line install on development/staging/production.
+  - Always uses latest Node.js LTS (you don’t need to have Node.js installed).
+  - Automatic TLS (https) on development/staging/production.
+  - NodeScript, a superset of Svelte, lets you define your pages, including server-side data fetching for automatic client-side hydration.
+  - Use any svelte component in your interfaces.
+  - File-based routing made as elegant and flexible as possible using Node ES Module loaders.
+  - Integrated database ([JSDB](https://github.com/small-tech/jsdb)).
+  - Simple data exchange and server-side rendering (REST and WebSockets).
+  - No scaffolding (no `npm init my-project-template`, just start, it’s easy).
+  - No build stage.
   - Small as possible in size and dependencies.
   - As opinionated as possible.
+  - Deploy on any VPS (e.g., using [Domain](https://github.com/small-tech/domain)) or a Raspberry Pi.
 
 ## Install
 
 ```shell
-  wget -qO- https://nodekit.dev/install | bash
+  wget -qO- https://nodekit.small-web.org/install | bash
 ```
 
 ## Create your first site/app.
 
-```shell
-mkdir todo
-cd todo
-touch index.page
-```
+1. NodeKit does not require scaffolding. Just create a folder and start building your site or app:
 
-Open _index.page_ in your editor and add the following code:
+    ```shell
+    mkdir todo
+    cd todo
+    touch index.page
+    ```
 
-```svelte
-<get>
-  return db.todos
-</get>
+2. Open _index.page_ in your editor and add the following code:
 
-<post>
-  db.todos.push(request.params.todo)
-</post>
+    ```svelte
+    <get>
+      return db.todos
+    </get>
 
-<script>
-  export let data
-</script>
+    <post>
+      db.todos.push(request.params.todo)
+    </post>
 
-<ul>
-  {#each data.todo as todo, index}
-    <li>
-      <label>
-        <input type='checkbox' value={todo.description}>
-      </label>
-    </li>
-  {/each}
-</ul>
+    <script>
+      export let data
+    </script>
 
-<label>New todo:</label>
-<textarea />
-<button>Add</button>
-```
+    <ul>
+      {#each data.todo as todo, index}
+        <li>
+          <label>
+            <input type='checkbox' value={todo.description}>
+          </label>
+        </li>
+      {/each}
+    </ul>
+
+    <label>New todo:</label>
+    <textarea />
+    <button>Add</button>
+    ```
+
+3. Run NodeKit.
+
+    ```shell
+    nodekit
+    ```
+
+Hit https://localhost and you will see your new NodeKit app. Go ahead and add some todos and check them off and reload the page to see them persist.
+
+## NodeScript
 
 With NodeKit, you write your apps using NodeScript.
 
@@ -85,19 +100,32 @@ my-project
      ╰ index.socket
 ```
 
+## Build
+
+_Just kidding._ NodeKit does not have a build stage. It is a server you run on both on your development machine and in production.
+
+NodeKit will automatically build and rebuild things as and when necessary. You don’t have to worry about it. It’s really how web development should be.
+
 ## Production
 
-Setting up a production server is as easy as running NodeKit on your development machine.
+Setting up a production server is almost easy as running NodeKit on your development machine.
 
 On your production machine (a VPS works well for this):
 
   1. Install NodeKit
   2. Run:
-
      ```shell
      nodekit enable
      ```
   3. Hit your server’s domain in the browser.
+
+_Note the server password you’re shown when your server starts in your password manager (e.g., 1password) as you will need it later when [deploying to your server](#deployment)._
+
+The `enable` command runs NodeKit as a systemd service on your server.
+
+Once NodeKit is running as a service, it will automatically restart should your app or server crash.
+
+NodeKit will also periodically check for updates to itself.
 
 Setting up any production machine involves the following non-trivial prerequisites:
 
@@ -142,7 +170,7 @@ nodekit password
 
 (If you used Domain to set up your server, you should have been shown your password during the setup process. Please store your server’s password in a password manager like 1password.)
 
-### Using NoteKit
+### Using NoteKit’s aliases
 
 If you like, you can also declare your production remote and deploy using a couple of aliases NodeKit provides to save you a few keystrokes:
 
@@ -153,4 +181,12 @@ nodekit deploy
 
 Once you’ve defined your git remote (either directly via git, or via NodeKit), you can use the `nodekit deploy` alias to carry out a `git push production main`.
 
+## Setting up a production server with pull updates
 
+When setting up a production server, you can ask that it regularly polls for source changes on a public git remote.
+
+You would do this if you want other people to be able to deploy your app using NodeKit and/or Domain and get auto updates whenever you make a new release.
+
+When you push updates to your repository, their instances will get automatically updated the next time they poll your repository for changes.
+
+_(Using [Domain](https://github.com/small-tech/domain), anyone can install any NodeKit app simply by providing its URL.)_
