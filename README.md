@@ -84,3 +84,73 @@ my-project
   ╰ chat
      ╰ index.socket
 ```
+
+## Production
+
+Setting up a production server is as easy as running NodeKit on your development machine.
+
+On your production machine (a VPS works well for this):
+
+  1. Install NodeKit
+  2. Run:
+
+     ```shell
+     nodekit enable
+     ```
+  3. Hit your server’s domain in the browser.
+
+Setting up any production machine involves the following non-trivial prerequisites:
+
+  - commissioning a server (e.g., a VPS or running off your own hardware, which could be a Raspberry Pi)
+  - registering a domain name
+  - setting up your DNS information to point your domain name to your server
+
+If you want to get up and running with a NodeKit production machine in under a minute, you can set one up on [small-web.org](https://small-web.org).
+
+You can also run [Domain](https://github.com/small-tech/domain) – the same software that powers [small-web.org](https://small-web.org) – yourself. Some ideas:
+
+  - Run a private instance for your family or maybe the school or other organisation you work for.
+  - Run a non-commercial instance for a municipality or other community.
+  - Run a commercial service open to the public at large.
+
+If you do use, enjoy, and benefit from NodeKit and/or Domain, please consider becoming [a patron of Small Technology Foundation](https://small-tech.org/fund-us) to enable us to keep working on them.
+
+## Deployment
+
+Once your production server is up and running, you need some way to deploy your application to it.
+
+With NodeKit, you deploy your application using Git.
+
+### Using git directly
+
+Add your production site’s git repository as your production remote in git.
+
+For example, say you’re hosting it on small-web.org and your project/domain is called `your-project`. To deploy:
+
+```shell
+git remote add production https://your-project.small-web.org/source/self.git
+git push production main
+```
+
+Before allowing you to push, NodeKit will ask you for your server’s password.
+
+You can get your servers password by running the following command on your server:
+
+```shell
+nodekit password
+```
+
+(If you used Domain to set up your server, you should have been shown your password during the setup process. Please store your server’s password in a password manager like 1password.)
+
+### Using NoteKit
+
+If you like, you can also declare your production remote and deploy using a couple of aliases NodeKit provides to save you a few keystrokes:
+
+```shell
+nodekit remote add your-project.small-web.org
+nodekit deploy
+```
+
+Once you’ve defined your git remote (either directly via git, or via NodeKit), you can use the `nodekit deploy` alias to carry out a `git push production main`.
+
+

@@ -32,17 +32,13 @@
     "email": "aral@small-tech.org",
     "url": "https://ar.al"
   },
-  "contributors": [
-
-  ],
+  "contributors": [],
   "scripts": {
     "dev": "",
     "test": ""
   },
   "dependencies": {
-
-  },
-  "devDependencies": {
-
+    "polka": "^1.0.0-next.15",
+    "sade": "^1.7.4"
   }
 }
