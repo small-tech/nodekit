@@ -100,6 +100,77 @@ my-project
      ╰ index.socket
 ```
 
+Optionally, to organise larger projects, you can encapsulate your site within a `src` folder. If a `src` folder does exist, NodeKit will only serve routes from that folder and not from the project root.
+
+e.g.,
+
+```text
+my-project
+  ├ src
+  │  ├ index.page
+  │  ├ index.post
+  │  ├ index.socket
+  │  ╰ about
+  │      ╰ index.page
+  ├ test
+  │   ╰ index.js
+  ╰ README.md
+```
+
+### Multiple roots
+
+For larger projects, you might want to organise your routes, say, to separate your pages from your API. You can specify any folder within your source to be a new route by prefixing its name with an octothorpe (hash symbol/`#`).
+
+For example, you can split the following directory structure:
+
+```unicode
+my-project
+  ├ index.page
+  ├ contacts.page
+  ╰ contacts.post
+```
+
+As:
+
+```unicode
+my-project
+  ├ index.page
+  ╰ #api
+    ├ contacts.page
+    ╰ contacts.post
+```
+
+Or even:
+
+```unicode
+my-project
+  ├ #pages
+  │   ├ index.page
+  │   ╰ contacts.page
+  ╰ #api
+      ╰ contacts.post
+```
+
+In all of the above versions, HTTP GET calls to `/contacts` will find `contacts.page` and HTTP POST calls to `/contacts` will find `contacts.post`.
+
+_(If you wanted your `contacts.post` route to be accessible from `/api/contacts` instead, you would just remove the `#` and make it a regular folder.)_
+
+## Static files
+
+NodeKit will serve any assets (images, etc.) it finds in your source folder. If you want to group all your assets in a single folder for organisational purposes, just make use of the multiple roots feature explained above.
+
+For example:
+
+```unicode
+my-project
+  ├ index.page
+  ╰ #static
+    ├ header.svg
+    ╰ demo.mp4
+```
+
+_Note that the use of the name `#static` is purely for convention. You could have called it anything._
+
 ## Build
 
 _Just kidding._ NodeKit does not have a build stage. It is a server you run on both on your development machine and in production.
