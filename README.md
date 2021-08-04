@@ -261,35 +261,6 @@ Note that when doing the `fetch` request, we specify `/books/data` as the URL. T
 
 Also note that the behaviour of inline data request handlers is the same as for the external ones.
 
-### HTML Template
-
-__Tentative: THIS FEATURE MIGHT BE REMOVED.__
-
-By default, NodeKit uses a very basic outermost HTML template and expects you to use [layouts](#layouts) and the <a href='https://svelte.dev/docs#svelte_head'>&lt;svelte:head&gt;</a> element to inject anything you might need into `document.head`.
-
-That said, you can override this template by providing a `Layout.html` in your main source folder.
-
-When creating a custom Layout template, you must include the special placeholders that tell NodeKit where to include different parts of a page.
-
-For example:
-
-```html
-<!DOCTYPE html>
-<html lang='en'>
-<head>
-  <meta charset='UTF-8'>
-  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-  <link rel="icon" href="data:,">
-  <title>{title}</title>
-  <style>{css}</style>
-</head>
-<body>
-  {page}
-</body>
-</html>
-```
-
 ### Route parameters
 
 You can include route parameters in your route paths by separating them with underscores and surrounding the parameter names in square brackets.
@@ -411,6 +382,35 @@ my-project
 ```
 
 _Note that the use of the name `#static` is purely for convention. You could have called it anything._
+
+### HTML Template
+
+__Tentative: THIS FEATURE MIGHT BE REMOVED.__
+
+By default, NodeKit uses a very basic outermost HTML template and expects you to use [layouts](#layouts) and the <a href='https://svelte.dev/docs#svelte_head'>&lt;svelte:head&gt;</a> element to inject anything you might need into `document.head`.
+
+That said, you can override this template by providing a `Layout.html` in your main source folder.
+
+When creating a custom Layout template, you must include the special placeholders that tell NodeKit where to include different parts of a page.
+
+For example:
+
+```html
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <link rel="icon" href="data:,">
+  <title>{title}</title>
+  <style>{css}</style>
+</head>
+<body>
+  {page}
+</body>
+</html>
+```
 
 ## Build
 
