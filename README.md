@@ -383,6 +383,52 @@ my-project
 
 _Note that the use of the name `#static` is purely for convention. You could have called it anything._
 
+## Ignoring folders
+
+While NodeKit will ignore folders that do not contain any routes by default, you can explicitly state that certain folders or files should be ignored by preceding their name with an underscore.
+
+```unicode
+my-project
+  ├ index.page
+  ╰ _ignore-these-files
+    ├ this-file.txt
+    ╰ and-this-file-especially.mp4
+```
+
+You might want to do this to stop NodeKit from serving certain files as static assets, to clarify your intent and organise your project better, and for better performance if you have lots of files in a folder that you know should be ignored to save NodeKit some effort.
+
+There are also a couple of features like [migrations](#migrations) and [middleware](#middleware), that take advantage of this feature.
+
+## Migrations
+
+__TODO: Migrations are currently not supported in JSDB.__
+
+The integrated [JSDB](https://github.com/small-tech/jsdb) database supports migrations.
+
+A migration is simply a JavaScript file with a special name that you place in a folder called `_migrations` in the root of your source.
+
+The naming convention is:
+
+`version-N.js`
+
+Where `N` is the database version you are defining. `N` starts at zero (for the initial database setup and increases by 1 each time).
+
+NodeKit will run your migrations in order and update the `version` property of the database accordingly.
+
+## Middleware
+
+NodeKit supports Connect-style middleware. All you have to do is define your middleware in a JavaScript file in folder called `_middleware` in the root of your source.
+
+For example, to allow all Cross Origin Requests (CORS), save the following middleware in a file called `allow-all-cors.js` in your `_middleware` folder:
+
+```js
+module.exports = (request, response, next) => {
+  response.header('Access-Control-Allow-Origin', '*')
+  response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+  next()
+}
+```
+
 ## The HTML Template
 
 __Tentative: THIS FEATURE MIGHT BE REMOVED.__
