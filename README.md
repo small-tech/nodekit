@@ -177,6 +177,79 @@ Specifically, NodeScript extends Svelte to enable you to easily server-side rend
 
 While you can define your [HTTP routes](#http-routes) in separate files, you can also define them inline, right inside your pages.
 
+So, for example, instead of a separate `books.get` route, your `books.page` could look like this:
+
+```svelte
+<get>
+  export default (request, response) => {
+    const books = db.books.get()
+    return {books}
+  }
+</get>
+
+<script>
+  export let data
+
+  setInterval(() => {
+    // Refresh the list of books every minute.
+    data = await (await fetch('/books/get')).json()
+  }, 60000)
+</script>
+
+<h1>Books</h1>
+<ul>
+  {#each data.books as book}
+    <li><a href='{book.link}'>{book.title}</a></li>
+  {/each}
+</ul>
+```
+
+In the above example, when someone hits `/books`:
+
+1. The `get` handler will run and retrieve a list of the books from the integrated database. (The reference to `db` is globally accessible from all routes.)
+
+2. While the page is being rendered, the value of `data` will have the value returned from the `get` route.
+
+3. As the page is being rendered, the value of data will be used to display the list of books in the unordered list.
+
+Once the page has loaded, it will be hydrated and the script in the `<script>` tag will run in the browser, setting up an interval that will refresh the list of books every minute.
+
+Note that when doing the `fetch` request, we specify `/books/get` as the URL. This is an automatically generated route that you can call to target just the HTTP route for exactly this sort of purpose. This route is only generated for HTTP GET routes that share the same path as a page. For all other routes, the HTTP verb is enough to differentiate requests. (e.g., for `books.post`, `books.delete`, etc.)
+
+Also note that the behaviour of inline GET HTTP handlers is the same as for external ones. The following code is equivalent to the one above:
+
+__books.get__
+```js
+export default (request, response) => {
+  const books = db.books.get()
+  return {books}
+}
+```
+
+__books.page__
+
+```svelte
+<script>
+  export let data
+
+  setInterval(() => {
+    // Refresh the list of books every minute.
+    data = await (await fetch('/books/get')).json()
+  }, 60000)
+</script>
+
+<h1>Books</h1>
+<ul>
+  {#each data.books as book}
+    <li><a href='{book.link}'>{book.title}</a></li>
+  {/each}
+</ul>
+```
+
+Also note that unlike regular request handlers, which call `response.end()`, your GET handler that shares the same path as a page _returns_ its value.
+
+You cannot end the response in your GET handler as NodeKit still needs to take the data you’ve returned and render the page.
+
 ### HTML Template
 
 __Tentative: THIS FEATURE MIGHT BE REMOVED.__
