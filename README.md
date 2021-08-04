@@ -265,7 +265,13 @@ Also note that the behaviour of inline data request handlers is the same as for 
 
 NodeKit has an integrated [JSDB](https://github.com/small-tech/jsdb) database that’s available from all your routes as `db`.
 
+JSDB is a transparent, in-memory, streaming write-on-update JavaScript database for the Small Web that persists to a JavaScript transaction log.
+
 NodeKit supports [migrations](#migrations) on the integrated database.
+
+If you’ve created at least one table on the database, you can find it in the `.db` folder. Tables in JSDB are simply JavaScript objects or arrays and JSDB writes to plain old JavaScript files.
+
+[Learn more about JSDB.](https://github.com/small-tech/jsdb)
 
 ## Route parameters
 
