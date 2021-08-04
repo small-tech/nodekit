@@ -123,7 +123,7 @@ my-project
   ╰ README.md
 ```
 
-### Valid file types
+## Valid file types
 
 NodeKit doesn’t force you to put different types of routes into predefined folders. Instead, it uses file extensions to know how to handle different routes and other code and assets.
 
@@ -138,7 +138,7 @@ Here is a list of the main file types NodeKit handles and how it handles them:
 | .component | Svelte component | Ignored by router. |
 | .js | Javascript module | Ignored by router. |
 
-### Layouts
+## Layouts
 
 It’s common to want a shared header and footer on pages on the same site (or in different sections of a site). You can control the layout of your pages using `.layout` files.
 
@@ -147,7 +147,7 @@ It’s common to want a shared header and footer on pages on the same site (or i
 | Layout.page | NodeKit layout (supports NodeScript) | Any sibling or child pages are slotted into this component during page compilation. |
 | Layout.reset | Empty file | Flags to compiler to not use a layout for sibling or child pages. (If a Page.layout file is present in a child directory, it will take precedence from that level on.) |
 
-### HTTP routes
+## HTTP routes
 
 HTTP data routes are served in response to an HTTP request for the specified method and path.
 
@@ -170,7 +170,7 @@ export default (request, response) => {
 }
 ```
 
-### Data routes
+## Data routes
 
 A generic HTTP route that returns some piece of data is generally considered to be part of your site’s Application Programming Interface (API).
 
@@ -212,7 +212,7 @@ Note that the data route is almost identical to the HTTP GET route. The main dif
 
 (You cannot end the response in your GET handler as NodeKit still needs to take the data you’ve returned and render the page.)
 
-### Pages
+## Pages
 
 A NodeKit page is written in NodeScript, which is an extension of Svelte.
 
@@ -261,7 +261,7 @@ Note that when doing the `fetch` request, we specify `/books/data` as the URL. T
 
 Also note that the behaviour of inline data request handlers is the same as for the external ones.
 
-### Route parameters
+## Route parameters
 
 You can include route parameters in your route paths by separating them with underscores and surrounding the parameter names in square brackets.
 
@@ -329,7 +329,7 @@ my-site
 NodeKit leaves the decision up to you.
 
 
-### Multiple roots
+## Multiple roots
 
 For larger projects, you might want to organise your routes, say, to separate your pages from your API. You can specify any folder within your source to be a new route by prefixing its name with an octothorpe (hash symbol/`#`).
 
@@ -383,7 +383,7 @@ my-project
 
 _Note that the use of the name `#static` is purely for convention. You could have called it anything._
 
-### HTML Template
+## The HTML Template
 
 __Tentative: THIS FEATURE MIGHT BE REMOVED.__
 
