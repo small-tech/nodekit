@@ -14,6 +14,7 @@ A [Small Web](https://small-tech.org/research-and-development) server.
   - Simple data exchange and server-side rendering (REST and WebSockets).
   - No scaffolding (no `npm init my-project-template`, just start, it’s easy).
   - No build stage.
+  - Integrated git server for deployments and app auto updates.
   - Small as possible in size and dependencies.
   - As opinionated as possible.
   - Deploy on any VPS (e.g., using [Domain](https://github.com/small-tech/domain)) or a Raspberry Pi.
@@ -38,11 +39,16 @@ A [Small Web](https://small-tech.org/research-and-development) server.
 
     ```svelte
     <get>
-      return db.todos
+      export default (request, response) => {
+        request.end(db.todos)
+      }
     </get>
 
     <post>
-      db.todos.push(request.params.todo)
+      export default (request, response) => {
+        db.todos.push(request.params.todo)
+        request.end()
+      }
     </post>
 
     <script>
@@ -116,6 +122,157 @@ my-project
   │   ╰ index.js
   ╰ README.md
 ```
+
+### Valid file types
+
+NodeKit doesn’t force you to put different types of routes into predefined folders. Instead, it uses file extensions to know how to handle different routes and other code and assets.
+
+Here is a list of the main file types NodeKit handles and how it handles them:
+
+| Extension | Type | Behaviour |
+| --------- | ---- | --------- |
+| .page     | NodeKit page (supports NodeScript) | Compiled into HTML and served in response to a HTTP GET request for the specified path. |
+| .get, .head, .patch, .options, .connect, .delete, .trace, .post, .put | HTTP route | Served in response to an HTTP request for the specified method and path. |
+| .socket | WebSocket route | Served in response to a WebSocket request for the specified path. |
+| .component | Svelte component | Ignored by router. |
+| .js | Javascript module | Ignored by router. |
+
+### Layouts
+
+It’s common to want a shared header and footer on pages on the same site (or in different sections of a site). You can control the layout of your pages using `.layout` files.
+
+| File name | Type | Behaviour |
+| --------- | ---- | --------- |
+| Layout.page | NodeKit layout (supports NodeScript) | Any sibling or child pages are slotted into this component during page compilation. |
+| Layout.reset | Empty file | Flags to compiler to not use a layout for sibling or child pages. (If a Page.layout file is present in a child directory, it will take precedence from that level on.) |
+
+### HTTP routes
+
+HTTP data routes are served in response to an HTTP request for the specified method and path.
+
+All HTTP request methods are supported.
+
+You create an HTTP route by create a JavaScript file named with the HTTP request method you want to respond to.
+
+For example, to respond to GET requests at `/books`, you would create a file named `books.get` in the root of your source folder.
+
+The content of HTTP routes is an ESM module that exports a standard Node route request handler that takes [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) and [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse) arguments.
+
+__TODO: As we’re going to add to these, document those additions here.__
+
+For example, your `books.get` route might look like this:
+
+```js
+export default (request, response) => {
+  const books = db.books.get()
+  response.end(books)
+}
+```
+
+### Pages
+
+A NodeKit page is written in NodeScript, which is an extension of Svelte.
+
+Specifically, NodeScript extends Svelte to enable you to easily server-side render your routes. As pages are being rendered, you can, for example, get data from the integrated [JSDB](https://github.com/small-tech/jsdb) database and include it in the rendered page. Once the page is rendered, if JavaScript is available on the client, the page will be hydrated.
+
+While you can define your [HTTP routes](#http-routes) in separate files, you can also define them inline, right inside your pages.
+
+### HTML Template
+
+__Tentative: THIS FEATURE MIGHT BE REMOVED.__
+
+By default, NodeKit uses a very basic outermost HTML template and expects you to use [layouts](#layouts) and the <a href='https://svelte.dev/docs#svelte_head'>&lt;svelte:head&gt;</a> element to inject anything you might need into `document.head`.
+
+That said, you can override this template by providing a `Layout.html` in your main source folder.
+
+When creating a custom Layout template, you must include the special placeholders that tell NodeKit where to include different parts of a page.
+
+For example:
+
+```html
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <link rel="icon" href="data:,">
+  <title>{title}</title>
+  <style>{css}</style>
+</head>
+<body>
+  {page}
+</body>
+</html>
+```
+
+### Route parameters
+
+You can include route parameters in your route paths by separating them with underscores and surrounding the parameter names in square brackets.
+
+For example:
+
+```text
+manage_[token]_[domain].socket
+```
+
+Will create a WebSocket endpoint at:
+
+```text
+/manage/:token/:domain
+```
+
+You can also intersperse path fragments with parameters:
+
+```text
+books_[id]_pages_[page].page
+```
+
+Will compile the NodeKit page and make it available for HTTP GET requests at:
+
+```text
+/books/:id/pages/:page
+```
+
+So you can access the route via, say, `https://my.site/books/3/pages/10`.
+
+You can also specify the same routes using folder structures. For example, the following directory structure will result in the same route as above:
+
+```text
+my-site
+  ╰ books
+     ╰ [id]
+         ╰ pages
+             ╰ [page].page
+```
+
+Note that you could also have set the name of the page to `index_[page].page`. Using just `[page].page` for a parameterised index page is a shorthand.
+
+You can decide which strategy to follow based on the structure of your app. If, for example, you could access not just the pages but the references and images of a book, it might make sense to use a folder structure:
+
+```text
+my-site
+  ╰ books
+     ╰ [id]
+         ├ pages
+         │   ╰ [page].page
+         ├ references
+         │   ╰ [reference].page
+         ╰ images
+             ╰ [image].page
+```
+
+You may, or may not find that easier to manage than:
+
+```text
+my-site
+  ├ books_[id]_pages_[page].page
+  ├ books_[id]_references_[reference].page
+  ╰ books_[id]_images_[image].page
+```
+
+NodeKit leaves the decision up to you.
+
 
 ### Multiple roots
 
