@@ -38,11 +38,11 @@ A [Small Web](https://small-tech.org/research-and-development) server.
 2. Open _index.page_ in your editor and add the following code:
 
     ```svelte
-    <get>
+    <data>
       export default (request, response) => {
-        request.end(db.todos)
+        return db.todos
       }
-    </get>
+    </data>
 
     <post>
       export default (request, response) => {
@@ -132,6 +132,7 @@ Here is a list of the main file types NodeKit handles and how it handles them:
 | Extension | Type | Behaviour |
 | --------- | ---- | --------- |
 | .page     | NodeKit page (supports NodeScript) | Compiled into HTML and served in response to a HTTP GET request for the specified path. |
+| .data     | A server-side data handler for a page | A handler that is called on the server while a page is being server-side rendered. Its return value is set as the `data` prop of the page. |
 | .get, .head, .patch, .options, .connect, .delete, .trace, .post, .put | HTTP route | Served in response to an HTTP request for the specified method and path. |
 | .socket | WebSocket route | Served in response to a WebSocket request for the specified path. |
 | .component | Svelte component | Ignored by router. |
@@ -169,6 +170,48 @@ export default (request, response) => {
 }
 ```
 
+### Data routes
+
+A generic HTTP route that returns some piece of data is generally considered to be part of your site’s Application Programming Interface (API).
+
+Generic API routes are useful when the same route is going to be called from the browser by a number of different pages.
+
+But what if you wanted to get the list of books from your database just to render them in your Books page?
+
+For that use case you, can create a `.data` file, which is essentially an HTTP GET route for data that is tightly coupled to a single page.
+
+__books.data__
+```js
+export default (request, response) => {
+  const books = db.books.get()
+  return {books}
+}
+```
+
+__books.page__
+
+```svelte
+<script>
+  export let data
+
+  setInterval(() => {
+    // Refresh the list of books every minute.
+    data = await (await fetch('/books/data')).json()
+  }, 60000)
+</script>
+
+<h1>Books</h1>
+<ul>
+  {#each data.books as book}
+    <li><a href='{book.link}'>{book.title}</a></li>
+  {/each}
+</ul>
+```
+
+Note that the data route is almost identical to the HTTP GET route. The main difference is that unlike regular request handlers, which call `response.end()`, your data handler shares the same path as a page (which is rendered in response to a HTTP GET request) and so your data handler must `return` its value.
+
+(You cannot end the response in your GET handler as NodeKit still needs to take the data you’ve returned and render the page.)
+
 ### Pages
 
 A NodeKit page is written in NodeScript, which is an extension of Svelte.
@@ -180,19 +223,19 @@ While you can define your [HTTP routes](#http-routes) in separate files, you can
 So, for example, instead of a separate `books.get` route, your `books.page` could look like this:
 
 ```svelte
-<get>
+<data>
   export default (request, response) => {
     const books = db.books.get()
     return {books}
   }
-</get>
+</data>
 
 <script>
   export let data
 
   setInterval(() => {
     // Refresh the list of books every minute.
-    data = await (await fetch('/books/get')).json()
+    data = await (await fetch('/books/data')).json()
   }, 60000)
 </script>
 
@@ -214,41 +257,9 @@ In the above example, when someone hits `/books`:
 
 Once the page has loaded, it will be hydrated and the script in the `<script>` tag will run in the browser, setting up an interval that will refresh the list of books every minute.
 
-Note that when doing the `fetch` request, we specify `/books/get` as the URL. This is an automatically generated route that you can call to target just the HTTP route for exactly this sort of purpose. This route is only generated for HTTP GET routes that share the same path as a page. For all other routes, the HTTP verb is enough to differentiate requests. (e.g., for `books.post`, `books.delete`, etc.)
+Note that when doing the `fetch` request, we specify `/books/data` as the URL. This is an automatically generated HTTP GET route that you can call for exactly this sort of purpose.
 
-Also note that the behaviour of inline GET HTTP handlers is the same as for external ones. The following code is equivalent to the one above:
-
-__books.get__
-```js
-export default (request, response) => {
-  const books = db.books.get()
-  return {books}
-}
-```
-
-__books.page__
-
-```svelte
-<script>
-  export let data
-
-  setInterval(() => {
-    // Refresh the list of books every minute.
-    data = await (await fetch('/books/get')).json()
-  }, 60000)
-</script>
-
-<h1>Books</h1>
-<ul>
-  {#each data.books as book}
-    <li><a href='{book.link}'>{book.title}</a></li>
-  {/each}
-</ul>
-```
-
-Also note that unlike regular request handlers, which call `response.end()`, your GET handler that shares the same path as a page _returns_ its value.
-
-You cannot end the response in your GET handler as NodeKit still needs to take the data you’ve returned and render the page.
+Also note that the behaviour of inline data request handlers is the same as for the external ones.
 
 ### HTML Template
 
