@@ -261,6 +261,12 @@ Note that when doing the `fetch` request, we specify `/books/data` as the URL. T
 
 Also note that the behaviour of inline data request handlers is the same as for the external ones.
 
+## Database
+
+NodeKit has an integrated [JSDB](https://github.com/small-tech/jsdb) database that’s available from all your routes as `db`.
+
+NodeKit supports [migrations](#migrations) on the integrated database.
+
 ## Route parameters
 
 You can include route parameters in your route paths by separating them with underscores and surrounding the parameter names in square brackets.
