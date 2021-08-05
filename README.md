@@ -2,6 +2,27 @@
 
 A [Small Web](https://small-tech.org/research-and-development) server.
 
+_Because creating a modern web site should be simple if your aim isn’t to do something nasty to people._
+
+__TODO: Only one of these lists should exist. Prune/edit as necessary.__
+
+## Core design decisions
+
+  - Node.js only.
+  - No build step.
+  - No scaffolding/project generators.
+  - Run same server on development and production.
+  - < 60 seconds to get started in both development and production.
+  - Optimise for server-side rendering.
+  - TLS everywhere by default.
+  - File-based router that uses (experimental) ES Module Loaders.
+  - Integrated database as first-class citizen.
+  - Convention over configuration.
+  - Forgiving (will render a simple static HTML file if you want).
+  - Own scripting syntax (NodeScript) for pages that extends Svelte to make it trivial to include data from your database in your server-side rendered pages.
+  - Integrated git server for deployments and app auto updates.
+
+
 ## Features
 
   - Single-line install on development/staging/production.
@@ -17,7 +38,7 @@ A [Small Web](https://small-tech.org/research-and-development) server.
   - Integrated git server for deployments and app auto updates.
   - Small as possible in size and dependencies.
   - As opinionated as possible.
-  - Deploy on any VPS (e.g., using [Domain](https://github.com/small-tech/domain)) or a Raspberry Pi.
+  - Deploy on any VPS (e.g., using [Domain](https://github.com/small-tech/domain)) or own your own hardware (e.g., a Raspberry Pi).
 
 ## Install
 
