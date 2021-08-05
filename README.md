@@ -27,16 +27,42 @@ A [Small Web](https://small-tech.org/research-and-development) server.
 
 The NodeKit installer installs two files onto your system. The first is the NodeKit bundle. This is a JavaScript file that contains NodeKit. The other is the version of Node.js [LTS](https://nodejs.org/en/about/releases/) that it has been tested with (this will be kept current with the latest LTS release).
 
+___NoteKit has one prerequisite:__ if you want to deploy to a production machine or if you want to update NodeKit itself, you must have a recent version of [git](https://git-scm.com/) installed on your system. Needless to say, in the 2020s, most developers will already have a machine that meets this requirement and NodeKit will warn you if you don’t and prompt you to install it._
+
 ## Update
 
 To update NodeKit to the latest version:
 
-  - __Development:__ run `nodekit update`
-  - __Production:__ NodeKit will automatically update itself and its companion Node.js binary as and when necessary.
+  - __In development,__ run:
+    ```shell
+    nodekit update
+    ```
+  - __On production,__ you don’t have to do anything as NodeKit will automatically update itself and its companion Node.js binary as and when necessary.
 
-## Create your first site/app.
+## Hello, world!
 
-1. NodeKit does not require scaffolding. Just create a folder and start building your site or app:
+Let’s quickly create and test your first “Hello, world!” NodeKit site.
+
+Enter the following four commands in your terminal:
+
+```shell
+mkdir hello-world
+cd hello-world
+echo '<h1>Hello, world!</h1>' > index.html
+nodekit
+```
+
+Now hit _https://localhost` and you should see your new site.
+
+Yes, NodeKit will happily serve any HTML and static content just like any other good web server should. You can start playing with it as simply as you like and it is designed, like HTML itself (as you can see in the above example), to be as forgiving as possible.
+
+But you can do that with any web server… Let’s do something that no other web server can do now, shall we?
+
+## To do or not to do?
+
+Let’s create a server-side rendered, dynamic to-do list web app:
+
+1. You’ve already seen that NodeKit does not require scaffolding. Just create a folder and start building your site or app:
 
     ```shell
     mkdir todo
@@ -44,7 +70,7 @@ To update NodeKit to the latest version:
     touch index.page
     ```
 
-2. Open _index.page_ in your editor and add the following code:
+2. Open _index.page_ in your editor and add the following code into it:
 
     ```svelte
     <data>
@@ -87,15 +113,26 @@ To update NodeKit to the latest version:
 
 Hit https://localhost and you will see your new NodeKit app. Go ahead and add some todos and check them off and reload the page to see them persist.
 
+Take a moment to let it sink in that with just the above code, we created an app that:
+
+  - Is server-side rendered with the latest list of to-dos from a database.
+  - Is hydrated on the client and updates the list of to-dos every minute.
+  - Enables you to add and check off to-dos and persists them in the database.
+  - Includes all the server and client side code in a single file.
+
+We were able to do all that mainly thanks to NodeKit’s use of [NodeScript](#nodescript), which extends [Svelte](https://svelte.dev) to make creating server-side rendered applications as simple as possible, the integrated [JavaScript Database (JSDB)](https://github.com/small-tech/jsdb), and [esbuild](https://esbuild.github.io/), which is working behind the scenes to bundle the client-side hydration scripts.
+
+If you want to learn more about the inner workings of NodeKit, look at the list of its [core dependencies](#core-dependencies) in the [Technical Design](#technical-design) section.
+
 ## NodeScript
 
 With NodeKit, you write your apps using NodeScript.
 
-NodeScript is a superset of Svelte that includes support for server-side rendering and data exchange between the client and the server.
+NodeScript is a superset of [Svelte](https://svelte.dev) that includes support for server-side rendering and simple data exchange between the client and the server.
 
 ## APIs and working with data
 
-For mostly static or server-rendered content with a little sprinkling of dynamic data, NodeScript you should be able to keep your code both the client and server in the same `.page` file.
+For many projects, you should be able to keep your both your client and server code in the same `.page` file using NodeScript.
 
 However, if you have an API or purely data-related routes, you can create server-side routes by creating files with any valid HTTP1/1.1 method lowercased as the file extension (i.e., `.get`, `.post`, `.patch`, `.head`, etc.)
 
@@ -490,10 +527,18 @@ NodeKit will automatically build and rebuild things as and when necessary. You d
 
 Setting up a production server is almost easy as running NodeKit on your development machine.
 
+### Prerequisites:
+
+  1. [systemd](https://systemd.io/)
+  1. Either [wget](https://www.gnu.org/software/wget/) or [curl](https://curl.se/) (so you can download the installer)
+  2. A recent version of [git](https://git-scm.com/)
+
+### Process:
+
 On your production machine (a VPS works well for this):
 
-  1. Install NodeKit
-  2. Run:
+  1. [Install NodeKit.](#installation)
+  2. Start the server as a service:
      ```shell
      nodekit enable
      ```
@@ -506,6 +551,8 @@ The `enable` command runs NodeKit as a systemd service on your server.
 Once NodeKit is running as a service, it will automatically restart should your app or server crash.
 
 NodeKit will also periodically check for updates to itself.
+
+## Other prerequisites (common to setting up any server) and how to avoid them
 
 Setting up any production machine involves the following non-trivial prerequisites:
 
@@ -578,13 +625,16 @@ NodeKit is an ESM-only project for Node.js and relies on (the currently experime
 
 Additionally, NodeKit relies on a number of core dependencies for its essential features.
 
-These are:
+## Core dependencies
 
 | Dependency | Purpose |
 | ---------- | ------- |
 | [@small-tech/https](https://github.com/small-tech/https) | Drop-in replacement for Node’s native https module with automatic TLS for development and production using [@small-tech/auto-encrypt ](https://github.com/small-tech/auto-encrypt) and [@small-tech/auto-encrypt-localhost](https://github.com/small-tech/auto-encrypt-localhost). |
-| [@small-tech/jsdb](https://github.com/small-tech/jsdb) | A zero-dependency, transparent, in-memory, streaming write-on-update JavaScript database for the Small Web that persists to JavaScript transaction logs. |
+| [@small-tech/jsdb](https://github.com/small-tech/jsdb) | Zero-dependency, transparent, in-memory, streaming write-on-update JavaScript database that persists to JavaScript transaction logs. |
 | [Polka@next](https://github.com/lukeed/polka) | Native HTTP server with added support for routing, middleware, and sub-applications. Polka uses [Trouter](https://github.com/lukeed/trouter) as its router. |
 | [tinyws](https://github.com/tinyhttp/tinyws) | WebSocket middleware for Node.js based on ws. |
 | [Svelte](https://svelte.dev)| Interface framework. NodeScript, used in Pages, is an extension of Svelte. Components, used in Pages, are Svelte components. |
-| [esbuild](https://esbuild.github.io/) | Used to bundle hydration scripts and NodeScript routes during server-side rendering. |
+| [esbuild](https://esbuild.github.io/) | An extremely fast JavaScript bundler. Used to bundle hydration scripts and NodeScript routes during server-side rendering. |
+| [node-git-server](https://github.com/gabrielcsapo/node-git-server) | Git server for hosting your source code. Used in deployments. |
+| [isomorphic-git](https://isomorphic-git.org/) | Git client used in deployments on development and for handling auto-updates on production.|
+| [sade](https://github.com/lukeed/sade) | A small command-line interface (CLI) framework that uses [mri](https://github.com/lukeed/mri) for its argument parsing. |
