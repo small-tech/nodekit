@@ -8,10 +8,11 @@ __TODO: Only one of these lists should exist. Prune/edit as necessary.__
 
 ## Core design decisions
 
+  - A server.
   - Node.js only.
   - No build step.
   - No scaffolding/project generators.
-  - Run same server on development and production.
+  - Runs on both development and production.
   - < 60 seconds to get started in both development and production.
   - Optimise for server-side rendering.
   - TLS everywhere by default.
@@ -659,3 +660,41 @@ Additionally, NodeKit relies on a number of core dependencies for its essential 
 | [node-git-server](https://github.com/gabrielcsapo/node-git-server) | Git server for hosting your source code. Used in deployments. |
 | [isomorphic-git](https://isomorphic-git.org/) | Git client used in deployments on development and for handling auto-updates on production.|
 | [sade](https://github.com/lukeed/sade) | A small command-line interface (CLI) framework that uses [mri](https://github.com/lukeed/mri) for its argument parsing. |
+
+
+## Frequently-Asked Questions (FAQs)
+
+### What about serverless?
+
+Dude, this is literally a server. If you want “serverless” (funny how folks who own servers want you to go serverless, isn’t it? It’s almost like a small group of people get to own stuff and you have to rent from them on their terms… hmm 🤔️) then use some Big Tech framework like [SvelteKit](https://kit.svelte.dev). They will bend over backwards to cater to all your Big Tech needs.
+
+### Can you add &lt;insert Big Tech feature here&gt;?
+
+No, go away.
+
+### Will this scale?
+
+Fuck off.
+
+(Yes, it will scale for the purposes it was designed for. It will not scale for the purposes of farming the population for their data and destroying our human rights and democracy in the process. That’s a feature, not a bug.)
+
+### Is there anything stopping me from using this to build sites or apps that violate people’s privacy and farm them for their data? (You know, the business model of Silicon Valley… that thing we call surveillance capitalism?)
+
+No, there is nothing in the license to stop you from doing so.
+
+But I will fucking haunt you in your nightmares.
+
+(Just sayin’)
+
+Also, it’s not nice. Don’t.
+
+### Are these really frequently asked questions or a political statement?
+
+Can’t it be both?
+
+(It’s a political statement.)
+
+## Ideas
+
+  - (Suggested by [Laura](https://laurakalbag.com)) Example apps in NodeKit covering the 7 GUIs tasks: https://eugenkiss.github.io/7guis/tasks
+  
