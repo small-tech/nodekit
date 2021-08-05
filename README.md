@@ -145,6 +145,7 @@ Here is a list of the main file types NodeKit handles and how it handles them:
 | .get, .head, .patch, .options, .connect, .delete, .trace, .post, .put | HTTP route | Served in response to an HTTP request for the specified method and path. |
 | .socket | WebSocket route | Served in response to a WebSocket request for the specified path. |
 | .component | Svelte component | Ignored by router. |
+| .svelte | Svelte component (.component is just an alias for .svelte) | Ignored by router. |
 | .js | Javascript module | Ignored by router. |
 
 ## Layouts
@@ -584,5 +585,6 @@ These are:
 | [@small-tech/https](https://github.com/small-tech/https) | Drop-in replacement for Node’s native https module with automatic TLS for development and production using [@small-tech/auto-encrypt ](https://github.com/small-tech/auto-encrypt) and [@small-tech/auto-encrypt-localhost](https://github.com/small-tech/auto-encrypt-localhost). |
 | [@small-tech/jsdb](https://github.com/small-tech/jsdb) | A zero-dependency, transparent, in-memory, streaming write-on-update JavaScript database for the Small Web that persists to JavaScript transaction logs. |
 | [Polka@next](https://github.com/lukeed/polka) | Native HTTP server with added support for routing, middleware, and sub-applications. Polka uses [Trouter](https://github.com/lukeed/trouter) as its router. |
+| [tinyws](https://github.com/tinyhttp/tinyws) | WebSocket middleware for Node.js based on ws. |
 | [Svelte](https://svelte.dev)| Interface framework. NodeScript, used in Pages, is an extension of Svelte. Components, used in Pages, are Svelte components. |
 | [esbuild](https://esbuild.github.io/) | Used to bundle hydration scripts and NodeScript routes during server-side rendering. |
