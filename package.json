@@ -34,11 +34,16 @@
   },
   "contributors": [],
   "scripts": {
-    "dev": "",
-    "test": ""
+    "dev": "nodekit.js",
+    "test": "uvu tests",
+    "coverage": "c8 npm test"
   },
   "dependencies": {
     "polka": "^1.0.0-next.15",
     "sade": "^1.7.4"
+  },
+  "devDependencies": {
+    "c8": "^7.8.0",
+    "uvu": "^0.5.1"
   }
 }

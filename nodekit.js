@@ -16,11 +16,18 @@ app
   .describe('An opinionated Small Web server.')
 
 app
-  .command('start')
-  .describe('Start server as daemon with globally-trusted certificates.')
+  .command('serve', '', {default: true})
+  .describe('Start server as regular process.')
+  .action(options => {
+    console.log('Serving…')
+  })
+
+app
+  .command('enable')
+  .describe('Install server systemd service and start it at hostname using globally-trusted TLS certificates.')
   .option('--skip-domain-reachability-check', 'Do not run pre-flight check for domain reachability.')
   .action(options => {
-    console.log('Start: unimplemented', options)
+    console.log('enable: unimplemented', options)
   })
 
 app.parse(process.argv)

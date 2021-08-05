@@ -661,6 +661,23 @@ Additionally, NodeKit relies on a number of core dependencies for its essential 
 | [isomorphic-git](https://isomorphic-git.org/) | Git client used in deployments on development and for handling auto-updates on production.|
 | [sade](https://github.com/lukeed/sade) | A small command-line interface (CLI) framework that uses [mri](https://github.com/lukeed/mri) for its argument parsing. |
 
+## Testing
+
+__NodeKit has 100% code coverage.__ (This does not mean that it is bug free. It just means that any bugs that may exist are well tested!) :P
+
+Tests are written in [uvu](https://github.com/lukeed/uvu).
+
+Run tests:
+
+```shell
+npm test
+```
+
+Run coverage:
+
+```shell
+npm run coverage
+```
 
 ## Frequently-Asked Questions (FAQs)
 
