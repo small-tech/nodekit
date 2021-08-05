@@ -25,6 +25,15 @@ A [Small Web](https://small-tech.org/research-and-development) server.
   wget -qO- https://nodekit.small-web.org/install | bash
 ```
 
+The NodeKit installer installs two files onto your system. The first is the NodeKit bundle. This is a JavaScript file that contains NodeKit. The other is the version of Node.js [LTS](https://nodejs.org/en/about/releases/) that it has been tested with (this will be kept current with the latest LTS release).
+
+## Update
+
+To update NodeKit to the latest version:
+
+  - __Development:__ run `nodekit update`
+  - __Production:__ NodeKit will automatically update itself and its companion Node.js binary as and when necessary.
+
 ## Create your first site/app.
 
 1. NodeKit does not require scaffolding. Just create a folder and start building your site or app:
@@ -560,3 +569,20 @@ You would do this if you want other people to be able to deploy your app using N
 When you push updates to your repository, their instances will get automatically updated the next time they poll your repository for changes.
 
 _(Using [Domain](https://github.com/small-tech/domain), anyone can install any NodeKit app simply by providing its URL.)_
+
+
+## Technical design
+
+NodeKit is an ESM-only project for Node.js and relies on (the currently experimental) [ES Module Loaders](https://nodejs.org/docs/latest-v14.x/api/esm.html#esm_loaders) ([follow the latest work](https://github.com/nodejs/loaders)) functionality.
+
+Additionally, NodeKit relies on a number of core dependencies for its essential features.
+
+These are:
+
+| Dependency | Purpose |
+| ---------- | ------- |
+| [@small-tech/https](https://github.com/small-tech/https) | Drop-in replacement for Node’s native https module with automatic TLS for development and production using [@small-tech/auto-encrypt ](https://github.com/small-tech/auto-encrypt) and [@small-tech/auto-encrypt-localhost](https://github.com/small-tech/auto-encrypt-localhost). |
+| [@small-tech/jsdb](https://github.com/small-tech/jsdb) | A zero-dependency, transparent, in-memory, streaming write-on-update JavaScript database for the Small Web that persists to JavaScript transaction logs. |
+| [Polka@next](https://github.com/lukeed/polka) | Native HTTP server with added support for routing, middleware, and sub-applications. Polka uses [Trouter](https://github.com/lukeed/trouter) as its router. |
+| [Svelte](https://svelte.dev)| Interface framework. NodeScript, used in Pages, is an extension of Svelte. Components, used in Pages, are Svelte components. |
+| [esbuild](https://esbuild.github.io/) | Used to bundle hydration scripts and NodeScript routes during server-side rendering. |
