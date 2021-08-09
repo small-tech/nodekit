@@ -1,7 +1,7 @@
 import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 
-import router from '../../lib/router.js'
+import router from '../lib/router.js'
 
 const test = suite()
 
