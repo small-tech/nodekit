@@ -35,7 +35,7 @@
   "contributors": [],
   "scripts": {
     "dev": "nodekit.js",
-    "test": "uvu tests",
+    "test": "uvu tests -i fixtures",
     "coverage": "c8 npm test"
   },
   "dependencies": {
