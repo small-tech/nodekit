@@ -45,6 +45,6 @@
   },
   "devDependencies": {
     "c8": "^7.8.0",
-    "uvu": "^0.5.1"
+    "uvu": "link:/home/aral/small-tech/forks/uvu"
   }
 }
