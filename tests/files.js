@@ -10,6 +10,18 @@ import Files from '../lib/Files.js'
 
 const test = suite('Files')
 
+// After each test, close the Files instance if it exists
+// so our test process can exit properly regardless of
+// whether there is an error. (Because uvu works with thrown
+// errors, if a long-running process is created in a test
+// method, it is not cleaned up if a test fails as the clean-up
+// code is unreachable.)
+test.after.each(async context => {
+  if (context.files) {
+    await context.files.close()
+  }
+})
+
 test('base path', async () => {
   const emptyProjectPath = path.join(fixturesPath, 'emptyProject')
   const emptyProjectFiles = new Files(emptyProjectPath)
@@ -23,10 +35,10 @@ test('base path', async () => {
   assert.equal(emptyProjectWithSrcFolderFiles.basePath, expectedBasePath, 'basePath is set correctly when src folder exists')
 })
 
-test('initialisation', async () => {
+test('initialisation', async context => {
   const domainProjectPath = path.join(fixturesPath, 'domain')
-  const domainProjectFiles = new Files(domainProjectPath)
-  const filesByExtension = await domainProjectFiles.initialise()
+  context.files = new Files(domainProjectPath)
+  const filesByExtension = await context.files.initialise()
 
   const expectedFilesByExtension = {
     '.layout': [
@@ -143,19 +155,20 @@ test('initialisation', async () => {
   })
 
   assert.equal(filesByExtension, expectedFilesByExtension, 'files grouped by extension as expected')
-
-  await domainProjectFiles.close()
 })
 
-test('chokidar error', async () => {
-  const projectWithPermissionErrorProjectPath = path.join(fixturesPath, 'projectWithPermissionError')
-  const projectWithPermissionErrorFiles = new Files(projectWithPermissionErrorProjectPath)
-  const filesByExtension = await projectWithPermissionErrorFiles.initialise()
+test('chokidar error handling', async context => {
+  context.files = new Files('/')
 
-  console.log('>>>>', filesByExtension)
-
-
-  await projectWithPermissionErrorFiles.close()
+  try {
+    await context.files.initialise()
+    assert.unreachable('attempting to watch root should throw')
+  } catch (error) {
+    if (error instanceof assert.Assertion) {
+      throw error
+    }
+    assert.equal(error.code, 'EACCES', 'attempting to watch root should throw')
+  }
 })
 
 test.run()
