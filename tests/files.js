@@ -159,16 +159,7 @@ test('initialisation', async context => {
 
 test('chokidar error handling', async context => {
   context.files = new Files('/')
-
-  try {
-    await context.files.initialise()
-    assert.unreachable('attempting to watch root should throw')
-  } catch (error) {
-    if (error instanceof assert.Assertion) {
-      throw error
-    }
-    assert.equal(error.code, 'EACCES', 'attempting to watch root should throw')
-  }
+  await assert.rejects(async () => context.files.initialise(), /EACCES/, 'attempting to watch root should throw EACCES')
 })
 
 test.run()
