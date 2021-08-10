@@ -41,37 +41,37 @@ test('initialisation', async context => {
   const filesByExtension = await context.files.initialise()
 
   const expectedFilesByExtension = {
-    '.layout': [
+    'layout': [
       `${fixturesPath}/domain/Page.layout`
     ],
-    '.css': [
+    'css': [
       `${fixturesPath}/domain/index.css`
     ],
-    '.html': [
+    'html': [
       `${fixturesPath}/domain/index.html`
     ],
-    '.page': [
+    'page': [
       `${fixturesPath}/domain/index.page`,
       `${fixturesPath}/domain/manage_[domain].page`,
       `${fixturesPath}/domain/admin/index.page`
     ],
-    '.socket': [
+    'socket': [
       `${fixturesPath}/domain/index.socket`,
       `${fixturesPath}/domain/manage_[token]_[domain].socket`,
       `${fixturesPath}/domain/admin/index_[password].socket`
     ],
-    '.get': [
+    'get': [
       `${fixturesPath}/domain/private_[token]_[domain].get`,
       `${fixturesPath}/domain/domain/available_[domain].get`,
       `${fixturesPath}/domain/domain/ready_[domain].get`
     ],
-    '.ico': [
+    'ico': [
       `${fixturesPath}/domain/#static/favicon.ico`
     ],
-    '.txt': [
+    'txt': [
       `${fixturesPath}/domain/#static/robots.txt`
     ],
-    '.cjs': [
+    'cjs': [
       `${fixturesPath}/domain/#static/routes.cjs`,
       `${fixturesPath}/domain/_middleware/allow-all-cors.cjs`,
       `${fixturesPath}/domain/_migrations/settings-v1-to-v2.cjs`,
@@ -80,13 +80,13 @@ test('initialisation', async context => {
       `${fixturesPath}/domain/_migrations/settings-v4-to-v5.cjs`,
       `${fixturesPath}/domain/_migrations/settings-v5-to-v6.cjs`
     ],
-    '.svg': [
+    'svg': [
       `${fixturesPath}/domain/#static/site.js.svg`
     ],
-    '.png': [
+    'png': [
       `${fixturesPath}/domain/#static/small-web.png`
     ],
-    '.js': [
+    'js': [
       `${fixturesPath}/domain/admin/initial-settings.js`,
       `${fixturesPath}/domain/admin/validate-dns.js`,
       `${fixturesPath}/domain/library/Constants.js`,
@@ -118,7 +118,7 @@ test('initialisation', async context => {
       `${fixturesPath}/domain/admin/requestHandlers/paymentProviders/stripe/objects/get.js`,
       `${fixturesPath}/domain/admin/requestHandlers/paymentProviders/stripe/secretKey/validate.js`
     ],
-    '.svelte': [
+    'svelte': [
       `${fixturesPath}/domain/library/DomainChecker.svelte`,
       `${fixturesPath}/domain/library/Modal.svelte`,
       `${fixturesPath}/domain/library/SensitiveTextInput.svelte`,
@@ -128,7 +128,7 @@ test('initialisation', async context => {
       `${fixturesPath}/domain/library/TabbedInterface/TabPanel.svelte`,
       `${fixturesPath}/domain/library/TabbedInterface/TabbedInterface.svelte`
     ],
-    '.component': [
+    'component': [
       `${fixturesPath}/domain/admin/places/Index.component`,
       `${fixturesPath}/domain/admin/setup/Apps.component`,
       `${fixturesPath}/domain/admin/setup/DNS.component`,
