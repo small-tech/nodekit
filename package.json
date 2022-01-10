@@ -35,7 +35,7 @@
   "contributors": [],
   "scripts": {
     "dev": "node --experimental-modules --experimental-loader ./loader.js server",
-    "test": "uvu tests -i fixtures",
+    "test": "node --experimental-modules --experimental-loader ./loader.js node_modules/uvu/bin.js tests -i fixtures",
     "coverage": "c8 npm test"
   },
   "dependencies": {
@@ -44,10 +44,10 @@
     "esbuild": "^0.14.11",
     "polka": "^1.0.0-next.22",
     "sade": "^1.8.1",
-    "svelte": "^3.45.0"
+    "svelte": "^3.45.0",
+    "uvu": "^0.5.3"
   },
   "devDependencies": {
-    "c8": "^7.11.0",
-    "uvu": "link:/home/aral/small-tech/forks/uvu"
+    "c8": "^7.11.0"
   }
 }
