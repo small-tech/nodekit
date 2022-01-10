@@ -1,5 +1,7 @@
 # NodeKit
 
+## This is a work-in-progress. It will likely not even compile for you yet. I’ll let you know when it’s ready to play with :)
+
 A [Small Web](https://small-tech.org/research-and-development) server.
 
 _Because creating a modern web site should be simple if your aim isn’t to do something nasty to people._
