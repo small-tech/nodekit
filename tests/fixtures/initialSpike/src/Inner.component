@@ -1,0 +1,8 @@
+<script>
+  import InnerInner from './InnerInner.component'
+</script>
+
+<p><strong>This is an inner component.</strong></p>
+
+<InnerInner />
+

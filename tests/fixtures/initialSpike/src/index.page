@@ -1,0 +1,43 @@
+<node>
+  //////////////////////////////////////////////////////////////////
+  //
+  // Note: you can perform any asynchronous actions here.
+  // ===== Just export the result as as a property called data
+  //       and that will be available to you on the client.
+  //
+  // Injected properties that you have available:
+  //
+  // - request: the Node request object.
+  //
+  //////////////////////////////////////////////////////////////////
+
+  return {
+    location: 'from the server',
+    message: ['this', 'could', 'be', 'from', 'a', 'database', request.mock]
+  }
+</node>
+
+<script>
+  import Inner from './Inner.component'
+
+  export let data
+
+  setTimeout(() => {
+    data = {
+      location: 'from the client',
+      message: ['this', 'could', 'be', 'an', 'update', 'from', 'the', 'server']
+    }
+  }, 2000)
+</script>
+
+<h1>Hello {data.location}!</h1>
+
+<p>Message: {data.message}</p>
+
+<Inner />
+
+<style>
+  h1 {
+    color: red;
+  }
+</style>

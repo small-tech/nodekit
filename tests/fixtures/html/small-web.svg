@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="368px" height="368px" viewBox="0 0 368 368" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+      <g id="connecting-lines" transform="translate(28.000000, 28.000000)" stroke="#A4B8B6" stroke-dasharray="0,3" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="311.5" y1="155.5" x2="0.5" y2="155.5" id="connecting-line"></line>
+          <line x1="157.5" y1="0.5" x2="157.5" y2="310.5" id="connecting-line"></line>
+          <line x1="265.5" y1="47.5" x2="49.5" y2="263.5" id="connecting-line"></line>
+          <line x1="49.5" y1="47.5" x2="265.5" y2="263.5" id="connecting-line"></line>
+          <line x1="157.5" y1="0.5" x2="0.5" y2="155.5" id="connecting-line"></line>
+          <line x1="0.5" y1="155.5" x2="157.5" y2="310.5" id="connecting-line"></line>
+          <line x1="157.5" y1="310.5" x2="311.5" y2="155.5" id="connecting-line"></line>
+          <line x1="311.5" y1="155.5" x2="157.5" y2="0.5" id="connecting-line"></line>
+          <line x1="49.5" y1="47.5" x2="311.5" y2="155.5" id="connecting-line"></line>
+          <line x1="265.5" y1="47.5" x2="49.5" y2="47.5" id="connecting-line"></line>
+          <line x1="265.5" y1="263.5" x2="49.5" y2="263.5" id="connecting-line"></line>
+          <line x1="49.5" y1="47.5" x2="0.5" y2="155.5" id="connecting-line"></line>
+          <line x1="0.5" y1="155.5" x2="49.5" y2="263.5" id="connecting-line"></line>
+          <line x1="49.5" y1="263.5" x2="157.5" y2="310.5" id="connecting-line"></line>
+          <line x1="157.5" y1="310.5" x2="265.5" y2="263.5" id="connecting-line"></line>
+          <line x1="265.5" y1="263.5" x2="311.5" y2="155.5" id="connecting-line"></line>
+          <line x1="311.5" y1="155.5" x2="265.5" y2="47.5" id="connecting-line"></line>
+          <line x1="265.5" y1="47.5" x2="157.5" y2="0.5" id="connecting-line"></line>
+          <line x1="157.5" y1="0.5" x2="49.5" y2="47.5" id="connecting-line"></line>
+          <line x1="265.5" y1="47.5" x2="0.5" y2="155.5" id="connecting-line"></line>
+          <line x1="0.5" y1="155.5" x2="265.5" y2="263.5" id="connecting-line"></line>
+          <line x1="311.5" y1="155.5" x2="49.5" y2="263.5" id="connecting-line"></line>
+          <line x1="157.5" y1="310.5" x2="265.5" y2="47.5" id="connecting-line"></line>
+          <line x1="157.5" y1="310.5" x2="49.5" y2="47.5" id="connecting-line"></line>
+          <line x1="157.5" y1="0.5" x2="49.5" y2="263.5" id="connecting-line"></line>
+          <line x1="157.5" y1="0.5" x2="265.5" y2="263.5" id="connecting-line"></line>
+          <line x1="265.5" y1="47.5" x2="265.5" y2="263.5" id="connecting-line"></line>
+          <line x1="49.5" y1="47.5" x2="49.5" y2="263.5" id="connecting-line"></line>
+      </g>
+      <g id="nodes">
+          <circle id="node" fill="#EF857F" cx="186" cy="29" r="29"></circle>
+          <circle id="node" fill="#F2B43E" cx="294" cy="76" r="29"></circle>
+          <circle id="node" fill="#EBCE0A" cx="339" cy="184" r="29"></circle>
+          <circle id="node" fill="#9BC562" cx="294" cy="292" r="29"></circle>
+          <circle id="node" fill="#73B7C2" cx="186" cy="339" r="29"></circle>
+          <circle id="node" fill="#92AABE" cx="78" cy="292" r="29"></circle>
+          <circle id="node" fill="#99A6CD" cx="29" cy="184" r="29"></circle>
+          <circle id="node" fill="#CA93A5" cx="78" cy="76" r="29"></circle>
+      </g>
+  </g>
+</svg>
