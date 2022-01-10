@@ -34,7 +34,7 @@
   },
   "contributors": [],
   "scripts": {
-    "dev": "node --experimental-modules --experimental-loader ./loader.js server",
+    "dev": "node --experimental-modules --experimental-loader ./loader.js bin/nodekit.js",
     "test": "node --experimental-modules --experimental-loader ./loader.js node_modules/uvu/bin.js tests -i fixtures",
     "coverage": "c8 npm test"
   },
