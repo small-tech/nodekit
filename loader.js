@@ -17,12 +17,50 @@ if (!db.routes) {
   db.routes = {}
 }
 
+function truthyHashmapFromArray(array) {
+  return array.reduce((obj, key) => { obj[key] = true; return obj}, {})
+}
+
+const _svelteAliases = [
+  '.page',
+  '.data',
+  '.component',
+  '.svelte'
+]
+
+const _javaScriptAliases = [
+  '.get',
+  '.head',
+  '.patch',
+  '.options',
+  '.connect',
+  '.delete',
+  '.trace',
+  '.post',
+  '.put',
+  '.socket'
+]
+
+const _allAliases = _svelteAliases.concat(_javaScriptAliases)
+
+const svelteAliases = truthyHashmapFromArray(_svelteAliases)
+const javaScriptAliases = truthyHashmapFromArray(_javaScriptAliases)
+const allAliases = truthyHashmapFromArray(_allAliases)
+
 const scriptRegExp = /\<script\>.*?\<\/script\>/s
-const nodeScriptRegExp = /\<node\>(.*?)\<\/node\>/s
+const nodeScriptRegExp = /\<data\>(.*?)\<\/data\>/s
 const styleRegExp = /\<style\>.*?\<\/style\>/s
 
+const fileUrlExtensionRegExp = /.+?(?<extension>\..*?$)/
+
+function extensionOf(urlString) {
+  const result = urlString.match(fileUrlExtensionRegExp)
+  return result ? result.groups.extension : null
+}
+
 export async function resolve(specifier, context, defaultResolve) {
-  if ((path.extname(specifier) === '.svelte') || (path.extname(specifier) === '.component') || (path.extname(specifier) === '.page') || (path.extname(specifier) === '.layout')) {
+
+  if (allAliases[path.extname(specifier)]) {
     const parentURL = new URL(context.parentURL)
     const parentPath = path.dirname(parentURL.pathname)
     const absolutePath = path.resolve(parentPath, specifier)
@@ -51,11 +89,17 @@ export async function resolve(specifier, context, defaultResolve) {
 export async function load(url /* string */, context, defaultLoad) {
   const _url = new URL(url)
 
-  if (_url.protocol === 'file:' && url.endsWith('.svelte') || url.endsWith('.component') || url.endsWith('.page') || url.endsWith('.layout')) {
+  if (_url.protocol === 'file:') {
     const format = 'module'
-    const source = await compileSource(_url.pathname)
-
-    return { format, source }
+    if (svelteAliases[extensionOf(url)]) {
+      // Svelte route.
+      const source = await compileSource(_url.pathname)
+      return { format, source }
+    } else if (javaScriptAliases[extensionOf(url)]) {
+      // JavaScript route.
+      const source = fs.readFileSync(_url.pathname)
+      return { format, source }
+    }
   }
 
   return defaultLoad(url, context, defaultLoad)
