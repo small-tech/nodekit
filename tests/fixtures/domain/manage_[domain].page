@@ -60,7 +60,7 @@
 <script>
   // @hmr:keep-all
 
-  import { authenticate } from '$lib/keys.js'
+  import { authenticate } from './library/keys.js'
   import { onMount } from 'svelte'
 
   // Implement global Buffer support.

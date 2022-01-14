@@ -13,11 +13,11 @@
   import { onMount } from 'svelte'
   import { TabbedInterface, TabList, Tab, TabPanel } from '$lib/TabbedInterface'
 
-  import { PaymentProviders } from '$lib/Constants'
+  import { PaymentProviders } from '../library/Constants'
 
   // Admin panels.
-  import Setup from 'setup/Index.component'
-  import Places from 'places/Index.component'
+  import Setup from './setup/Index.component'
+  import Places from './places/Index.component'
 
   // Implement global Buffer support.
   import { Buffer } from 'buffer'

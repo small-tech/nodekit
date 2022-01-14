@@ -14,14 +14,15 @@
 <script>
   import Remote from '@small-tech/remote'
 
-  import DomainChecker from '$lib/DomainChecker.svelte'
+  import DomainChecker from './library/DomainChecker.svelte'
   import { SvelteToast, toast } from '@zerodevx/svelte-toast'
-  import Modal from '$lib/Modal.svelte'
+  import Modal from './library/Modal.svelte'
   import { onMount } from 'svelte'
-  import stretchy from '$lib/stretchy.js'
-  import { goto } from '$app/navigation'
+  import stretchy from './library/stretchy.js'
 
-  import { browser } from '$app/env'
+  // $app is a SvelteKit feature. Look into how to replace this.
+  // import { goto } from '$app/navigation'
+  // import { browser } from '$app/env'
 
   export let serverError // ??? still necesary with NodeKit?
 
@@ -86,7 +87,8 @@
 
   async function handleButton() {
     if (paymentIsNone) {
-      return goto('/admin')
+      // TODO: Replace this with something.
+      // return goto('/admin')
     }
 
     if (paymentIsStripe) {
