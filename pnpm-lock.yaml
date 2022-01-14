@@ -8,7 +8,7 @@ specifiers:
   polka: ^1.0.0-next.22
   sade: ^1.8.1
   sirv: ^2.0.0
-  svelte: ^3.45.0
+  svelte: ^3.46.1
   uvu: ^0.5.3
 
 dependencies:
@@ -18,7 +18,7 @@ dependencies:
   polka: 1.0.0-next.22
   sade: 1.8.1
   sirv: 2.0.0
-  svelte: 3.45.0
+  svelte: 3.46.1
   uvu: 0.5.3
 
 devDependencies:
@@ -663,8 +663,8 @@ packages:
       has-flag: 4.0.0
     dev: true
 
-  /svelte/3.45.0:
-    resolution: {integrity: sha512-6AWftH2eqqKLYH1HvKpuUWe8OfjflarhegN57P/Cqwc2Rb2F5oIdDtANU/jMscyZMzG0v6nTQox0siZR9cmRVQ==}
+  /svelte/3.46.1:
+    resolution: {integrity: sha512-Ue8ivq+G45AfZZL4Z93xNFiC352wPkyGiY9QSuWjxXh6jiaZMrpthinjc1rz0OSTceuST7Pxr1HDBj2KioliZg==}
     engines: {node: '>= 8'}
     dev: false
 
