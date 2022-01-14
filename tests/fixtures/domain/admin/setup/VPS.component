@@ -1,6 +1,6 @@
 <script>
   import Remote from '@small-tech/remote'
-  import SensitiveTextInput from '$lib/SensitiveTextInput.svelte'
+  import SensitiveTextInput from '../../library/SensitiveTextInput.svelte'
   import ServiceState from './ServiceState.js'
 
   export let settings

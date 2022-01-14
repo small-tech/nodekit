@@ -6,8 +6,8 @@
   import StatusMessage from './StatusMessage.component'
   import ServiceState from './ServiceState.js'
 
-  import DataProxy from '$lib/JSDB/DataProxy'
-  import { TabbedInterface, TabList, Tab, TabPanel } from '$lib/TabbedInterface'
+  import DataProxy from '../../library/JSDB/DataProxy'
+  import { TabbedInterface, TabList, Tab, TabPanel } from '../../library/TabbedInterface'
 
   // Setup panels.
   import Organisation from './Organisation.component'

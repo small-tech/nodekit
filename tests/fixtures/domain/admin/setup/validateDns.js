@@ -3,7 +3,7 @@ export default async function (state, settings, remote) {
   state.set(state.PROCESSING)
   if (
     settings.dns.domain !== ''
-    && parseInt(settings.dns.accountId) !== NaN
+    && isNaN(parseInt(settings.dns.accountId))
     && settings.dns.accessToken !== ''
   ) {
     // Request remote validation.

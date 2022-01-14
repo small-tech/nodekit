@@ -4,11 +4,11 @@
 
   import { Lines } from '@small-tech/spinners'
 
-  import DomainChecker from '$lib/DomainChecker.svelte'
-  import Modal from '$lib/Modal.svelte'
-  import { Checkbox } from '$lib/Checkbox'
+  import DomainChecker from '../../library/DomainChecker.svelte'
+  import Modal from '../../library/Modal.svelte'
+  import { Checkbox } from '../../library/Checkbox'
 
-  import { getPublicKeysHex } from '$lib/keys.js'
+  import { getPublicKeysHex } from '../../library/keys.js'
   import { tweened } from 'svelte/motion'
   import { cubicOut } from 'svelte/easing'
   import EFFDicewarePassphrase from '@small-tech/eff-diceware-passphrase'

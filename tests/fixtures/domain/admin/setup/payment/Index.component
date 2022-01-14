@@ -1,9 +1,9 @@
 <script>
   import ServiceState from '../ServiceState.js'
 
-  import PaymentProviderNone from './None.svelte'
-  import PaymentProviderTokens from './Tokens.svelte'
-  import PaymentProviderStripe from './Stripe/Index.svelte'
+  import PaymentProviderNone from './None.component'
+  import PaymentProviderTokens from './Tokens.component'
+  import PaymentProviderStripe from './Stripe/Index.component'
 
   export let settings
   export let socket
