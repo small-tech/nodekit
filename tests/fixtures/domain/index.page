@@ -27,7 +27,7 @@
 
   // This is the data that’s automatically populated during
   // server-side render by NodeKit. (It’s what’s returned
-  // from the <get></get> section, above.)
+  // from the <data></data> section, above.)
   export let data
 
   const PAYMENT_PROVIDERS = {
@@ -93,8 +93,8 @@
       console.log('Asking', baseUrl)
       const response = await remote.create.checkout.session.request.await({
         baseUrl,
-        data.domain,
-        data.app
+        domain: data.domain,
+        app: data.app
       })
       console.log('>>>> Got response', response)
       if (response.error) {
