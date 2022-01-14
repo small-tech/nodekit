@@ -1,0 +1,64 @@
+{
+  "name": "@small-tech/domain",
+  "version": "1.0.0",
+  "description": "Domain: run your own Small Web domain.",
+  "type": "module",
+  "scripts": {
+    "dev": "./dev.sh",
+    "kit": "NODE_TLS_REJECT_UNAUTHORIZED=0 svelte-kit dev",
+    "build": "NODE_TLS_REJECT_UNAUTHORIZED=0 svelte-kit build",
+    "serve": "npm run build && site"
+  },
+  "keywords": [
+    "Site.js",
+    "SvelteKit",
+    "Svelte",
+    "starter",
+    "template"
+  ],
+  "homepage": "https://github.com/small-tech/sitekit#readme",
+  "bugs": {
+    "url": "https://github.com/small-tech/sitekit/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/small-tech/sitekit.git"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-static": "next",
+    "@sveltejs/kit": "next",
+    "@zerodevx/svelte-toast": "^0.2.2",
+    "svelte": "^3.38.2",
+    "svelte-switch": "^0.0.4",
+    "vite": "^2.1.0"
+  },
+  "funding": {
+    "type": "foundation",
+    "url": "https://small-tech.org/fund-us/"
+  },
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "@small-tech/eff-diceware-passphrase": "^1.0.1",
+    "@small-tech/jsdb": "^1.2.0",
+    "@small-tech/remote": "^2.2.0",
+    "@small-tech/spinners": "^2.0.1",
+    "@small-tech/state": "^1.0.0",
+    "@small-tech/web-routes-from-files": "^3.1.0",
+    "@stripe/stripe-js": "^1.15.1",
+    "@sveltejs/adapter-node": "^1.0.0-next.35",
+    "blakejs": "^1.1.0",
+    "buffer": "^6.0.3",
+    "currency-format": "^1.0.13",
+    "dnsimple": "^4.4.0",
+    "hcloud-js": "^1.4.1",
+    "keypather": "^3.1.0",
+    "micromodal": "^0.4.6",
+    "node-fetch": "^2.6.1",
+    "session25519": "^1.1.0",
+    "showdown": "^1.9.1",
+    "stripe": "^8.156.0",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-sealedbox-js": "^1.2.0",
+    "tweetnacl-util": "^0.15.1"
+  }
+}

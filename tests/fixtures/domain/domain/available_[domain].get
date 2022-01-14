@@ -24,10 +24,11 @@ if (!db.domains) {
 
 function error (response, statusCode, errorCode, message) {
   response.statusCode = statusCode
-  response.json({ code: errorCode, message })
+  // TODO: Polka doesn’t have response.json(), so this is just to get it working for now.
+  response.end(JSON.stringify({ code: errorCode, message }))
 }
 
-module.exports = async (request, response) => {
+export default async (request, response) => {
   const domain = request.params.domain
 
   // Disallow queries comprised solely of whitespace.
@@ -43,5 +44,6 @@ module.exports = async (request, response) => {
   }
 
   const available = (db.domains[domain] === undefined)
-  response.json({domain, available})
+  // TODO: Polka doesn’t have response.json(), so this is just to get it working for now.
+  response.end(JSON.stringify({domain, available}))
 }

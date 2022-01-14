@@ -1,19 +1,24 @@
-// Migration of Settings table from version 2 to version 3
+// Migration of Settings table from version 3 to version 4
 //
-// settings.vps.sshKey becomes settings.vps.sshKeyName
-// settings.vps.sshKey is now the actual public key
+// - remove cloudInit property on vps settings
+// - add apps list
+// - add original cloud init as Site.js app to apps
+//
 
-const fs = require('fs')
-const path = require('path')
-const JSDB = require('@small-tech/jsdb')
+import fs from 'fs'
+import path from 'path'
+import JSDB from '@small-tech/jsdb'
+
+const oldVersion = 5
+const newVersion = 6
 
 async function migrate () {
-  console.log('Migrating settings table from version 2 to version 3.')
+  console.log(`Migrating settings table from version ${oldVersion} to version ${newVersion}.`)
 
   // Backup settings table.
   console.log(' > Backing up existing table…')
   const currentTablePath = path.join('.db', 'settings.cjs')
-  const backupTablePath = path.join('.db', 'settings-v2-to-v3-pre-migration-backup.cjs')
+  const backupTablePath = path.join('.db', `settings-v${oldVersion}-to-v${newVersion}-pre-migration-backup.cjs`)
   fs.copyFileSync(currentTablePath, backupTablePath)
   console.log(' > Done.')
 
@@ -23,7 +28,7 @@ async function migrate () {
   console.log(' > Done.')
 
   // Is migration necessary?
-  if (settings.version && settings.version >= 3) {
+  if (settings.version && settings.version >= newVersion) {
     console.log('Already migrated, exiting.')
     process.exit()
   }
@@ -31,11 +36,22 @@ async function migrate () {
   console.log(' > Carrying out migration…')
   // Attempt to migrate.
   try {
-    db.settings.vps.sshKeyName = settings.vps.sshKey
-    db.settings.vps.sshKey = ''
+    // Migration
+
+    const stripe = db.settings.payment.providers[2]
+
+    // Currency now using currency code
+    stripe.currency = 'eur'
+
+    // Amount is no longer used (use price)
+    delete stripe.amount
+
+    // Currency and price are not kept in the mode details.
+    delete stripe.modeDetails[0].currency
+    delete stripe.modeDetails[0].amount
 
     // Update version
-    db.settings.version = 3
+    db.settings.version = newVersion
   } catch (error) {
     console.log('Migration encountered an error and cannot proceed.', error)
     console.log(' > Closing database…')

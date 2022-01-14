@@ -1,7 +1,7 @@
-const HetznerCloud = require('hcloud-js')
-const dnsimple = require('dnsimple')
+import HetznerCloud from 'hcloud-js'
+import dnsimple from 'dnsimple'
 
-module.exports = async (remote, message) => {
+export default async (remote, message) => {
   console.log('Creating new Place…')
   console.log(message)
 

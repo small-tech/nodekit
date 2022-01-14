@@ -6,9 +6,9 @@
 // Also, adds the version attribute for the first time, thereby
 // enabling migrations.
 
-const fs = require('fs')
-const path = require('path')
-const JSDB = require('@small-tech/jsdb')
+import fs from 'fs'
+import path from 'path'
+import JSDB from '@small-tech/jsdb'
 
 async function migrate () {
   console.log('Migrating settings table from version 1 to version 2.')

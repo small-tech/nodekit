@@ -1,5 +1,5 @@
-const nacl = require('tweetnacl')
-const sealedBox = require('tweetnacl-sealedbox-js')
+import nacl from 'tweetnacl'
+import sealedBox from 'tweetnacl-sealedbox-js'
 
 function getPublicEncryptionKeyForDomain(domain) {
   const domainRecord = db.domains[domain]
@@ -7,7 +7,7 @@ function getPublicEncryptionKeyForDomain(domain) {
   return domainRecord.publicKeys.encryption
 }
 
-module.exports = (request, response) => {
+export default (request, response) => {
   const domain = request.params.domain
   const publicEncryptionKeyForDomain = getPublicEncryptionKeyForDomain(domain)
 

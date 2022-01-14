@@ -1,6 +1,6 @@
 // Initial settings.
 
-module.exports = {
+export default {
   org: {
     name: '',
     address: '',

@@ -1,4 +1,4 @@
-const Remote = require('@small-tech/remote')
+import Remote from '@small-tech/remote'
 
 module.exports = function (client, request) {
   const tokenShort = request.params.token.slice(0,8).toLowerCase()

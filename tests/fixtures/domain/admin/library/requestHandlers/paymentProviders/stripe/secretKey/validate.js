@@ -2,9 +2,9 @@
 // using the Stripe API.
 
 // Create a new price.
-const stripeWithSecretKey = require('stripe')
+import stripeWithSecretKey from 'stripe'
 
-module.exports = async (remote, message) => {
+export default async (remote, message) => {
   const stripeDetails = db.settings.payment.providers[2].modeDetails[message.modeId === 'live' ? 1 : 0]
 
   const stripe = stripeWithSecretKey(stripeDetails.secretKey, {

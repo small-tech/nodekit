@@ -5,9 +5,9 @@
 // - add original cloud init as Site.js app to apps
 //
 
-const fs = require('fs')
-const path = require('path')
-const JSDB = require('@small-tech/jsdb')
+import fs from 'fs'
+import path from 'path'
+import JSDB from '@small-tech/jsdb'
 
 const oldVersion = 4
 const newVersion = 5

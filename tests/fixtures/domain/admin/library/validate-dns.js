@@ -1,7 +1,7 @@
-const fetch = require('node-fetch')
-const { dns } = require('./initial-settings.cjs')
+import fetch from 'node-fetch'
+import { dns } from './initial-settings.js'
 
-module.exports = async () => {
+export default async () => {
   if (db.settings.dns.accountId === '') {
     throw new Error('DNSimple account ID not set.')
   }

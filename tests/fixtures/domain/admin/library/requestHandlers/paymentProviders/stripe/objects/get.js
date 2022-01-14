@@ -3,10 +3,10 @@
 // If they do not exist and they cannot be created, or if there is any other error,
 // an error is returned.
 
-const stripeWithSecretKey = require('stripe')
-const validateDns = require('../../../../validate-dns.cjs')
+import stripeWithSecretKey from 'stripe'
+import validateDns from '../../../../validate-dns.js'
 
-module.exports = async (remote, message) => {
+export default async (remote, message) => {
   console.log('[Stripe: getObjects] Called.')
   const mode = message.modeId
   const stripeDetails = db.settings.payment.providers[2].modeDetails[mode === 'live' ? 1 : 0]

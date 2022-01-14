@@ -1,6 +1,6 @@
-const validateDns = require('../../validate-dns.cjs')
+import validateDns from '../../validate-dns.js'
 
-module.exports = async (remote, message) => {
+export default async (remote, message) => {
   console.log('   📡️    ❨Domain❩ Validating DNS Provider settings.')
 
   let dnsAccountDetails

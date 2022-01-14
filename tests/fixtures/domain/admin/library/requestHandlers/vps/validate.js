@@ -1,6 +1,6 @@
-const fetch = require('node-fetch')
+import fetch from 'node-fetch'
 
-module.exports = async (remote, message) => {
+export default async (remote, message) => {
   console.log('   📡️    ❨Domain❩ Validating VPS Provider settings.')
 
   // Get server types. (In this first call we’ll know if the

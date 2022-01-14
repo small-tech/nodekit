@@ -1,9 +1,9 @@
-const stripeWithSecretKey = require('stripe')
-const Remote = require('@small-tech/remote')
+import stripeWithSecretKey from 'stripe'
+import Remote from '@small-tech/remote'
 
 const STRIPE = 2
 
-module.exports = function (client, request) {
+export default function (client, request) {
   console.log(`   👩‍💻️    ❨Place❩ New connection to index.`)
   client.room = this.setRoom(request)
 

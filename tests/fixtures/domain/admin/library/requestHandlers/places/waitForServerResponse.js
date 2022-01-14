@@ -1,10 +1,10 @@
-const fetch = require('node-fetch')
+import fetch from 'node-fetch'
 
 const duration = (milliseconds) => {
   return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 
-module.exports = async (remote, message) => {
+export default async (remote, message) => {
   // Validate request.
   if (db.domains[message.domain] === undefined) {
     return remote.places.waitForServerResponse.error.send({ error: 'Domain not found.' })
