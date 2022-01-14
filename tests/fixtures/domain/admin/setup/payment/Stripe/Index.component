@@ -4,13 +4,13 @@
   import Remote from '@small-tech/remote'
   import Switch from 'svelte-switch'
 
-  import { TabbedInterface, TabList, Tab, TabPanel } from '$lib/TabbedInterface'
-  import ServiceState from '$lib/admin/setup/ServiceState.js'
-  import validateDns from '$lib/admin/setup/validateDns.js'
+  import { TabbedInterface, TabList, Tab, TabPanel } from '../../../../library/TabbedInterface'
+  import ServiceState from '../../ServiceState.js'
+  import validateDns from '../../validateDns.js'
 
-  import StatusMessage from '$lib/admin/setup/StatusMessage.svelte'
+  import StatusMessage from '../../StatusMessage.component'
 
-  import StripeMode from './Mode.svelte'
+  import StripeMode from './Mode.component'
 
   import {
     alphabeticallySortedCurrencyDetails,
@@ -18,7 +18,7 @@
     currencyDetailsForCurrencyCode,
     minimumChargeAmountsInWholeCurrencyUnits,
     zeroDecimalCurrencies
-  } from '$lib/StripeCurrencies.js'
+  } from '../../../../library/StripeCurrencies.js'
 
   export let settings
   export let model
