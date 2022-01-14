@@ -73,12 +73,12 @@ Enter the following four commands in your terminal:
 mkdir hello-world
 cd hello-world
 echo '<h1>Hello, world!</h1>' > index.html
-nodekit
+nodekit --static
 ```
 
 Now hit _https://localhost` and you should see your new site.
 
-Yes, NodeKit will happily serve any HTML and static content just like any other good web server should. You can start playing with it as simply as you like and it is designed, like HTML itself (as you can see in the above example), to be as forgiving as possible.
+Yes, NodeKit will happily serve any HTML and static content just like any other good web server should if you start it using the `--static` option.
 
 But you can do that with any web server… Let’s do something that no other web server can do now, shall we?
 
@@ -452,7 +452,7 @@ _(If you wanted your `contacts.post` route to be accessible from `/api/contacts`
 
 ## Static files
 
-NodeKit will serve any assets (images, etc.) it finds in your source folder. If you want to group all your assets in a single folder for organisational purposes, just make use of the multiple roots feature explained above.
+If you want NodeKit to serve static files, put them in a special folder called `#static`. This is a special case of the multiple roots feature explained above, where any files (excluding _dotfiles_) are served as static elements.
 
 For example:
 
@@ -464,35 +464,17 @@ my-project
     ╰ demo.mp4
 ```
 
-_Note that the use of the name `#static` is purely for convention. You could have called it anything._
-
-## Ignoring folders
-
-While NodeKit will ignore folders that do not contain any routes by default, you can explicitly state that certain folders or files should be ignored by preceding their name with an underscore.
-
-```unicode
-my-project
-  ├ index.page
-  ╰ _ignore-these-files
-    ├ this-file.txt
-    ╰ and-this-file-especially.mp4
-```
-
-You might want to do this to stop NodeKit from serving certain files as static assets, to clarify your intent and organise your project better, and for better performance if you have lots of files in a folder that you know should be ignored to save NodeKit some effort.
-
-There are also a couple of features like [migrations](#migrations) and [middleware](#middleware), that take advantage of this feature.
-
 ## Migrations
 
 __TODO: Migrations are currently not supported in JSDB.__
 
 The integrated [JSDB](https://github.com/small-tech/jsdb) database supports migrations.
 
-A migration is simply a JavaScript file with a special name that you place in a folder called `_migrations` in the root of your source.
+A migration is simply a JavaScript file with a `.migration` extension.
 
 The naming convention is:
 
-`version-N.js`
+`version-N.migration`
 
 Where `N` is the database version you are defining. `N` starts at zero (for the initial database setup and increases by 1 each time).
 
@@ -500,9 +482,9 @@ NodeKit will run your migrations in order and update the `version` property of t
 
 ## Middleware
 
-NodeKit supports Connect-style middleware. All you have to do is define your middleware in a JavaScript file in folder called `_middleware` in the root of your source.
+NodeKit supports Connect-style middleware. All you have to do is define your middleware in a JavaScript file with a `.middleware` extension.
 
-For example, to allow all Cross Origin Requests (CORS), save the following middleware in a file called `allow-all-cors.js` in your `_middleware` folder:
+For example, to allow all Cross Origin Requests (CORS), save the following middleware in a file called `allow-all-cors.middleware` anywhere in your project (that’s not in the `#static` folder):
 
 ```js
 module.exports = (request, response, next) => {
@@ -716,4 +698,3 @@ Can’t it be both?
 ## Ideas
 
   - (Suggested by [Laura](https://laurakalbag.com)) Example apps in NodeKit covering the 7 GUIs tasks: https://eugenkiss.github.io/7guis/tasks
-  
