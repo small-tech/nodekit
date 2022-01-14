@@ -11,7 +11,7 @@
   import Remote from '@small-tech/remote'
 
   import { onMount } from 'svelte'
-  import { TabbedInterface, TabList, Tab, TabPanel } from '$lib/TabbedInterface'
+  import { TabbedInterface, TabList, Tab, TabPanel } from '../library/TabbedInterface'
 
   import { PaymentProviders } from '../library/Constants'
 

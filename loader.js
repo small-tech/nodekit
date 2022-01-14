@@ -159,10 +159,6 @@ async function compileSource(filePath) {
     const hydrationCode = await hydrationScriptCompiler(route)
     const hydrationScript = hydrationCode
 
-    console.log('============================================================')
-    console.log(hydrationScript)
-    console.log('============================================================')
-
     // Update the route cache with the material for this route.
     db.routes[route] = {
       nodeScript,

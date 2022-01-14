@@ -1,6 +1,6 @@
 <script>
   import { onMount, createEventDispatcher } from 'svelte'
-  import debounce from '$lib/debounce'
+  import debounce from './debounce'
 
   let baseUrl
 
