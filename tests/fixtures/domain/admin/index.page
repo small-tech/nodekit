@@ -1,10 +1,10 @@
-<get>
+<data>
   import getConfig from './getConfig.js'
 
   export async request => {
     return getConfig()
   }
-</get>
+</data>
 
 <script>
   // @hmr:keep-all
@@ -177,7 +177,7 @@
     margin-bottom: 1em;
   }
 
-  * :global(input, textarea, select) {
+  * :global(input), * :global(textarea), * :global(select) {
     display: block;
     margin-top: 0.5em;
     margin-bottom: 1em;

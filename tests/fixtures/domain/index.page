@@ -1,4 +1,4 @@
-<get>
+<data>
   import getConfig from './getConfig.js'
 
   export async request => {
@@ -9,7 +9,7 @@
       app: request.query.app || 'Place'
     }
   }
-</get>
+</data>
 
 <script>
   import Remote from '@small-tech/remote'

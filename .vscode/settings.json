@@ -3,6 +3,7 @@
     "dotfiles",
     "dotfolders",
     "keypather",
-    "sade"
+    "sade",
+    "sirv"
   ]
 }

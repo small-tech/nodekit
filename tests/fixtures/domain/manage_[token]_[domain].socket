@@ -1,6 +1,6 @@
 import Remote from '@small-tech/remote'
 
-module.exports = function (client, request) {
+export default function (client, request) {
   const tokenShort = request.params.token.slice(0,8).toLowerCase()
   console.log(`   🔐️    ❨Place❩ Manage domain socket connection request with token ${tokenShort}  for domain ${request.params.domain}`)
 

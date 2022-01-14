@@ -89,6 +89,8 @@ export async function resolve(specifier, context, defaultResolve) {
 export async function load(url /* string */, context, defaultLoad) {
   const _url = new URL(url)
 
+  // console.log(`[LOADER] Loading ${_url}`)
+
   if (_url.protocol === 'file:') {
     const format = 'module'
     if (svelteAliases[extensionOf(url)]) {
@@ -107,6 +109,9 @@ export async function load(url /* string */, context, defaultLoad) {
 
 
 async function compileSource(filePath) {
+
+  console.log(`[LOADER] Compiling ${filePath}`)
+
   const source = fs.readFileSync(filePath, 'utf8')
 
   const route = path.relative(__dirname, filePath)
@@ -116,6 +121,7 @@ async function compileSource(filePath) {
 
   const nodeScriptResult = nodeScriptRegExp.exec(source)
   if (nodeScriptResult) {
+    console.log('> Has NodeScript.')
     // Contains a Node script. Svelte knows nothing about this, so we
     // strip it out and persist it for use during server-side rendering.
     svelteSource = source.replace(nodeScriptResult[0], '')
@@ -123,8 +129,13 @@ async function compileSource(filePath) {
     // Wrap the  request into the script so its available
     // to the script without making people wrap their script
     // in an async function.
-    nodeScript = `export default async request => {\n${nodeScriptResult[1]}\n}`
+    nodeScript = nodeScriptResult[1]
   }
+
+  console.log('File path', filePath)
+  console.log('Route', route)
+  // console.log('NodeScript:', nodeScript)
+  // console.log('Svelte source', svelteSource)
 
   // Layout (TODO) and hydration script support.
   if (filePath.endsWith('.page')) {
@@ -142,9 +153,15 @@ async function compileSource(filePath) {
 
     svelteSource = svelteSource.replace(script, scriptWithLayoutImport).replace(markup, markupWithLayout)
 
+    // console.log('>>> svelteSource', svelteSource)
+
     // Client-side hydration script.
     const hydrationCode = await hydrationScriptCompiler(route)
     const hydrationScript = hydrationCode
+
+    console.log('============================================================')
+    console.log(hydrationScript)
+    console.log('============================================================')
 
     // Update the route cache with the material for this route.
     db.routes[route] = {
