@@ -12,10 +12,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 // TODO: We should store the cache in the NodeKit settings directory.
 // ===== I don’t want to pollute the project folder unless we absolutely have to.
-const db = JSDB.open('.cache')
-if (!db.routes) {
-  db.routes = {}
-}
+let db = null
 
 function truthyHashmapFromArray(array) {
   return array.reduce((obj, key) => { obj[key] = true; return obj}, {})
@@ -107,6 +104,11 @@ export async function load(url /* string */, context, defaultLoad) {
   return defaultLoad(url, context, defaultLoad)
 }
 
+// TODO: Refactor – pull these out into the shared route calculation method.
+const HTTP_METHODS = ['get', 'head', 'patch', 'options', 'connect', 'delete', 'trace', 'post', 'put']
+const supportedExtensions = `\.(page|socket|${HTTP_METHODS.join('|')})$`
+const indexWithExtensionRegExp = new RegExp(`index${supportedExtensions}`)
+const extensionRegExp = new RegExp(supportedExtensions)
 
 async function compileSource(filePath) {
 
@@ -114,7 +116,27 @@ async function compileSource(filePath) {
 
   const source = fs.readFileSync(filePath, 'utf8')
 
-  const route = path.relative(__dirname, filePath)
+  const basePath = process.env.basePath
+  console.log('[[[[[[[[Loader BASEPATH from env]]]]]]]]]]]]', basePath)
+
+  // Ensure database exists, has the routes table, and is open.
+  if (db === null) {
+    db = JSDB.open(path.join(basePath, '.cache'))
+    if (!db.routes) {
+      db.routes = {}
+    }
+  }
+
+  const routeRelativePath = path.relative(__dirname, filePath)
+
+// TODO: Refactor – pull these out into the shared route calculation method.
+  // Transform an absolute file system path to a web server route.
+  const route = filePath
+    .replace(basePath, '')             // Remove the base path.
+    .replace(/_/g, '/')                     // Replace underscores with slashes.
+    .replace(/\[(.*?)\]/g, ':$1')           // Replace properties. e.g., [prop] becomes :prop
+    .replace(indexWithExtensionRegExp, '')  // Remove index path fragments (and their extensions)
+    .replace(extensionRegExp, '')           // Remove extension.
 
   let svelteSource = source
   let nodeScript
@@ -134,6 +156,7 @@ async function compileSource(filePath) {
 
   console.log('File path', filePath)
   console.log('Route', route)
+  console.log('Route relative path', routeRelativePath)
   // console.log('NodeScript:', nodeScript)
   // console.log('Svelte source', svelteSource)
 
@@ -156,7 +179,7 @@ async function compileSource(filePath) {
     // console.log('>>> svelteSource', svelteSource)
 
     // Client-side hydration script.
-    const hydrationCode = await hydrationScriptCompiler(route)
+    const hydrationCode = await hydrationScriptCompiler(routeRelativePath)
     const hydrationScript = hydrationCode
 
     // Update the route cache with the material for this route.
