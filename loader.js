@@ -130,7 +130,7 @@ async function compileSource(filePath) {
 
   const nodeScriptResult = nodeScriptRegExp.exec(source)
   if (nodeScriptResult) {
-    console.log('> Has NodeScript.')
+    console.log('  • Route has NodeScript.')
     // Contains a Node script. Svelte knows nothing about this, so we
     // strip it out and persist it for use during server-side rendering.
     svelteSource = source.replace(nodeScriptResult[0], '')
@@ -156,8 +156,6 @@ async function compileSource(filePath) {
         // const markupWithLayout = `<PageLayout>\n${markup}\n</PageLayout>`
 
     svelteSource = svelteSource.replace(script, scriptWithLayoutImport).replace(markup, markupWithLayout)
-
-    // console.log('>>> svelteSource', svelteSource)
 
     // Client-side hydration script.
     const hydrationCode = await hydrationScriptCompiler(routeRelativePath)
