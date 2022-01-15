@@ -110,13 +110,8 @@ const extensionRegExp = new RegExp(supportedExtensions)
 
 async function compileSource(filePath) {
 
-  console.log(`[LOADER] Compiling ${filePath}`)
-
   const source = fs.readFileSync(filePath, 'utf8')
-
   const basePath = process.env.basePath
-  console.log('[[[[[[[[Loader BASEPATH from env]]]]]]]]]]]]', basePath)
-
   const routeRelativePath = path.relative(__dirname, filePath)
 
 // TODO: Refactor – pull these out into the shared route calculation method.
@@ -127,6 +122,8 @@ async function compileSource(filePath) {
     .replace(/\[(.*?)\]/g, ':$1')           // Replace properties. e.g., [prop] becomes :prop
     .replace(indexWithExtensionRegExp, '')  // Remove index path fragments (and their extensions)
     .replace(extensionRegExp, '')           // Remove extension.
+
+  console.log(`[LOADER] Compiling ${route}`)
 
   let svelteSource = source
   let nodeScript
@@ -143,12 +140,6 @@ async function compileSource(filePath) {
     // in an async function.
     nodeScript = nodeScriptResult[1]
   }
-
-  console.log('File path', filePath)
-  console.log('Route', route)
-  console.log('Route relative path', routeRelativePath)
-  // console.log('NodeScript:', nodeScript)
-  // console.log('Svelte source', svelteSource)
 
   // Layout (TODO) and hydration script support.
   if (filePath.endsWith('.page')) {

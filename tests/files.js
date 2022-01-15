@@ -10,11 +10,6 @@ import Files from '../lib/Files.js'
 
 const test = suite('Files')
 
-// Before each test, mock the global db (JSDB) instance.
-test.before.each(context => {
-  globalThis.db = {}
-})
-
 // After each test, close the Files instance if it exists
 // so our test process can exit properly regardless of
 // whether there is an error. (Because uvu works with thrown
