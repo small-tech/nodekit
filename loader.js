@@ -55,6 +55,16 @@ function extensionOf(urlString) {
   return result ? result.groups.extension : null
 }
 
+let mainProcessMessagePort = null
+
+export function globalPreload (_mainProcessMessagePort) {
+  console.log('((((((((((((((( Saving main process message port. ))))))))))))))))))))')
+  console.log(_mainProcessMessagePort)
+  mainProcessMessagePort = _mainProcessMessagePort
+  console.log('(((((((((((((((((((((((((((())))))))))))))))))))))))))))))))))))))))')
+}
+
+
 export async function resolve(specifier, context, defaultResolve) {
 
   if (allAliases[path.extname(specifier)]) {
