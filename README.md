@@ -8,6 +8,10 @@ _Because creating a modern web site should be simple if your aim isn’t to do s
 
 __TODO: Only one of these lists should exist. Prune/edit as necessary.__
 
+## System requirements
+
+  - Node 17.x+ (for `globalPreload` in experimental loaders with `port` argument support for communication between loader process and main process).
+
 ## Core design decisions
 
   - A server.
