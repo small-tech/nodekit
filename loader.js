@@ -59,25 +59,6 @@ function extensionOf(urlString) {
   return result ? result.groups.extension : null
 }
 
-// // This will hold the BroadcastChannel used to communicate with the main process.
-// let mainProcessMessagePort = null
-
-// export function globalPreload ({port}) {
-//   console.log('[Loader] Main process message port', port)
-//   mainProcessMessagePort = port
-
-//   setTimeout(() => {
-//     port.postMessage('Hello from the loader! :))')
-//   }, 3000)
-
-//   return `\
-//   port.onmessage = (evt) => {
-//     console.log('[Main process] Received data from loader process', evt.data);
-//   };
-// `;
-// }
-
-
 export async function resolve(specifier, context, defaultResolve) {
 
   broadcastChannel.postMessage(`Resolving ${specifier}`)
