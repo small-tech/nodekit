@@ -7,14 +7,8 @@ import { hydrationScriptCompiler } from './lib/HydrationScriptCompiler.js'
 
 import { BroadcastChannel } from 'worker_threads'
 
-import JSDB from '@small-tech/jsdb'
-
 import { fileURLToPath } from 'url'
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
-
-// TODO: We should store the cache in the NodeKit settings directory.
-// ===== I don’t want to pollute the project folder unless we absolutely have to.
-let db = null
 
 function truthyHashmapFromArray(array) {
   return array.reduce((obj, key) => { obj[key] = true; return obj}, {})
@@ -60,8 +54,6 @@ function extensionOf(urlString) {
 }
 
 export async function resolve(specifier, context, defaultResolve) {
-
-  broadcastChannel.postMessage(`Resolving ${specifier}`)
 
   if (allAliases[path.extname(specifier)]) {
     const parentURL = new URL(context.parentURL)
@@ -125,14 +117,6 @@ async function compileSource(filePath) {
   const basePath = process.env.basePath
   console.log('[[[[[[[[Loader BASEPATH from env]]]]]]]]]]]]', basePath)
 
-  // Ensure database exists, has the routes table, and is open.
-  if (db === null) {
-    db = JSDB.open(path.join(basePath, '.cache'))
-    if (!db.routes) {
-      db.routes = {}
-    }
-  }
-
   const routeRelativePath = path.relative(__dirname, filePath)
 
 // TODO: Refactor – pull these out into the shared route calculation method.
@@ -189,10 +173,13 @@ async function compileSource(filePath) {
     const hydrationScript = hydrationCode
 
     // Update the route cache with the material for this route.
-    db.routes[route] = {
-      nodeScript,
-      hydrationScript
-    }
+    broadcastChannel.postMessage({
+      route,
+      contents: {
+        nodeScript,
+        hydrationScript
+      }
+    })
   }
 
   const output = compile(svelteSource, {
