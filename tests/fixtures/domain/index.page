@@ -1,11 +1,27 @@
 <data>
-  import getConfig from './getConfig.js'
+  // TODO: Review/update this once NodeKit starts working.
+  import { _ } from './.db/settings.js'
+  export default async request => {
+    const config = {
+      payment: {
+        provider: _.payment.provider
+      },
+      dns: {
+        domain: _.dns.domain
+      },
+      org: _.org
+    }
 
-  export async request => {
-    const config = getConfig()
+    if (config.payment.provider === 2 /* Stripe */) {
+      const stripe = _.payment.providers[2]
+      config.payment.mode = stripe.mode,
+      config.payment.currency = stripe.currency,
+      config.payment.price = stripe.price
+    }
+
     return {
       config,
-      domain: request.query.url || ''
+      domain: request.query.url || '',
       app: request.query.app || 'Place'
     }
   }
