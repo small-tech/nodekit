@@ -1,4 +1,4 @@
-<node>
+<data>
   //////////////////////////////////////////////////////////////////
   //
   // Note: you can perform any asynchronous actions here.
@@ -11,11 +11,13 @@
   //
   //////////////////////////////////////////////////////////////////
 
-  return {
-    location: 'from the server',
-    message: ['this', 'could', 'be', 'from', 'a', 'database', request.mock]
+  export default request => {
+    return {
+      location: 'from the server',
+      message: ['this', 'could', 'be', 'from', 'a', 'database']
+    }
   }
-</node>
+</data>
 
 <script>
   import Inner from './Inner.component'

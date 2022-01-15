@@ -114,7 +114,7 @@ async function compileSource(filePath) {
   const basePath = process.env.basePath
   const routeRelativePath = path.relative(__dirname, filePath)
 
-// TODO: Refactor – pull these out into the shared route calculation method.
+  // TODO: Refactor – pull these out into the shared route calculation method.
   // Transform an absolute file system path to a web server route.
   const route = filePath
     .replace(basePath, '')             // Remove the base path.
@@ -161,14 +161,20 @@ async function compileSource(filePath) {
     const hydrationCode = await hydrationScriptCompiler(routeRelativePath)
     const hydrationScript = hydrationCode
 
-    // Update the route cache with the material for this route.
-    broadcastChannel.postMessage({
+    //
+    const routeDetails = {
       route,
       contents: {
+        routeRelativePath,
         nodeScript,
         hydrationScript
       }
-    })
+    }
+
+    console.log('[LOADER] New route!', route)
+
+    // Update the route cache with the material for this route.
+    broadcastChannel.postMessage(routeDetails)
   }
 
   const output = compile(svelteSource, {
