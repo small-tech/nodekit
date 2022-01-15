@@ -10,7 +10,7 @@ __TODO: Only one of these lists should exist. Prune/edit as necessary.__
 
 ## System requirements
 
-  - Node 17.x+ (for `globalPreload` in experimental loaders with `port` argument support for communication between loader process and main process).
+  - Node 16.x+ LTS.
 
 ## Core design decisions
 

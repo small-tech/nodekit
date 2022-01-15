@@ -5,6 +5,8 @@ import fs from 'fs'
 import { compile } from 'svelte/compiler'
 import { hydrationScriptCompiler } from './lib/HydrationScriptCompiler.js'
 
+import { BroadcastChannel } from 'worker_threads'
+
 import JSDB from '@small-tech/jsdb'
 
 import { fileURLToPath } from 'url'
@@ -50,22 +52,35 @@ const styleRegExp = /\<style\>.*?\<\/style\>/s
 
 const fileUrlExtensionRegExp = /.+?(?<extension>\..*?$)/
 
+const broadcastChannel = new BroadcastChannel('loader-and-main-process')
+
 function extensionOf(urlString) {
   const result = urlString.match(fileUrlExtensionRegExp)
   return result ? result.groups.extension : null
 }
 
-let mainProcessMessagePort = null
+// // This will hold the BroadcastChannel used to communicate with the main process.
+// let mainProcessMessagePort = null
 
-export function globalPreload (_mainProcessMessagePort) {
-  console.log('((((((((((((((( Saving main process message port. ))))))))))))))))))))')
-  console.log(_mainProcessMessagePort)
-  mainProcessMessagePort = _mainProcessMessagePort
-  console.log('(((((((((((((((((((((((((((())))))))))))))))))))))))))))))))))))))))')
-}
+// export function globalPreload ({port}) {
+//   console.log('[Loader] Main process message port', port)
+//   mainProcessMessagePort = port
+
+//   setTimeout(() => {
+//     port.postMessage('Hello from the loader! :))')
+//   }, 3000)
+
+//   return `\
+//   port.onmessage = (evt) => {
+//     console.log('[Main process] Received data from loader process', evt.data);
+//   };
+// `;
+// }
 
 
 export async function resolve(specifier, context, defaultResolve) {
+
+  broadcastChannel.postMessage(`Resolving ${specifier}`)
 
   if (allAliases[path.extname(specifier)]) {
     const parentURL = new URL(context.parentURL)
