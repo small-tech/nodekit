@@ -3,3 +3,7 @@ body {
   margin-right: auto;
   margin-left: auto;
 }
+
+figure {
+  background-color: blue;
+}
