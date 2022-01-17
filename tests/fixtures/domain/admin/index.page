@@ -1,8 +1,37 @@
 <data>
-  import getConfig from './getConfig.js'
+  export default (request, response) => {
+    const defaultSettings = {
+      payment: {},
+      dns: {},
+      org: {}
+    }
 
-  export async request => {
-    return getConfig()
+    let config
+    if (db.settings === undefined) {
+      console.log('[AdminIndex] db.settings is undefined!')
+      config = defaultSettings
+    } else {
+      config = {
+        payment: {
+          provider: db.settings.payment.provider
+        },
+        dns: {
+          domain: db.settings.dns.domain
+        },
+        org: db.settings.org
+      }
+    }
+
+    if (config.payment.provider === 2 /* Stripe */) {
+      const stripe = db.settings.payment.providers[2]
+      config.payment.mode = stripe.mode,
+      config.payment.currency = stripe.currency,
+      config.payment.price = stripe.price
+    }
+
+    console.log('[AdminIndex] config', config)
+
+    return { config }
   }
 </data>
 
@@ -44,7 +73,7 @@
   async function signIn () {
     signingIn = true
     try {
-      socket = new WebSocket(`wss://${baseUrl}/admin/socket/${password}`)
+      socket = new WebSocket(`wss://${baseUrl}/admin/${password}`)
       remote = new Remote(socket)
     } catch (error) {
       errorMessage = `WebSocket ${error}.`

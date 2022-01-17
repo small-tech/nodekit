@@ -4,6 +4,7 @@ import path from 'path'
 import fs from 'fs'
 import { compile } from 'svelte/compiler'
 import { hydrationScriptCompiler } from './lib/HydrationScriptCompiler.js'
+import { routeFromFilePath } from './lib/Utils.js'
 
 import { BroadcastChannel } from 'worker_threads'
 
@@ -102,26 +103,14 @@ export async function load(url /* string */, context, defaultLoad) {
   return defaultLoad(url, context, defaultLoad)
 }
 
-// TODO: Refactor – pull these out into the shared route calculation method.
-const HTTP_METHODS = ['get', 'head', 'patch', 'options', 'connect', 'delete', 'trace', 'post', 'put']
-const supportedExtensions = `\.(page|socket|${HTTP_METHODS.join('|')})$`
-const indexWithExtensionRegExp = new RegExp(`index${supportedExtensions}`)
-const extensionRegExp = new RegExp(supportedExtensions)
-
 async function compileSource(filePath) {
 
   const source = fs.readFileSync(filePath, 'utf8')
-  const basePath = process.env.basePath
   const routeRelativePath = path.relative(__dirname, filePath)
 
   // TODO: Refactor – pull these out into the shared route calculation method.
   // Transform an absolute file system path to a web server route.
-  const route = filePath
-    .replace(basePath, '')             // Remove the base path.
-    .replace(/_/g, '/')                     // Replace underscores with slashes.
-    .replace(/\[(.*?)\]/g, ':$1')           // Replace properties. e.g., [prop] becomes :prop
-    .replace(indexWithExtensionRegExp, '')  // Remove index path fragments (and their extensions)
-    .replace(extensionRegExp, '')           // Remove extension.
+  const route = routeFromFilePath(filePath)
 
   console.log(`[LOADER] Compiling ${route}`)
 

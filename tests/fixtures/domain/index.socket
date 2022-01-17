@@ -3,11 +3,10 @@ import Remote from '@small-tech/remote'
 
 const STRIPE = 2
 
-export default function (client, request) {
-  console.log(`   👩‍💻️    ❨Place❩ New connection to index.`)
-  client.room = this.setRoom(request)
+export default function (socket, request) {
+  console.log(`   👩‍💻️    ❨Domain❩ New connection to index.`)
 
-  const remote = new Remote(client)
+  const remote = new Remote(socket)
 
   remote.create.checkout.session.request.handler = async message => {
     console.log('>>> Create checkout session called with', message)
