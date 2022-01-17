@@ -5,6 +5,6 @@ const fixturesPath = path.join(__dirname, 'tests', 'fixtures')
 
 import Files from './lib/Files.js'
 
-const domainProjectPath = path.join(fixturesPath, 'chat')
+const domainProjectPath = path.join(fixturesPath, 'simple-chat')
 const files = new Files(domainProjectPath)
 const filesByExtension = await files.initialise()

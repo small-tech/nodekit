@@ -118,4 +118,14 @@
     color: #999;
     background-color: #ccc;
   }
+
+  #messages {
+    list-style: none;
+    width: 100%;
+    flex: 100 1 auto;
+    align-self: stretch;
+    overflow-y: scroll;
+    background-color: #eee;
+    padding: 0.75em;
+  }
 </style>

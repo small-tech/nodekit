@@ -158,10 +158,9 @@ async function compileSource(filePath) {
     svelteSource = svelteSource.replace(script, scriptWithLayoutImport).replace(markup, markupWithLayout)
 
     // Client-side hydration script.
-    const hydrationCode = await hydrationScriptCompiler(routeRelativePath)
+    const hydrationCode = await hydrationScriptCompiler(routeRelativePath, route)
     const hydrationScript = hydrationCode
 
-    //
     const routeDetails = {
       route,
       contents: {
@@ -177,11 +176,13 @@ async function compileSource(filePath) {
     broadcastChannel.postMessage(routeDetails)
   }
 
-  const output = compile(svelteSource, {
+  const compilerOptions = {
     generate: 'ssr',
     format: 'esm',
-    hydratable: true
-  })
+    hydratable: true,
+  }
+
+  const output = compile(svelteSource, compilerOptions)
 
   return output.js.code
 }
