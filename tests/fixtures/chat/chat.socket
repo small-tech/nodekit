@@ -2,11 +2,11 @@
 export default function (socket, request) {
   console.log('New participant joined socket at', request.originalUrl)
 
+  // New message received: broadcast it to all other clients
+  // in the same room after performing basic validation.
   socket.addEventListener('message', event => {
     const message = event.data
-    console.log(message)
-    // New message received: broadcast it to all other clients
-    // in the same room after performing basic validation.
+
     if (!isValidMessage(JSON.parse(message))) {
       console.log(`Message is invalid; not broadcasting.`)
       return
