@@ -4,6 +4,7 @@
     "dotfolders",
     "keypather",
     "sade",
-    "sirv"
+    "sirv",
+    "tinyws"
   ]
 }
