@@ -1,0 +1,59 @@
+<script>
+  import { onMount } from 'svelte'
+
+  let messages = []
+
+  let socket = null
+
+  let online = false
+  let nickname = 'Anonymous'
+  let text = ''
+
+  onMount(() => {
+    // Initialise web socket.
+    socket = new WebSocket(`wss://${window.location.hostname}/chat`)
+
+    // Display the state of the connection.
+    socket.onopen = _ => { online = true }
+    socket.onclose = _ => { online = false }
+
+    // Handle received messages.
+    socket.addEventListener('message', event => {
+      // We cannot use array.push() if we want reactivity (Svelte limitation).
+      const message = event.data
+      messages = [...messages, JSON.parse(message)]
+    })
+  })
+
+  // Handle send requests.
+  function handleNewMessage() {
+    const message = {nickname, text}
+    messages = [...messages, message]
+    socket.send(JSON.stringify(message))
+  }
+</script>
+
+<h1><a href='https://github.com/small-tech/nodekit'>NodeKit</a> Simple Chat</h1>
+
+<p>Status:
+  <span id='status' class={online ? 'online' : 'offline'}>
+    {online ? 'Online' : 'Offline'}
+  </span>
+</p>
+
+<ul id='messages'>
+  {#each messages as message}
+    <li><strong>{message.nickname}</strong> {message.text}</li>
+  {/each}
+</ul>
+
+<form id='message-form' on:submit|preventDefault={handleNewMessage}>
+  <label>Nickname: <input bind:value={nickname}></label>
+  <label>Message: <input bind:value={text}></label>
+  <button type='submit'>Send</button>
+</form>
+
+<style>
+  .online {color: green}
+  .offline {color: red}
+</style>
