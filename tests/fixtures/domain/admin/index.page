@@ -86,7 +86,7 @@
     }
 
     socket.onerror = event => {
-      errorMessage = 'WebSocket connection failed (<strong>is Site.js running?</strong>)'
+      errorMessage = 'WebSocket connection failed (<strong>is the server running?</strong>)'
       signingIn = false
     }
 
