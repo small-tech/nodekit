@@ -2,9 +2,7 @@
   import { onMount } from 'svelte'
 
   let messages = []
-
   let socket = null
-
   let online = false
   let nickname = 'Anonymous'
   let text = ''
@@ -13,13 +11,12 @@
     // Initialise web socket.
     socket = new WebSocket(`wss://${window.location.hostname}/chat`)
 
-    // Display the state of the connection.
+    // Display connection state.
     socket.onopen = _ => { online = true }
     socket.onclose = _ => { online = false }
 
     // Handle received messages.
     socket.addEventListener('message', event => {
-      // We cannot use array.push() if we want reactivity (Svelte limitation).
       const message = event.data
       messages = [...messages, JSON.parse(message)]
     })
@@ -48,12 +45,77 @@
 </ul>
 
 <form id='message-form' on:submit|preventDefault={handleNewMessage}>
-  <label>Nickname: <input bind:value={nickname}></label>
-  <label>Message: <input bind:value={text}></label>
+  <label for='nickname'>Nickname:</label>
+  <input id='nickname' bind:value={nickname}>
+  <label for='text'>Message:</label>
+  <input id='text' bind:value={text}>
   <button type='submit'>Send</button>
 </form>
 
 <style>
   .online {color: green}
   .offline {color: red}
+
+  * { box-sizing: border-box; }
+
+  :global(body) {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-content: stretch;
+    align-items: flex-start;
+    height: calc(var(--vh, 1vh) * 100 - 1em);
+    font-family: sans-serif;
+    padding: 1em;
+  }
+
+  a {
+    color: #334b4c;
+  }
+
+  form {
+    background: #eee;
+    display: grid;
+    grid-template-columns: [labels] auto [controls] 1fr;
+    align-items: center;
+    grid-row-gap: 0.5em;
+    grid-column-gap: 0.5em;
+    padding: 0.75em;
+  }
+
+  form > label { grid-column: labels; }
+
+  form input, form button {
+    grid-column: controls;
+    min-width: 6em;
+    max-width: 300px;
+    padding: 0.5em;
+    font-size: 1em;
+  }
+
+  button {
+    text-align: center;
+    cursor: pointer;
+    font-size:16px;
+    color: white;
+    border-radius: 4px;
+    background-color:#466B6A;
+    border: none;
+    padding: 0.75em;
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+    transition: color 0.5s;
+    transition: background-color 0.5s;
+  }
+
+  button:hover {
+    color: black;
+    background-color: #92AAA4;
+  }
+
+  button:disabled {
+    color: #999;
+    background-color: #ccc;
+  }
 </style>
