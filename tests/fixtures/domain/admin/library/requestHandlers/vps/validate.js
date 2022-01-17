@@ -5,7 +5,7 @@ export default async (remote, message) => {
 
   // Get server types. (In this first call we’ll know if the
   // authorisation token is correct or not.)
-  response = await fetch('https://api.hetzner.cloud/v1/server_types?per_page=50', {
+  const response = await fetch('https://api.hetzner.cloud/v1/server_types?per_page=50', {
     headers: {
       Accept: 'application/json',
       Authorization: `Bearer ${db.settings.vps.apiToken}`
