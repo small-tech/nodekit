@@ -123,9 +123,9 @@ export default async (remote, message) => {
   let dnsZoneCreationResponse
   try {
     dnsZoneCreationResponse = await dnsHost.zones.createZoneRecord(
-      accountId = db.settings.dns.accountId,
-      domainId = db.settings.dns.domain,
-      attributes = {name: subdomain, type: 'A', content: ipv4, ttl: 60}
+      /* accountId */ db.settings.dns.accountId,
+      /* zoneId */ db.settings.dns.domain,
+      /* attributes */ {name: subdomain, type: 'A', content: ipv4, ttl: 60}
     )
     console.log(dnsZoneCreationResponse)
   } catch (error) {
