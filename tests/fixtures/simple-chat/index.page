@@ -1,5 +1,9 @@
 <script>
   import { onMount } from 'svelte'
+  import { isMobile, fixInterfaceSizeOnMobile } from './utils'
+
+  // Outlet
+  let messageInput
 
   let messages = []
   let socket = null
@@ -20,10 +24,23 @@
       const message = event.data
       messages = [...messages, JSON.parse(message)]
     })
+
+    // Implement interface size fix on mobile.
+    fixInterfaceSizeOnMobile()
   })
 
-  // Handle send requests.
-  function handleNewMessage() {
+  function sendMessage() {
+    // Clear the message field and focus it if not on mobile.
+    messageInput.value = ''
+    if (!isMobile()) {
+      // Focus the message text field but only on
+      // desktop browsers. For mobile browsers, let the
+      // person see the message they just sent by allowing
+      // the field to lose focus.
+      messageInput.focus()
+    }
+
+    // Send the message.
     const message = {nickname, text}
     messages = [...messages, message]
     socket.send(JSON.stringify(message))
@@ -44,11 +61,11 @@
   {/each}
 </ul>
 
-<form id='message-form' on:submit|preventDefault={handleNewMessage}>
+<form id='message-form' on:submit|preventDefault={sendMessage}>
   <label for='nickname'>Nickname:</label>
-  <input id='nickname' bind:value={nickname}>
-  <label for='text'>Message:</label>
-  <input id='text' bind:value={text}>
+  <input id='nickname' bind:value={nickname} required>
+  <label for='message'>Message:</label>
+  <input bind:this={messageInput} id='message' bind:value={text} required>
   <button type='submit'>Send</button>
 </form>
 
