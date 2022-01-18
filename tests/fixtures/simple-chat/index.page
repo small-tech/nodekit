@@ -1,5 +1,5 @@
 <script>
-  import { onMount, beforeUpdate, afterUpdate } from 'svelte'
+  import { onMount, afterUpdate } from 'svelte'
   import { isMobile, fixInterfaceSizeOnMobile } from './utils'
 
   // Outlets
