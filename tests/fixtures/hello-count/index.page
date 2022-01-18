@@ -1,0 +1,15 @@
+<data>
+  let count = 1
+
+  export default () => {
+    return {count: count++}
+  }
+</data>
+
+<script>
+  export let data
+</script>
+
+<h1>Hello, world!</h1>
+
+<p>I’ve greeted you {data.count} time{data.count > 1 ? 's' : ''}.</p>

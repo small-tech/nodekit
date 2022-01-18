@@ -71,22 +71,119 @@ To update NodeKit to the latest version:
 
 Let’s quickly create and test your first “Hello, world!” NodeKit site.
 
-Enter the following four commands in your terminal:
+Create a file called `index.page` and add the following content to it:
 
-```shell
-mkdir hello-world
-cd hello-world
-echo '<h1>Hello, world!</h1>' > index.html
-nodekit --static
+```html
+<h1>Hello, world!</h1>
 ```
 
-Now hit _https://localhost` and you should see your new site.
+Now run `nodekit`, hit _https://localhost_, and you should see your new site.
 
-Yes, NodeKit will happily serve any HTML and static content just like any other good web server should if you start it using the `--static` option.
+Yes, NodeKit will happily serve any HTML you throw at it just like any other good web server should. The only catch is you need to put it into a `.page` file.
 
-But you can do that with any web server… Let’s do something that no other web server can do now, shall we?
+> If you have static assets you want to serve, put them in a special folder called _#static_. In fact, we _could_ have put our HTML into _#static/index.html_ and the outcome would have been identical.
+
+But you can render HTML using any web server…
+
+Let’s do something that no other web server can do now, shall we?
+
+## Counting hellos.
+
+Change your _index.page_ to read:
+
+```html
+<data>
+  let count = 1
+
+  export default () => {
+    return {count: count++}
+  }
+</data>
+
+<script>
+  export let data
+</script>
+
+<h1>Hello, world!</h1>
+
+<p>I’ve greeted you {data.count} times.</p>
+```
+
+Now run `nodekit` and refresh the page to see the counter increase.
+
+✨ Ooh, magic! ✨
+
+> ### How does it work?
+>
+> A page in NodeKit is written in NodeScript, which is a superset of Svelte
+>
+> In addition to what Svelte can do, NodeScript gives you the ability to add server-side code to your pages in a `<data>` section.
+>
+> The default function you export from it is evaluated every time the route is requested and anything it returns is injected into the `data` variable you exported from your `<script>` block.
+>
+> The rest of the example is simply client-side Svelte.
+>
+> ___If you haven’t done so already, now would be a good time to work through the entire [Svelte Tutorial](https://svelte.dev/tutorial/basics). Go ahead, I’ll wait…___
+
+## Persistence is the secret to success (or something)
+
+So counting stuff is great but what happens if you restart the server?
+
+Your count is lost! (This is a tragedy.)
+
+So let’s fix that.
+
+(Brace yourself, you’re about to use – _drumroll_ a SCARY database! Oooh!)
+
+Update your code to match this:
+
+```html
+<data>
+  if (db.greetings === undefined) {
+    db.greetings = { count: 1 }
+  }
+
+  export default () => {
+    return {count: db.greetings.count++}
+  }
+</data>
+
+<script>
+  export let data
+</script>
+
+<h1>Hello, world!</h1>
+
+<p>I’ve greeted you {data.count} times.</p>
+```
+
+__Wait, what?__
+
+__That’s it?__
+
+__Seriously?__
+
+Yep, that’s the magic of the integrated JavaScript Database (JSDB) in NodeKit.
+
+If you don’t believe me restart the server and note that the count is still there.
+
+If _still_ don’t believe me (wow, what a cynic), then open the _.db/greetings.js_ table in a text editor and take a look. You should see something like this:
+
+```js
+export const _ = { 'count': 18 };
+_['count'] = 19;
+_['count'] = 20;
+```
+
+That’s what a table looks like in JavaScript Database (JSDB), which is integrated into NodeKit and available to all your routes via a global `db` reference.
+
+Yes, you need never fear persistence ever again.
+
+> There’s so much more to JSDB that you can learn about in [the JSDB documentation](https://github.com/small-tech/jsdb#readme).
 
 ## To do or not to do?
+
+__THIS EXAMPLE IS INCOMPLETE AND OUTDATED: FIX OR REMOVE__
 
 Let’s create a server-side rendered, dynamic to-do list web app:
 
