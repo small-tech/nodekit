@@ -11,6 +11,9 @@ echo '  ├─── Creating dist/ folder. '
 mkdir -p dist/node_modules
 
 # Create dist/nodekit-bundle.js
+#
+# PS. The reason we need the banners injected into the esbuild builds:
+# https://github.com/evanw/esbuild/issues/946
 
 echo '  ├─── Building nodekit (main process).'
 
