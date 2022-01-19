@@ -1,73 +1,93 @@
 # NodeKit
 
-## This is a work-in-progress. It will likely not even compile for you yet. I’ll let you know when it’s ready to play with :)
+> ## 💀 __Warning:__ NodeKit is in a very early state. It is not feature-complete.
+>
+> You can have a play but proceed at your own risk. ___Here be dragons, etc.___
 
-A [Small Web](https://small-tech.org/research-and-development) server.
+## A [Small Web](https://small-tech.org/research-and-development) server.
 
 _Because creating a modern web site should be simple if your aim isn’t to do something nasty to people._
 
-__TODO: Only one of these lists should exist. Prune/edit as necessary.__
+## Index
+
+ This readme is split into two parts:
+
+   - [How things are](#how-things-are)
+   - [How things will be](#how-things-will-be)
+
+ The first describes the current state of the project and what you can do with it now. The second, which you can think of as a design document, describes where I want to take it.
+
+&nbsp;
+&nbsp;
+
+> &nbsp;
+> &nbsp;
+> ## 🤓👍 You are now entering the present…
+> &nbsp;
+> &nbsp;
+
+&nbsp;
+&nbsp;
+
+# How things are
+
+> __Status:__ not feature complete and rapidly evolving.
+
+## This section describes the current state of the project and the codebase.
+
+__Instructions and examples in this section should work.__ If you’re having a play and notice something doesn’t work as described here, please open an issue if you can.
 
 ## System requirements
 
   - Node 16.x+ LTS.
-
-## Core design decisions
-
-  - A server.
-  - Node.js only.
-  - No build step.
-  - No scaffolding/project generators.
-  - Runs on both development and production.
-  - < 60 seconds to get started in both development and production.
-  - Optimise for server-side rendering.
-  - TLS everywhere by default.
-  - File-based router that uses (experimental) ES Module Loaders.
-  - Integrated database as first-class citizen.
-  - Convention over configuration.
-  - Forgiving (will render a simple static HTML file if you want).
-  - Own scripting syntax (NodeScript) for pages that extends Svelte to make it trivial to include data from your database in your server-side rendered pages.
-  - Integrated git server for deployments and app auto updates.
-
-
-## Features
-
-  - Single-line install on development/staging/production.
-  - Always uses latest Node.js LTS (you don’t need to have Node.js installed).
-  - Automatic TLS (https) on development/staging/production.
-  - NodeScript, a superset of Svelte, lets you define your pages, including server-side data fetching for automatic client-side hydration.
-  - Use any svelte component in your interfaces.
-  - File-based routing made as elegant and flexible as possible using Node ES Module loaders.
-  - Integrated database ([JSDB](https://github.com/small-tech/jsdb)).
-  - Simple data exchange and server-side rendering (REST and WebSockets).
-  - No scaffolding (no `npm init my-project-template`, just start, it’s easy).
-  - No build stage.
-  - Integrated git server for deployments and app auto updates.
-  - Small as possible in size and dependencies.
-  - As opinionated as possible.
-  - Deploy on any VPS (e.g., using [Domain](https://github.com/small-tech/domain)) or own your own hardware (e.g., a Raspberry Pi).
+  - Linux
 
 ## Install
 
+  1. Clone this repository
+
+      ```shell
+      git clone https://github.com/small-tech/nodekit.git
+      ```
+
+  2. Switch to the NodeKit directory.
+
+      ```shell
+      cd nodekit
+      ```
+
+  3. Install dependencies.
+
+      ```shell
+      npm install
+      ```
+
+## Getting started
+
+You can run NodeKit from the source folder using the following syntax:
+
 ```shell
-  wget -qO- https://nodekit.small-web.org/install | bash
+bin/nodekit <path to serve>
+```
+The best way to get started is to play with the examples.
+
+## Examples
+
+  - Hello Count: `examples/hello-count`
+  - Persisted Hello Count: `examples/persisted-hello-count`
+  - Simple Chat: `examples/simple-chat`
+
+e.g., to launch the Simple Chat example, run:
+
+```shell
+bin/nodekit examples/simple-chat
 ```
 
-The NodeKit installer installs two files onto your system. The first is the NodeKit bundle. This is a JavaScript file that contains NodeKit. The other is the version of Node.js [LTS](https://nodejs.org/en/about/releases/) that it has been tested with (this will be kept current with the latest LTS release).
+> Early bird warning: NodeKit doesn’t currently watch for changes to the source and automatically reload your routes when you update them. For the time being, you will have to manually restart the server any time you make a change. (Yes, this is going to change quite radically in the coming days and weeks.) 😉
 
-___NoteKit has one prerequisite:__ if you want to deploy to a production machine or if you want to update NodeKit itself, you must have a recent version of [git](https://git-scm.com/) installed on your system. Needless to say, in the 2020s, most developers will already have a machine that meets this requirement and NodeKit will warn you if you don’t and prompt you to install it._
+## Tutorials
 
-## Update
-
-To update NodeKit to the latest version:
-
-  - __In development,__ run:
-    ```shell
-    nodekit update
-    ```
-  - __On production,__ you don’t have to do anything as NodeKit will automatically update itself and its companion Node.js binary as and when necessary.
-
-## Hello, world!
+### Hello, world!
 
 Let’s quickly create and test your first “Hello, world!” NodeKit site.
 
@@ -87,7 +107,7 @@ But you can render HTML using any web server…
 
 Let’s do something that no other web server can do now, shall we?
 
-## Counting hellos.
+### Counting hellos.
 
 Change your _index.page_ to read:
 
@@ -113,7 +133,7 @@ Now run `nodekit` and refresh the page to see the counter increase.
 
 ✨ Ooh, magic! ✨
 
-> ### How does it work?
+> #### How does it work?
 >
 > A page in NodeKit is written in NodeScript, which is a superset of Svelte
 >
@@ -125,7 +145,7 @@ Now run `nodekit` and refresh the page to see the counter increase.
 >
 > ___If you haven’t done so already, now would be a good time to work through the entire [Svelte Tutorial](https://svelte.dev/tutorial/basics). Go ahead, I’ll wait…___
 
-## Persistence is the secret to success (or something)
+### Persistence is the secret to success (or something)
 
 So counting stuff is great but what happens if you restart the server?
 
@@ -159,15 +179,15 @@ Update your code to match this:
 
 __Wait, what?__
 
-__That’s it?__
+__That’s _it?___
 
 __Seriously?__
 
 Yep, that’s the magic of the integrated JavaScript Database (JSDB) in NodeKit.
 
-If you don’t believe me restart the server and note that the count is still there.
+If you don’t believe me, restart the server and note that the count is still there.
 
-If _still_ don’t believe me (wow, what a cynic), then open the _.db/greetings.js_ table in a text editor and take a look. You should see something like this:
+If you _still_ don’t believe me (wow, what a cynic), open the _.db/greetings.js_ table in a text editor and take a look. You should see something like this:
 
 ```js
 export const _ = { 'count': 18 };
@@ -179,75 +199,7 @@ That’s what a table looks like in JavaScript Database (JSDB), which is integra
 
 Yes, you need never fear persistence ever again.
 
-> There’s so much more to JSDB that you can learn about in [the JSDB documentation](https://github.com/small-tech/jsdb#readme).
-
-## To do or not to do?
-
-__THIS EXAMPLE IS INCOMPLETE AND OUTDATED: FIX OR REMOVE__
-
-Let’s create a server-side rendered, dynamic to-do list web app:
-
-1. You’ve already seen that NodeKit does not require scaffolding. Just create a folder and start building your site or app:
-
-    ```shell
-    mkdir todo
-    cd todo
-    touch index.page
-    ```
-
-2. Open _index.page_ in your editor and add the following code into it:
-
-    ```svelte
-    <data>
-      export default (request, response) => {
-        return db.todos
-      }
-    </data>
-
-    <post>
-      export default (request, response) => {
-        db.todos.push(request.params.todo)
-        request.end()
-      }
-    </post>
-
-    <script>
-      export let data
-    </script>
-
-    <ul>
-      {#each data.todo as todo, index}
-        <li>
-          <label>
-            <input type='checkbox' value={todo.description}>
-          </label>
-        </li>
-      {/each}
-    </ul>
-
-    <label>New todo:</label>
-    <textarea />
-    <button>Add</button>
-    ```
-
-3. Run NodeKit.
-
-    ```shell
-    nodekit
-    ```
-
-Hit https://localhost and you will see your new NodeKit app. Go ahead and add some todos and check them off and reload the page to see them persist.
-
-Take a moment to let it sink in that with just the above code, we created an app that:
-
-  - Is server-side rendered with the latest list of to-dos from a database.
-  - Is hydrated on the client and updates the list of to-dos every minute.
-  - Enables you to add and check off to-dos and persists them in the database.
-  - Includes all the server and client side code in a single file.
-
-We were able to do all that mainly thanks to NodeKit’s use of [NodeScript](#nodescript), which extends [Svelte](https://svelte.dev) to make creating server-side rendered applications as simple as possible, the integrated [JavaScript Database (JSDB)](https://github.com/small-tech/jsdb), and [esbuild](https://esbuild.github.io/), which is working behind the scenes to bundle the client-side hydration scripts.
-
-If you want to learn more about the inner workings of NodeKit, look at the list of its [core dependencies](#core-dependencies) in the [Technical Design](#technical-design) section.
+There’s so much more to JSDB that you can learn about in [the JSDB documentation](https://github.com/small-tech/jsdb#readme).
 
 ## NodeScript
 
@@ -310,15 +262,6 @@ Here is a list of the main file types NodeKit handles and how it handles them:
 | .svelte | Svelte component (.component is just an alias for .svelte) | Ignored by router. |
 | .js | Javascript module | Ignored by router. |
 
-## Layouts
-
-It’s common to want a shared header and footer on pages on the same site (or in different sections of a site). You can control the layout of your pages using `.layout` files.
-
-| File name | Type | Behaviour |
-| --------- | ---- | --------- |
-| Layout.page | NodeKit layout (supports NodeScript) | Any sibling or child pages are slotted into this component during page compilation. |
-| Layout.reset | Empty file | Flags to compiler to not use a layout for sibling or child pages. (If a Page.layout file is present in a child directory, it will take precedence from that level on.) |
-
 ## HTTP routes
 
 HTTP data routes are served in response to an HTTP request for the specified method and path.
@@ -342,104 +285,11 @@ export default (request, response) => {
 }
 ```
 
-## Data routes
-
-A generic HTTP route that returns some piece of data is generally considered to be part of your site’s Application Programming Interface (API).
-
-Generic API routes are useful when the same route is going to be called from the browser by a number of different pages.
-
-But what if you wanted to get the list of books from your database just to render them in your Books page?
-
-For that use case you, can create a `.data` file, which is essentially an HTTP GET route for data that is tightly coupled to a single page.
-
-__books.data__
-```js
-export default (request, response) => {
-  const books = db.books.get()
-  return {books}
-}
-```
-
-__books.page__
-
-```svelte
-<script>
-  export let data
-
-  setInterval(() => {
-    // Refresh the list of books every minute.
-    data = await (await fetch('/books/data')).json()
-  }, 60000)
-</script>
-
-<h1>Books</h1>
-<ul>
-  {#each data.books as book}
-    <li><a href='{book.link}'>{book.title}</a></li>
-  {/each}
-</ul>
-```
-
-Note that the data route is almost identical to the HTTP GET route. The main difference is that unlike regular request handlers, which call `response.end()`, your data handler shares the same path as a page (which is rendered in response to a HTTP GET request) and so your data handler must `return` its value.
-
-(You cannot end the response in your GET handler as NodeKit still needs to take the data you’ve returned and render the page.)
-
-## Pages
-
-A NodeKit page is written in NodeScript, which is an extension of Svelte.
-
-Specifically, NodeScript extends Svelte to enable you to easily server-side render your routes. As pages are being rendered, you can, for example, get data from the integrated [JSDB](https://github.com/small-tech/jsdb) database and include it in the rendered page. Once the page is rendered, if JavaScript is available on the client, the page will be hydrated.
-
-While you can define your [HTTP routes](#http-routes) in separate files, you can also define them inline, right inside your pages.
-
-So, for example, instead of a separate `books.get` route, your `books.page` could look like this:
-
-```svelte
-<data>
-  export default (request, response) => {
-    const books = db.books.get()
-    return {books}
-  }
-</data>
-
-<script>
-  export let data
-
-  setInterval(() => {
-    // Refresh the list of books every minute.
-    data = await (await fetch('/books/data')).json()
-  }, 60000)
-</script>
-
-<h1>Books</h1>
-<ul>
-  {#each data.books as book}
-    <li><a href='{book.link}'>{book.title}</a></li>
-  {/each}
-</ul>
-```
-
-In the above example, when someone hits `/books`:
-
-1. The `get` handler will run and retrieve a list of the books from the integrated database. (The reference to `db` is globally accessible from all routes.)
-
-2. While the page is being rendered, the value of `data` will have the value returned from the `get` route.
-
-3. As the page is being rendered, the value of data will be used to display the list of books in the unordered list.
-
-Once the page has loaded, it will be hydrated and the script in the `<script>` tag will run in the browser, setting up an interval that will refresh the list of books every minute.
-
-Note that when doing the `fetch` request, we specify `/books/data` as the URL. This is an automatically generated HTTP GET route that you can call for exactly this sort of purpose.
-
-Also note that the behaviour of inline data request handlers is the same as for the external ones.
-
 ## Database
 
 NodeKit has an integrated [JSDB](https://github.com/small-tech/jsdb) database that’s available from all your routes as `db`.
 
 JSDB is a transparent, in-memory, streaming write-on-update JavaScript database for the Small Web that persists to a JavaScript transaction log.
-
-NodeKit supports [migrations](#migrations) on the integrated database.
 
 If you’ve created at least one table on the database, you can find it in the `.db` folder. Tables in JSDB are simply JavaScript objects or arrays and JSDB writes to plain old JavaScript files.
 
@@ -564,6 +414,295 @@ my-project
     ├ header.svg
     ╰ demo.mp4
 ```
+
+## Command-line interface
+
+### serve
+
+Default command. `nodekit serve <path to serve>` and `nodekit <path to serve>` are equivalent.
+
+### --version
+
+Displays the version number.
+
+_Currently does not exit the process unless when run from the distribution build._
+
+## Building NodeKit
+
+To build a distribution bundle for NodeKit, run:
+
+```shell
+./build
+```
+
+You will find the distribution under the `dist/` folder.
+
+To run NodeKit from the distribution folder, use the following syntax:
+
+```shell
+./nodekit <path to serve>
+```
+
+&nbsp;
+&nbsp;
+
+> &nbsp;
+> &nbsp;
+> ## 🤓✋ You are now leaving the present and entering the future…
+> &nbsp;
+> &nbsp;
+
+&nbsp;
+&nbsp;
+
+# How things will be
+
+> ## __⚠️ This section is aspirational. Please treat it as a _design document_.__ More than likely _nothing in this section will work as stated._ Please _DO NOT_ file any bugs about anything in this section.
+
+__TODO: Only one of these lists should exist. Prune/edit as necessary.__
+
+## System requirements
+
+  - Node 16.x+ LTS.
+  - For development: Linux
+  - For deployment: Linux with systemd
+
+## Core design decisions
+
+  - A server.
+  - Node.js only.
+  - No build step.
+  - No scaffolding/project generators.
+  - Runs on both development and production.
+  - < 60 seconds to get started in both development and production.
+  - Optimise for server-side rendering.
+  - TLS everywhere by default.
+  - File-based router that uses (experimental) ES Module Loaders.
+  - Integrated database as first-class citizen.
+  - Convention over configuration.
+  - Forgiving (will render a simple static HTML file if you want).
+  - Own scripting syntax (NodeScript) for pages that extends Svelte to make it trivial to include data from your database in your server-side rendered pages.
+  - Integrated git server for deployments and app auto updates.
+
+## Features
+
+  - Single-line install on development/staging/production.
+  - Always uses latest Node.js LTS (you don’t need to have Node.js installed).
+  - Automatic TLS (https) on development/staging/production.
+  - NodeScript, a superset of Svelte, lets you define your pages, including server-side data fetching for automatic client-side hydration.
+  - Use any svelte component in your interfaces.
+  - File-based routing made as elegant and flexible as possible using Node ES Module loaders.
+  - Integrated database ([JSDB](https://github.com/small-tech/jsdb)).
+  - Simple data exchange and server-side rendering (REST and WebSockets).
+  - No scaffolding (no `npm init my-project-template`, just start, it’s easy).
+  - No build stage.
+  - Integrated git server for deployments and app auto updates.
+  - Small as possible in size and dependencies.
+  - As opinionated as possible.
+  - Deploy on any VPS (e.g., using [Domain](https://github.com/small-tech/domain)) or own your own hardware (e.g., a Raspberry Pi).
+
+## Install
+
+```shell
+  wget -qO- https://nodekit.small-web.org/install | bash
+```
+
+The NodeKit installer installs two files onto your system. The first is the NodeKit bundle. This is a JavaScript file that contains NodeKit. The other is the version of Node.js [LTS](https://nodejs.org/en/about/releases/) that it has been tested with (this will be kept current with the latest LTS release).
+
+___NoteKit has one prerequisite:__ if you want to deploy to a production machine or if you want to update NodeKit itself, you must have a recent version of [git](https://git-scm.com/) installed on your system. Needless to say, in the 2020s, most developers will already have a machine that meets this requirement and NodeKit will warn you if you don’t and prompt you to install it._
+
+## Update
+
+To update NodeKit to the latest version:
+
+  - __In development,__ run:
+    ```shell
+    nodekit update
+    ```
+  - __On production,__ you don’t have to do anything as NodeKit will automatically update itself and its companion Node.js binary as and when necessary.
+
+## To do or not to do?
+
+__THIS EXAMPLE IS INCOMPLETE AND OUTDATED: FIX OR REMOVE__
+
+Let’s create a server-side rendered, dynamic to-do list web app:
+
+1. You’ve already seen that NodeKit does not require scaffolding. Just create a folder and start building your site or app:
+
+    ```shell
+    mkdir todo
+    cd todo
+    touch index.page
+    ```
+
+2. Open _index.page_ in your editor and add the following code into it:
+
+    ```svelte
+    <data>
+      export default (request, response) => {
+        return db.todos
+      }
+    </data>
+
+    <post>
+      export default (request, response) => {
+        db.todos.push(request.params.todo)
+        request.end()
+      }
+    </post>
+
+    <script>
+      export let data
+    </script>
+
+    <ul>
+      {#each data.todo as todo, index}
+        <li>
+          <label>
+            <input type='checkbox' value={todo.description}>
+          </label>
+        </li>
+      {/each}
+    </ul>
+
+    <label>New todo:</label>
+    <textarea />
+    <button>Add</button>
+    ```
+
+3. Run NodeKit.
+
+    ```shell
+    nodekit
+    ```
+
+Hit https://localhost and you will see your new NodeKit app. Go ahead and add some todos and check them off and reload the page to see them persist.
+
+Take a moment to let it sink in that with just the above code, we created an app that:
+
+  - Is server-side rendered with the latest list of to-dos from a database.
+  - Is hydrated on the client and updates the list of to-dos every minute.
+  - Enables you to add and check off to-dos and persists them in the database.
+  - Includes all the server and client side code in a single file.
+
+We were able to do all that mainly thanks to NodeKit’s use of [NodeScript](#nodescript), which extends [Svelte](https://svelte.dev) to make creating server-side rendered applications as simple as possible, the integrated [JavaScript Database (JSDB)](https://github.com/small-tech/jsdb), and [esbuild](https://esbuild.github.io/), which is working behind the scenes to bundle the client-side hydration scripts.
+
+If you want to learn more about the inner workings of NodeKit, look at the list of its [core dependencies](#core-dependencies) in the [Technical Design](#technical-design) section.
+
+## Valid file types
+
+In addition to the ones already implemented:
+
+| Extension | Type | Behaviour |
+| --------- | ---- | --------- |
+| .data     | A server-side data handler for a page | A handler that is called on the server while a page is being server-side rendered. Its return value is set as the `data` prop of the page. |
+
+
+## Layouts
+
+It’s common to want a shared header and footer on pages on the same site (or in different sections of a site). You can control the layout of your pages using `.layout` files.
+
+| File name | Type | Behaviour |
+| --------- | ---- | --------- |
+| Layout.page | NodeKit layout (supports NodeScript) | Any sibling or child pages are slotted into this component during page compilation. |
+| Layout.reset | Empty file | Flags to compiler to not use a layout for sibling or child pages. (If a Page.layout file is present in a child directory, it will take precedence from that level on.) |
+
+## Data routes
+
+A generic HTTP route that returns some piece of data is generally considered to be part of your site’s Application Programming Interface (API).
+
+Generic API routes are useful when the same route is going to be called from the browser by a number of different pages.
+
+But what if you wanted to get the list of books from your database just to render them in your Books page?
+
+For that use case you, can create a `.data` file, which is essentially an HTTP GET route for data that is tightly coupled to a single page.
+
+__books.data__
+```js
+export default (request, response) => {
+  const books = db.books.get()
+  return {books}
+}
+```
+
+__books.page__
+
+```svelte
+<script>
+  export let data
+
+  setInterval(() => {
+    // Refresh the list of books every minute.
+    data = await (await fetch('/books/data')).json()
+  }, 60000)
+</script>
+
+<h1>Books</h1>
+<ul>
+  {#each data.books as book}
+    <li><a href='{book.link}'>{book.title}</a></li>
+  {/each}
+</ul>
+```
+
+Note that the data route is almost identical to the HTTP GET route. The main difference is that unlike regular request handlers, which call `response.end()`, your data handler shares the same path as a page (which is rendered in response to a HTTP GET request) and so your data handler must `return` its value.
+
+(You cannot end the response in your GET handler as NodeKit still needs to take the data you’ve returned and render the page.)
+
+## Pages
+
+A NodeKit page is written in NodeScript, which is an extension of Svelte.
+
+Specifically, NodeScript extends Svelte to enable you to easily server-side render your routes. As pages are being rendered, you can, for example, get data from the integrated [JSDB](https://github.com/small-tech/jsdb) database and include it in the rendered page. Once the page is rendered, if JavaScript is available on the client, the page will be hydrated.
+
+While you can define your [HTTP routes](#http-routes) in separate files, you can also define them inline, right inside your pages.
+
+So, for example, instead of a separate `books.get` route, your `books.page` could look like this:
+
+```svelte
+<data>
+  export default (request, response) => {
+    const books = db.books.get()
+    return {books}
+  }
+</data>
+
+<script>
+  export let data
+
+  setInterval(() => {
+    // Refresh the list of books every minute.
+    data = await (await fetch('/books/data')).json()
+  }, 60000)
+</script>
+
+<h1>Books</h1>
+<ul>
+  {#each data.books as book}
+    <li><a href='{book.link}'>{book.title}</a></li>
+  {/each}
+</ul>
+```
+
+In the above example, when someone hits `/books`:
+
+1. The `get` handler will run and retrieve a list of the books from the integrated database. (The reference to `db` is globally accessible from all routes.)
+
+2. While the page is being rendered, the value of `data` will have the value returned from the `get` route.
+
+3. As the page is being rendered, the value of data will be used to display the list of books in the unordered list.
+
+Once the page has loaded, it will be hydrated and the script in the `<script>` tag will run in the browser, setting up an interval that will refresh the list of books every minute.
+
+Note that when doing the `fetch` request, we specify `/books/data` as the URL. This is an automatically generated HTTP GET route that you can call for exactly this sort of purpose.
+
+Also note that the behaviour of inline data request handlers is the same as for the external ones.
+
+## Database
+
+In addition to the already implemented features:
+
+NodeKit supports [migrations](#migrations) on the integrated database.
 
 ## Migrations
 
