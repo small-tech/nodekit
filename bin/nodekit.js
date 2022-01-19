@@ -1,11 +1,11 @@
-#!/usr/bin/env node
-
 import sade from 'sade'
 
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
+
+import Files from '../lib/Files.js'
 
 const packageInfo = JSON.parse(fs.readFileSync(path.normalize(path.join(__dirname, '..', 'package.json')), 'utf-8'))
 
@@ -16,10 +16,20 @@ app
   .describe('An opinionated Small Web server.')
 
 app
-  .command('serve', '', {default: true})
+  .command('serve [basePath]', '', {default: true})
   .describe('Start server as regular process.')
-  .action(options => {
-    console.log('Serving…')
+  .action(async (basePath, options) => {
+
+    if (!fs.existsSync(basePath)) {
+      console.error(`${basePath} not found.`)
+      process.exit(1)
+    }
+
+    console.log('Starting NodeKit server…')
+    const absoluteBasePath = path.resolve(basePath)
+    console.log('Serving', absoluteBasePath)
+    const files = new Files(absoluteBasePath)
+    await files.initialise()
   })
 
 app
