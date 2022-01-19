@@ -7,7 +7,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 import Files from '../lib/Files.js'
 
-const packageInfo = JSON.parse(fs.readFileSync(path.normalize(path.join(__dirname, '..', 'package.json')), 'utf-8'))
+import packageInfo from '../package.json'
 
 const app = sade('nodekit')
 
