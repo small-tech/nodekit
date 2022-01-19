@@ -13,7 +13,7 @@ const app = sade('nodekit')
 
 app
   .version(packageInfo.version)
-  .describe('An opinionated Small Web server.')
+  .describe('A Small Web server.')
 
 app
   .command('serve [basePath]', '', {default: true})
