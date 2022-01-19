@@ -89,7 +89,7 @@ bin/nodekit examples/simple-chat
 
 > 💡 For now, the easiest way to follow along is to create a folder called _tutorials_ in the NodeKit source folder itself and create a new folder for each tutorial. Then, you can run them from the NodeKit source folder using, for example, `bin/nodekit tutorials/hello-world`
 >
-> (You _can_ currently place your project anywhere but you must run `bin/nodekit` from the NodeKit folder. If you want to run it from anywhere, [build NodeKit](#build) and put the resulting `dist` folder on your system path. Then, you can run NodeKit from anywhere using `nodekit <path to serve>`).
+> (You _can_ currently place your project anywhere but you must run `bin/nodekit` from the NodeKit folder. If you want to run it from anywhere, [build NodeKit](#building-nodekit) and put the resulting `dist` folder on your system path. Then, you can run NodeKit from anywhere using `nodekit <path to serve>`).
 
 ### Hello, world!
 
