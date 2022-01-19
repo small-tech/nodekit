@@ -14,7 +14,7 @@ _Because creating a modern web site should be simple if your aim isn’t to do s
 
 > \* Currently, all routes are built at server start but that’s going to change in the next few days as I implement lazy loading of routes. Server startup time should be almost instant (< 10ms) and will mostly be limited by initial table load time if you’re using the integrated [JavaScript Database (JSDB)](https://github.com/small-tech/jsdb).
 
-## Index
+## Contents
 
  This readme is split into two parts:
 
