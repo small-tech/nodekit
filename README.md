@@ -17,17 +17,11 @@ _Because creating a modern web site should be simple if your aim isn’t to do s
 
  The first describes the current state of the project and what you can do with it now. The second, which you can think of as a design document, describes where I want to take it.
 
-&nbsp;
-&nbsp;
-
 > &nbsp;
 > &nbsp;
 > ## 🤓👍 You are now entering the present…
 > &nbsp;
 > &nbsp;
-
-&nbsp;
-&nbsp;
 
 # How things are
 
@@ -135,7 +129,7 @@ Now run `nodekit` and refresh the page to see the counter increase.
 
 > #### How does it work?
 >
-> A page in NodeKit is written in NodeScript, which is a superset of Svelte
+> A page in NodeKit is written in [NodeScript](#nodescript), which is a superset of [Svelte](https://svelte.dev).
 >
 > In addition to what Svelte can do, NodeScript gives you the ability to add server-side code to your pages in a `<data>` section.
 >
@@ -153,7 +147,9 @@ Your count is lost! (This is a tragedy.)
 
 So let’s fix that.
 
-(Brace yourself, you’re about to use – _drumroll_ a SCARY database! Oooh!)
+(Brace yourself, you’re about to use – _drumroll_ – a SCARY database! _Oooh!_)
+
+> ## 👻 Scared yet?
 
 Update your code to match this:
 
@@ -176,6 +172,8 @@ Update your code to match this:
 
 <p>I’ve greeted you {data.count} times.</p>
 ```
+
+Now load the page, refresh, stop the server, restart it, and load the page…
 
 __Wait, what?__
 
@@ -255,7 +253,6 @@ Here is a list of the main file types NodeKit handles and how it handles them:
 | Extension | Type | Behaviour |
 | --------- | ---- | --------- |
 | .page     | NodeKit page (supports NodeScript) | Compiled into HTML and served in response to a HTTP GET request for the specified path. |
-| .data     | A server-side data handler for a page | A handler that is called on the server while a page is being server-side rendered. Its return value is set as the `data` prop of the page. |
 | .get, .head, .patch, .options, .connect, .delete, .trace, .post, .put | HTTP route | Served in response to an HTTP request for the specified method and path. |
 | .socket | WebSocket route | Served in response to a WebSocket request for the specified path. |
 | .component | Svelte component | Ignored by router. |
@@ -419,7 +416,9 @@ my-project
 
 ### serve
 
-Default command. `nodekit serve <path to serve>` and `nodekit <path to serve>` are equivalent.
+Default command.
+
+> 💡 `nodekit serve <path to serve>` and `nodekit <path to serve>` are equivalent.
 
 ### --version
 
@@ -443,17 +442,11 @@ To run NodeKit from the distribution folder, use the following syntax:
 ./nodekit <path to serve>
 ```
 
-&nbsp;
-&nbsp;
-
 > &nbsp;
 > &nbsp;
 > ## 🤓✋ You are now leaving the present and entering the future…
 > &nbsp;
 > &nbsp;
-
-&nbsp;
-&nbsp;
 
 # How things will be
 
