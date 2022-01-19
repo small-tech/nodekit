@@ -6,7 +6,13 @@
 
 ## A [Small Web](https://small-tech.org/research-and-development) server.
 
+NodeKit is a web server with an integrated application framework that makes web development _even easier_ than it was even in the early days.
+
+Enjoy buildless* web development with a modern stack built on top of [Node.js](https://nodejs.org/en/), [experimental ESM loaders](https://nodejs.org/docs/latest-v16.x/api/esm.html#loaders), [NodeScript](#nodescript) (a superset of [Svelte](https://svelte.dev)), and [esbuild](https://esbuild.github.io/).
+
 _Because creating a modern web site should be simple if your aim isn’t to do something nasty to people._
+
+> \* Currently, all routes are built as startup but that’s going to change in the next few days as I implement lazy loading of routes. Server startup time should be almost instant (< 10ms) and will mostly be limited by the initial data load time if you’re using the integrated [JavaScript Database (JSDB)](https://github.com/small-tech/jsdb). 
 
 ## Index
 
