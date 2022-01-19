@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+set -e
+
+echo '  ╭─ Building NodeKit distribution.'
+
+echo '  ├─── Deleting existing dist/ folder. '
+rm -rf dist
+
+echo '  ├─── Creating dist/ folder. '
+mkdir -p dist/node_modules
+
+# Create dist/nodekit-bundle.js
+
+echo '  ├─── Building nodekit (main process).'
+
+node_modules/esbuild/bin/esbuild bin/nodekit.js --bundle --platform=node --format=esm --outfile=dist/nodekit-bundle.js --banner:js='import { createRequire as topLevelCreateRequire } from "module"; const require = topLevelCreateRequire(import.meta.url);'
+
+# Create dist/loader-bundle.js
+
+echo '  ├─── Building nodekit (ES Module loader process).'
+
+node_modules/esbuild/bin/esbuild loader.js --bundle --platform=node --format=esm --outfile=dist/loader-bundle.js --external:esbuild --banner:js='import { createRequire as topLevelCreateRequire } from "module"; import { dirname } from "path"; const __filename = fileURLToPath(import.meta.url);const require = topLevelCreateRequire(import.meta.url);'
+
+# Copy esbuild package, including the Linux 64 binary as an external module.
+# (esbuild cannot be bundled using esbuild as it contains a binary.)
+
+echo '  ├─── Copying esbuild module (external).'
+cp -R node_modules/esbuild dist/node_modules
+
+# This script suppresses warnings about experimental ES Module feature usage.
+
+echo '  ├─── Copying experimental warnings suppression script (external).'
+cp suppress-experimental.cjs dist/
+
+# The launcher script loads the CLI bundle using the ES Module loader bundle,
+# specifying the required experimental flats and loading the module to
+# suppress experimental module warnings.
+
+echo '  ├─── Generating launcher script (nodekit command).'
+
+cat > dist/nodekit << EOL
+#!/usr/bin/env bash
+
+set -e
+
+NODE_OPTIONS='--require=./suppress-experimental.cjs' node --experimental-modules --experimental-specifier-resolution=node --experimental-loader ./loader-bundle.js ./nodekit-bundle.js "\$@"
+EOL
+
+echo '  ├─── Making launcher script executable.'
+
+chmod +x dist/nodekit
+
+echo '  ╰─ Done!'

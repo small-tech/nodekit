@@ -2,3 +2,5 @@ node_modules
 coverage
 .cache
 .db
+dist
+dist-hand-rolled
