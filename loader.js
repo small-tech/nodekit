@@ -132,7 +132,8 @@ async function compileSource(filePath) {
 
   // Layout (TODO) and hydration script support.
   if (filePath.endsWith('.page')) {
-    const script = scriptRegExp.exec(svelteSource)[0]
+    let script = scriptRegExp.exec(svelteSource)
+    script = script ? script[0] : ''
     const markup = svelteSource.replace(scriptRegExp, '').replace(styleRegExp, '').trim()
 
         // TODO: Implement layout support properly based on the list of layout
