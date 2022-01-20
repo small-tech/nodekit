@@ -1,4 +1,4 @@
-# NodeKit
+# ![NodeKit logo](./nodekit-logo.svg) NodeKit
 
 > ## 💀 __Warning:__ NodeKit is in a very early state. It is not feature-complete.
 >

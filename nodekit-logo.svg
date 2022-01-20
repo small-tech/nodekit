@@ -1,0 +1,21 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 507 578"
+  height="4em"
+>
+  <!-- Svelte on the outside. -->
+  <path d="M250,0L0,133L0,428L250,573L500,428L500,133L250,0Z" style="fill: rgb(255, 62, 0);"/>
+
+  <!-- Some yummy sweet magic in between. -->
+  <path d="M250,57L50,164L50,399L250,515L450,399L450,164L250,57Z" style="fill: white;"/>
+
+  <!-- And Node.js on the inside. -->
+  <path d="M250,115L100,195L100,372L250,459L400,372L400,195L250,115Z" style="fill: rgb(104, 159, 99);"/>
+
+  <!-- Shading to add 3D cube effect. -->
+  <path d="M250,287L0,133L0,428L250,573L250,287Z" style="fill: black; fill-opacity: 0.5;"/>
+
+  <path d="M250,0L0,133L250,287L500,133L250,0Z" style="fill: white; fill-opacity: 0.5;"/>
+
+  <path d="M500,133L250,287L250,573L500,428L500,133Z" style="fill: rgb(225, 225, 225); fill-opacity: 0.2;"/>
+</svg>
