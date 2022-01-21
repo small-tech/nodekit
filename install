@@ -2,7 +2,11 @@
 
 set -e
 
-echo 'Installing NodeKit locally…'
+echo 'Installing NodeKit…'
+echo ''
+
+# Ensure npm dependencies are up to date.
+npm install
 
 # Create distribution build.
 ./build
@@ -22,4 +26,7 @@ sudo rm -f /usr/local/bin/nodekit
 # Create the symlink to the NodeKit binary.
 sudo ln -s "${HOME}/.small-tech.org/nodekit/app/nodekit" /usr/local/bin/nodekit
 
+echo ''
 echo 'Installed!'
+echo ''
+echo 'Run using: nodekit <path to serve>'

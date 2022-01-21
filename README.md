@@ -56,19 +56,26 @@ __Instructions and examples in this section should work.__ If you’re having a 
       cd nodekit
       ```
 
-  3. Install dependencies.
+  3. Install.
 
       ```shell
-      npm install
+      ./install
       ```
 
 ## Getting started
 
-You can run NodeKit from the source folder using the following syntax:
+You can run NodeKit using the following syntax:
+
+```shell
+nodekit <path to serve>
+```
+
+During development, you can also run NodeKit from the source folder like this:
 
 ```shell
 bin/nodekit <path to serve>
 ```
+
 The best way to get started is to play with the examples.
 
 ## Examples
@@ -80,16 +87,12 @@ The best way to get started is to play with the examples.
 e.g., to launch the Simple Chat example, run:
 
 ```shell
-bin/nodekit examples/simple-chat
+nodekit examples/simple-chat
 ```
 
 > Early bird warning: NodeKit doesn’t currently watch for changes to the source and automatically reload your routes when you update them. For the time being, you will have to manually restart the server any time you make a change. (Yes, this is going to change quite radically in the coming days and weeks.) 😉
 
 ## Tutorials
-
-> 💡 For now, the easiest way to follow along is to create a folder called _tutorials_ in the NodeKit source folder itself and create a new folder for each tutorial. Then, you can run them from the NodeKit source folder using, for example, `bin/nodekit tutorials/hello-world`
->
-> (You _can_ currently place your project anywhere but you must run `bin/nodekit` from the NodeKit folder. If you want to run it from anywhere, [build NodeKit](#building-nodekit) and put the resulting `dist` folder on your system path. Then, you can run NodeKit from anywhere using `nodekit <path to serve>`).
 
 ### Hello, world!
 
@@ -451,6 +454,8 @@ To run NodeKit from the distribution folder, use the following syntax:
 ```shell
 ./nodekit <path to serve>
 ```
+
+> 💡 It’s usually easier just to run the `./install` script as that will run build for you and install the nodekit command into your path.
 
 > &nbsp;
 > &nbsp;
