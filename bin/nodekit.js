@@ -16,19 +16,20 @@ app
   .describe('A Small Web server.')
 
 app
-  .command('serve [basePath]', '', {default: true})
+  .command('serve [pathToServe]', '', {default: true})
+  .option('--base-path', 'The path pathToServe is relative to', '/')
   .describe('Start server as regular process.')
-  .action(async (basePath, options) => {
+  .action(async (pathToServe, options) => {
+    const absolutePathToServe = path.resolve(options['base-path'], pathToServe)
 
-    if (!fs.existsSync(basePath)) {
-      console.error(`${basePath} not found.`)
+    if (!fs.existsSync(absolutePathToServe)) {
+      console.error(`${absolutePathToServe} not found.`)
       process.exit(1)
     }
 
     console.log('Starting NodeKit server…')
-    const absoluteBasePath = path.resolve(basePath)
-    console.log('Serving', absoluteBasePath)
-    const files = new Files(absoluteBasePath)
+    console.log('Serving', absolutePathToServe)
+    const files = new Files(absolutePathToServe)
     await files.initialise()
   })
 

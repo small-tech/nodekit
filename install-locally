@@ -1,0 +1,25 @@
+!#/usr/bin/env bash
+
+set -e
+
+echo 'Installing NodeKit locally…'
+
+# Create distribution build.
+./build
+
+# Remove existing app folder if it exists.
+rm -rf "${HOME}/.small-tech.org/nodekit/app"
+
+# Ensure NodeKit folder exists that we are going to install into.
+mkdir -p "${HOME}/.small-tech.org/nodekit"
+
+# Copy distribution folder to installation location.
+cp -R dist "${HOME}/.small-tech.org/nodekit/app"
+
+# Remove old symlink if it exists.
+sudo rm -f /usr/local/bin/nodekit
+
+# Create the symlink to the NodeKit binary.
+sudo ln -s "${HOME}/.small-tech.org/nodekit/app/nodekit" /usr/local/bin/nodekit
+
+echo 'Installed!'
