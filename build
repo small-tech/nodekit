@@ -28,27 +28,32 @@ node_modules/esbuild/bin/esbuild loader.js --bundle --platform=node --format=esm
 # Copy esbuild package, including the Linux 64 binary as an external module.
 # (esbuild cannot be bundled using esbuild as it contains a binary.)
 
-echo '  ├─── Copying esbuild module (external).'
+echo '  ├─── Copying esbuild modules (external).'
 cp -R node_modules/esbuild dist/node_modules
+cp -R node_modules/esbuild-linux-64 dist/node_modules
+
+# Remove the redundant esbuild binary in the main esbuild package (if it exists)
+# as it will copy the binary over from the esbuild-linux-64 package into itself.
+# This saves us from including the esbuild binary twice in the distribution package.
+rm -f dist/node_modules/esbuild/bin/esbuild
 
 # This script suppresses warnings about experimental ES Module feature usage.
 
 echo '  ├─── Copying experimental warnings suppression script (external).'
+
 cp suppress-experimental.cjs dist/
+
+echo '  ├─── Copying package file (to set ESM mode).'
+
+cp build-templates/package.json dist/
 
 # The launcher script loads the CLI bundle using the ES Module loader bundle,
 # specifying the required experimental flats and loading the module to
 # suppress experimental module warnings.
 
-echo '  ├─── Generating launcher script (nodekit command).'
+echo '  ├─── Copying launcher script (nodekit command).'
 
-cat > dist/nodekit << EOL
-#!/usr/bin/env bash
-
-set -e
-
-NODE_OPTIONS='--require=./suppress-experimental.cjs' node --experimental-modules --experimental-specifier-resolution=node --experimental-loader ./loader-bundle.js ./nodekit-bundle.js "\$@"
-EOL
+cp build-templates/nodekit dist/
 
 echo '  ├─── Making launcher script executable.'
 
