@@ -284,8 +284,6 @@ For example, to respond to GET requests at `/books`, you would create a file nam
 
 The content of HTTP routes is an ESM module that exports a standard Node route request handler that takes [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) and [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse) arguments.
 
-__TODO: As we’re going to add to these, document those additions here.__
-
 For example, your `books.get` route might look like this:
 
 ```js
@@ -431,7 +429,9 @@ my-project
 
 Default command.
 
-> 💡 `nodekit serve <path to serve>` and `nodekit <path to serve>` are equivalent.
+> 💡 `nodekit serve [path to serve]` and `nodekit [path to serve]` are equivalent.
+
+Note that if do not specify a path to serve, the default directory (`./`) is assumed.
 
 ### --version
 
