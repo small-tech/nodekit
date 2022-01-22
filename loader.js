@@ -11,6 +11,11 @@ import { BroadcastChannel } from 'worker_threads'
 import { fileURLToPath } from 'url'
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
+const nodekitAppPath = process.argv[1].replace('nodekit-bundle.js', '')
+const svelteExports = (await import(`${nodekitAppPath}/node_modules/svelte/package.json`)).default.exports
+
+console.log('svelte export', svelteExports)
+
 function truthyHashmapFromArray(array) {
   return array.reduce((obj, key) => { obj[key] = true; return obj}, {})
 }
@@ -62,23 +67,48 @@ export async function resolve(specifier, context, defaultResolve) {
   // main worker use the same version of Svelte so we don’t run into any
   // versioning issues either.
 
-  const nodekitAppPath = process.argv[1].replace('nodekit-bundle.js', '')
+  console.log('[LOADER]', 'specifier', specifier)
+    // Resolve Svelte routes to the NodeKit application itself. (We cannot use Node’s default resolver
+    // here and just change the base path since Node will not find Svelte’s package.json in the project
+    // path and thus will not be able to resolve the paths properly.)
+    if (specifier === 'svelte') {
+      const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), svelteExports['.'].node.import)
+      console.log('Loading main svelte package from ', importPath)
+      return {
+        url: `file://${importPath}`
+      }
+    } else if (specifier.startsWith('svelte/')) {
+      console.log('Attempting to resolve internal Svelte package…')
+      const svelteExport = specifier.replace('svelte', '.')
+      console.log('svelteExport', svelteExport)
+      const pathToExport = svelteExports[svelteExport]
 
-  // See if this is a Svelte request and, if so, map to the instance of Svelte
-  // that we have installed NodeKit.
-  if (specifier === 'svelte' || specifier.startsWith('svelte/') || (context.parentURL && context.parentURL.includes('/node_modules/svelte/'))) {
-    // Let Node’s resolver do all the hard work so we don’t have to replicate it.
-    const packageLocationInProject = defaultResolve(specifier, context, defaultResolve).url
-    const packageLocationInNodeKitApp = packageLocationInProject.replace(/^.*(?=node_modules)/, `file://${nodekitAppPath}`)
+      if (pathToExport === undefined) {
+        console.error('[LOADER] Could not resolve Svelte export', svelteExport)
+        process.exit(1)
+      }
+      const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), pathToExport.import)
 
-    console.log('[LOADER]', 'Svelte resolution override', packageLocationInNodeKitApp)
-    return {
-      url: packageLocationInNodeKitApp
+      console.log('importPath', importPath)
+      return { url: `file://${importPath}` }
+    } else if (context.parentURL != undefined && context.parentURL.includes('/node_modules/svelte/')) {
+      console.log('Attempting to resolve package with parent in Svelte package…')
+
+      const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), specifier)
+      console.log('importPath', importPath)
+      return { url: `file://${importPath}` }
     }
-  }
+
+    // const packageLocationInNodeKitApp = packageLocationInProject.url.replace(/^.*(?=node_modules)/, `file://${nodekitAppPath}`)
+
+    // console.log('[LOADER]', 'Svelte resolution override', packageLocationInNodeKitApp)
+    // return {
+    //   url: packageLocationInNodeKitApp
+    // }
 
   // Handle NodeKit assets.
   if (allAliases[path.extname(specifier)]) {
+    console.log('>> nodekit asset', specifier)
     const parentURL = new URL(context.parentURL)
     const parentPath = path.dirname(parentURL.pathname)
     const absolutePath = path.resolve(parentPath, specifier)
@@ -89,7 +119,13 @@ export async function resolve(specifier, context, defaultResolve) {
   }
 
   // For anything else, let Node do its own magic.
-  const resolved = defaultResolve(specifier, context, defaultResolve)
+  let resolved
+  try {
+    resolved = defaultResolve(specifier, context, defaultResolve)
+  } catch (error) {
+    console.error('[LOADER] ERROR: Could not resolve', specifier)
+    process.exit(1)
+  }
   console.log('default resolve:', resolved)
   return resolved
 }
