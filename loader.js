@@ -55,7 +55,29 @@ function extensionOf(urlString) {
 }
 
 export async function resolve(specifier, context, defaultResolve) {
+  // Since we don’t want every NodeKit project to have to npm install Svelte
+  // to work, we resolve Svelte URLs to the version of Svelte that we’ve
+  // installed with NodeKit. This will also ensure that both the hydration
+  // script run by esbuild in the loader and the Svelte SSR compiler in the
+  // main worker use the same version of Svelte so we don’t run into any
+  // versioning issues either.
 
+  const nodekitAppPath = process.argv[1].replace('nodekit-bundle.js', '')
+
+  // See if this is a Svelte request and, if so, map to the instance of Svelte
+  // that we have installed NodeKit.
+  if (specifier === 'svelte' || specifier.startsWith('svelte/') || (context.parentURL && context.parentURL.includes('/node_modules/svelte/'))) {
+    // Let Node’s resolver do all the hard work so we don’t have to replicate it.
+    const packageLocationInProject = defaultResolve(specifier, context, defaultResolve).url
+    const packageLocationInNodeKitApp = packageLocationInProject.replace(/^.*(?=node_modules)/, `file://${nodekitAppPath}`)
+
+    console.log('[LOADER]', 'Svelte resolution override', packageLocationInNodeKitApp)
+    return {
+      url: packageLocationInNodeKitApp
+    }
+  }
+
+  // Handle NodeKit assets.
   if (allAliases[path.extname(specifier)]) {
     const parentURL = new URL(context.parentURL)
     const parentPath = path.dirname(parentURL.pathname)
@@ -66,7 +88,10 @@ export async function resolve(specifier, context, defaultResolve) {
     }
   }
 
-  return defaultResolve(specifier, context, defaultResolve)
+  // For anything else, let Node do its own magic.
+  const resolved = defaultResolve(specifier, context, defaultResolve)
+  console.log('default resolve:', resolved)
+  return resolved
 }
 
 // Node version 16.x: in 14.x, this call was split between three separate hooks, two of
