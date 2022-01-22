@@ -93,8 +93,8 @@ export async function resolve(specifier, context, defaultResolve) {
       return { url: `file://${importPath}` }
     } else if (context.parentURL != undefined && context.parentURL.includes('/node_modules/svelte/')) {
       console.log('Attempting to resolve package with parent in Svelte package…')
-
-      const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), specifier)
+      console.log('specifier', specifier)
+      const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), specifier.replace('..', '.'))
       console.log('importPath', importPath)
       return { url: `file://${importPath}` }
     }
