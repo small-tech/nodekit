@@ -150,7 +150,7 @@ Now run `nodekit` and refresh the page to see the counter increase.
 >
 > The rest of the example is simply client-side Svelte.
 >
-> ___If you haven’t done so already, now would be a good time to work through the entire [Svelte Tutorial](https://svelte.dev/tutorial/basics). Go ahead, I’ll wait…___
+> ___If you haven’t done so already, now would be a good time to work through the entire [Svelte Tutorial](https://svelte.dev/tutorial/basics). It’s rather excellent. Go ahead, I’ll wait…___
 
 ### Persistence is the secret to success (or something)
 
