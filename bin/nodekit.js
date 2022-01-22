@@ -20,7 +20,7 @@ app
   .option('--base-path', 'The path pathToServe is relative to', '/')
   .describe('Start server as regular process.')
   .action(async (pathToServe, options) => {
-    const absolutePathToServe = path.resolve(options['base-path'], pathToServe)
+    const absolutePathToServe = path.resolve(options['base-path'], pathToServe === undefined ? '.' : pathToServe)
 
     if (!fs.existsSync(absolutePathToServe)) {
       console.error(`${absolutePathToServe} not found.`)
