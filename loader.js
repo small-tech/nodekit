@@ -60,6 +60,9 @@ function extensionOf(urlString) {
 }
 
 export async function resolve(specifier, context, defaultResolve) {
+
+  console.log('[LOADER]', 'specifier', specifier)
+
   // Since we don’t want every NodeKit project to have to npm install Svelte
   // to work, we resolve Svelte URLs to the version of Svelte that we’ve
   // installed with NodeKit. This will also ensure that both the hydration
@@ -67,44 +70,38 @@ export async function resolve(specifier, context, defaultResolve) {
   // main worker use the same version of Svelte so we don’t run into any
   // versioning issues either.
 
-  console.log('[LOADER]', 'specifier', specifier)
-    // Resolve Svelte routes to the NodeKit application itself. (We cannot use Node’s default resolver
-    // here and just change the base path since Node will not find Svelte’s package.json in the project
-    // path and thus will not be able to resolve the paths properly.)
-    if (specifier === 'svelte') {
-      const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), svelteExports['.'].node.import)
-      console.log('Loading main svelte package from ', importPath)
-      return {
-        url: `file://${importPath}`
-      }
-    } else if (specifier.startsWith('svelte/')) {
-      console.log('Attempting to resolve internal Svelte package…')
-      const svelteExport = specifier.replace('svelte', '.')
-      console.log('svelteExport', svelteExport)
-      const pathToExport = svelteExports[svelteExport]
-
-      if (pathToExport === undefined) {
-        console.error('[LOADER] Could not resolve Svelte export', svelteExport)
-        process.exit(1)
-      }
-      const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), pathToExport.import)
-
-      console.log('importPath', importPath)
-      return { url: `file://${importPath}` }
-    } else if (context.parentURL != undefined && context.parentURL.includes('/node_modules/svelte/')) {
-      console.log('Attempting to resolve package with parent in Svelte package…')
-      console.log('specifier', specifier)
-      const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), specifier.replace('..', '.'))
-      console.log('importPath', importPath)
-      return { url: `file://${importPath}` }
+  // TODO: Refactor to remove redundancy.
+  if (specifier === 'svelte') {
+    const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), svelteExports['.'].node.import)
+    console.log('Loading main svelte package from ', importPath)
+    return {
+      url: `file://${importPath}`
     }
+  } else if (specifier.startsWith('svelte/')) {
+    console.log('Attempting to resolve internal Svelte package…')
+    const svelteExport = specifier.replace('svelte', '.')
+    console.log('svelteExport', svelteExport)
+    const pathToExport = svelteExports[svelteExport]
 
-    // const packageLocationInNodeKitApp = packageLocationInProject.url.replace(/^.*(?=node_modules)/, `file://${nodekitAppPath}`)
+    if (pathToExport === undefined) {
+      console.error('[LOADER] Could not resolve Svelte export', svelteExport)
+      process.exit(1)
+    }
+    const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), pathToExport.import)
 
-    // console.log('[LOADER]', 'Svelte resolution override', packageLocationInNodeKitApp)
-    // return {
-    //   url: packageLocationInNodeKitApp
-    // }
+    console.log('importPath', importPath)
+    return {
+      url: `file://${importPath}`
+    }
+  } else if (context.parentURL != undefined && context.parentURL.includes('/node_modules/svelte/')) {
+    console.log('Attempting to resolve package with parent in Svelte package…')
+    console.log('specifier', specifier)
+    const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), specifier.replace('..', '.'))
+    console.log('importPath', importPath)
+    return {
+      url: `file://${importPath}`
+    }
+  }
 
   // Handle NodeKit assets.
   if (allAliases[path.extname(specifier)]) {
