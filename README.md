@@ -83,6 +83,7 @@ The best way to get started is to play with the examples.
   - Hello Count: `examples/hello-count`
   - Persisted Hello Count: `examples/persisted-hello-count`
   - Simple Chat: `examples/simple-chat`
+  - Non-SSR Svelte Component: `examples/non-ssr-svelte-component`
 
 e.g., to launch the Simple Chat example, run:
 
