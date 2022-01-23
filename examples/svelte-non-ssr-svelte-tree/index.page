@@ -1,0 +1,50 @@
+<script>
+  import { onMount } from 'svelte'
+  import Tree from "svelte-tree"
+
+  let TreeComponent
+  onMount(async () => {
+    TreeComponent = (await import('svelte-tree')).default
+  })  
+
+  const tree = [
+      {
+          name: "This is a root node",
+          children: [
+              {
+                  name: "And it has",
+              },
+              {
+                  name: "two children",
+              },
+          ],
+      },
+      {
+          name: "This is another root node",
+          children: [
+              {
+                  name: "This one is alone",
+              },
+              {
+                  name: "But this one has nested children",
+                  children: [
+                      {
+                          name: "Like this",
+                      },
+                      {
+                          name: "and this",
+                      },
+                  ],
+              },
+          ],
+      },
+  ];
+</script>
+
+<svelte:component
+  this={TreeComponent}
+  {tree}
+  let:node
+>
+  <div class="name">{node.name}</div>
+</svelte:component>
