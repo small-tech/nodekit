@@ -6,7 +6,9 @@ echo 'Installing NodeKit…'
 echo ''
 
 # Ensure npm dependencies are up to date.
-npm install
+# The additional npm install settings are there to ensure this step is not
+# a bottleneck as we use this command all the time while testing during development.
+npm install --prefer-offline --no-audit --progress=false
 
 # Create distribution build.
 ./build
