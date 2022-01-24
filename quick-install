@@ -2,11 +2,8 @@
 
 set -e
 
-echo 'Installing NodeKit…'
+echo 'Quick installing NodeKit (no npm package install)…'
 echo ''
-
-# Ensure npm dependencies are up to date.
-npm install
 
 # Create distribution build.
 ./build
@@ -27,6 +24,6 @@ sudo rm -f /usr/local/bin/nodekit
 sudo ln -s "${HOME}/.small-tech.org/nodekit/app/nodekit" /usr/local/bin/nodekit
 
 echo ''
-echo 'Installed!'
+echo 'Quick installed!'
 echo ''
 echo 'Run using: nodekit <path to serve>'
