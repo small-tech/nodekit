@@ -111,6 +111,10 @@
   }
 </script>
 
+<svelte:head>
+  <link rel='stylesheet' type='text/css' href='./index.css'>
+</svelte:head>
+
 <main>
   <h1>{data.config.dns.domain} admin</h1>
 

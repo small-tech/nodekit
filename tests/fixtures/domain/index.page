@@ -104,7 +104,7 @@
   async function handleButton() {
     if (paymentIsNone) {
       // TODO: Replace this with something.
-      // return goto('/admin')
+      window.location = '/admin'
     }
 
     if (paymentIsStripe) {
@@ -123,6 +123,10 @@
     }
   }
 </script>
+
+<svelte:head>
+  <link rel='stylesheet' type='text/css' href='./index.css'>
+</svelte:head>
 
 {#if data.config.payment.mode === 'test'}
   <div class='testMode'>Test Mode</div>
