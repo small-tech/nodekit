@@ -70,12 +70,14 @@ export async function resolve(specifier, context, defaultResolve) {
   if (specifier === 'svelte') {
     const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), svelteExports['.'].node.import)
     const resolved = { url: `file://${importPath}` }
-    console.log('[LOADER]', 'Loading:', specifier, `Main svelte package from NodeKit (${resolved.url})`)
+
+    // console.log('[LOADER]', 'Loading:', specifier, `Main svelte package from NodeKit (${resolved.url})`)
+
     return resolved
   } else if (specifier.startsWith('svelte/')) {
-    console.log('Attempting to resolve internal Svelte package…')
+    // console.log('Attempting to resolve internal Svelte package…')
     const svelteExport = specifier.replace('svelte', '.')
-    console.log('svelteExport', svelteExport)
+    // console.log('svelteExport', svelteExport)
     const pathToExport = svelteExports[svelteExport]
 
     if (pathToExport === undefined) {
@@ -86,14 +88,17 @@ export async function resolve(specifier, context, defaultResolve) {
 
     const resolved = { url: `file://${importPath}` }
 
-    console.log('[LOADER]', 'Loading:', specifier, `(Svelte sub-package; serving from NodeKit: ${resolved.url})`)
+    // console.log('[LOADER]', 'Loading:', specifier, `(Svelte sub-package; serving from NodeKit: ${resolved.url})`)
+
     return resolved
   } else if (context.parentURL != undefined && context.parentURL.includes('/node_modules/svelte/')) {
-    console.log('Attempting to resolve package with parent in Svelte package…')
-    console.log('specifier', specifier)
+    // console.log('Attempting to resolve package with parent in Svelte package…')
+    // console.log('specifier', specifier)
     const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), specifier.replace('..', '.'))
     const resolved = { url: `file://${importPath}` }
-    console.log('[LOADER]', 'Loading:', specifier, `Svelte internal relative package reference (${resolved.url})`)
+
+    // console.log('[LOADER]', 'Loading:', specifier, `Svelte internal relative package reference (${resolved.url})`)
+
     return resolved
   }
 
@@ -104,7 +109,8 @@ export async function resolve(specifier, context, defaultResolve) {
     const absolutePath = path.resolve(parentPath, specifier)
 
     const resolved = { url: `file://${absolutePath}` }
-    console.log('[LOADER]', 'Loading:', specifier, `(NodeKit asset: ${resolved.url.replace('file://', '') === specifier ? 'OK': `NOT ok: ${resolved.url}`})`)
+
+    // console.log('[LOADER]', 'Loading:', specifier, `(NodeKit asset: ${resolved.url.replace('file://', '') === specifier ? 'OK': `NOT ok: ${resolved.url}`})`)
 
     return resolved
   }
@@ -117,7 +123,9 @@ export async function resolve(specifier, context, defaultResolve) {
     console.error('[LOADER] ERROR: Could not resolve', specifier)
     process.exit(1)
   }
-  console.log('[LOADER]', 'Loading:', specifier.includes('.small-tech.org/nodekit/app/nodekit-bundle.js') ? 'NodeKit [main process]' : specifier, `(default resolve: ${resolved.url})`)
+
+  // console.log('[LOADER]', 'Loading:', specifier.includes('.small-tech.org/nodekit/app/nodekit-bundle.js') ? 'NodeKit [main process]' : specifier, `(default resolve: ${resolved.url})`)
+
   return resolved
 }
 
@@ -212,7 +220,7 @@ async function compileSource(filePath) {
       }
     }
 
-    console.log('[LOADER] New route!', route)
+    // console.log('[LOADER] New route!', route)
 
     // Update the route cache with the material for this route.
     broadcastChannel.postMessage(routeDetails)
