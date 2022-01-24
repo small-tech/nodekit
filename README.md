@@ -83,7 +83,7 @@ The best way to get started is to play with the examples.
   - Hello Count: `examples/hello-count`
   - Persisted Hello Count: `examples/persisted-hello-count`
   - Simple Chat: `examples/simple-chat`
-  - Non-SSR Svelte Component: `examples/non-ssr-svelte-component`
+  - Non-SSR Svelte Compiled Component Workaround (Particles): `examples/non-ssr-svelte-compiled-component-workaround-particles`
 
 e.g., to launch the Simple Chat example, run:
 
@@ -529,6 +529,19 @@ To update NodeKit to the latest version:
     nodekit update
     ```
   - __On production,__ you don’t have to do anything as NodeKit will automatically update itself and its companion Node.js binary as and when necessary.
+
+## Examples
+
+> Note: using third-party Svelte components in NodeKit is sketchy at the moment
+> ([see this](https://github.com/sveltejs/svelte/issues/6584)).
+> The last example should work but it uses a roundabout way to instantiate the
+> component. The first two examples may or may not work depending on the state
+> of the main branch as I’m experimenting with different ways to support this
+> use case as we speak.
+
+  - Non-SSR Svelte Source Component (Boring Avatars): `examples/non-ssr-svelte-source-component-boring-avatars`
+  - Non-SSR Svelte Source Component (Tree): `examples/non-ssr-svelte-source-component-tree`
+  - Non-SSR Svelte Compiled Component Workaround (Particles): `examples/non-ssr-svelte-compiled-component-workaround-particles`
 
 ## To do or not to do?
 

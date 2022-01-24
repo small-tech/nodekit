@@ -1,0 +1,33 @@
+<script>
+  import { onMount } from "svelte"
+
+  let particles
+
+  onMount(async () => {
+    const SvelteParticles = (await import("svelte-particles")).default
+
+    new SvelteParticles({
+      target: particles,
+      props: {
+        options: particlesConfig
+      }
+    })
+  })
+
+  let particlesConfig = {
+    particles: {
+      color: {
+        value: "#000",
+      },
+      links: {
+        enable: true,
+        color: "#000",
+      },
+      move: {
+        enable: true,
+      },
+    },
+  }
+</script>
+
+<div bind:this="{particles}" />
