@@ -11,7 +11,10 @@ basePath=`pwd`
 # was run from.
 pushd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
-NODE_OPTIONS='--require=./suppress-experimental.cjs' node --experimental-modules --experimental-specifier-resolution=node --experimental-loader ./loader-bundle.js ./nodekit-bundle.js --base-path="${basePath}" "$@"
+until (NODE_OPTIONS='--require=./suppress-experimental.cjs' node --experimental-modules --experimental-specifier-resolution=node --experimental-loader ./loader-bundle.js ./nodekit-bundle.js --base-path="${basePath}" "$@"); do
+  echo 'Restarting…'
+  sleep 1
+done
 
 # Return to folder nodekit was evoked from when execution ends.
 trap popd EXIT
