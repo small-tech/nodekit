@@ -248,7 +248,7 @@ export default class NodeKit {
               // to write to filesystem… but what about imports in the script, etc.?
               if (routeCache.nodeScript && this._nodeScript == undefined) {
                 const dynamicModule = path.join(basePath, `${className}.${Date.now()}.script.tmp.mjs`)
-                const relativePathToDynamicModule = path.relative(__dirname, dynamicModule)
+                const relativePathToDynamicModule = './' + path.relative(__dirname, dynamicModule)
 
                 await fsPromises.writeFile(dynamicModule, routeCache.nodeScript)
                 this._nodeScript = (await import(relativePathToDynamicModule)).default
