@@ -40,7 +40,7 @@ app
   .describe('Install server systemd service and start it at hostname using globally-trusted TLS certificates.')
   .option('--skip-domain-reachability-check', 'Do not run pre-flight check for domain reachability.')
   .action(options => {
-    console.log('enable: unimplemented', options)
+    console.warn('enable: unimplemented', options)
   })
 
 app.parse(process.argv)
