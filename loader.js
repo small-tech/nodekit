@@ -1,5 +1,8 @@
-console.time('Loader initialisation')
-console.log('================== LOADER PROCESS START =====================')
+console.verbose = process.env.VERBOSE ? function () { console.log(...arguments) } : () => {}
+
+// console.time('Loader initialisation')
+
+console.verbose('================== LOADER PROCESS START =====================')
 import path from 'path'
 import fs from 'fs'
 import { compile } from 'svelte/compiler'
@@ -144,7 +147,7 @@ export async function resolve(specifier, context, defaultResolve) {
 export async function load(url /* string */, context, defaultLoad) {
   const _url = new URL(url)
 
-  // console.log(`[LOADER] Loading ${_url}`)
+  console.verbose(`[LOADER] Loading ${_url}`)
 
   if (_url.protocol === 'file:') {
     const format = 'module'
@@ -171,14 +174,14 @@ async function compileSource(filePath) {
   // Transform an absolute file system path to a web server route.
   const route = routeFromFilePath(filePath)
 
-  console.log(`[LOADER] Compiling ${route}`)
+  console.verbose(`[LOADER] Compiling ${route}`)
 
   let svelteSource = source
   let nodeScript
 
   const nodeScriptResult = nodeScriptRegExp.exec(source)
   if (nodeScriptResult) {
-    console.log('  • Route has NodeScript.')
+    console.verbose('  • Route has NodeScript.')
     // Contains a Node script. Svelte knows nothing about this, so we
     // strip it out and persist it for use during server-side rendering.
     svelteSource = source.replace(nodeScriptResult[0], '')
@@ -236,4 +239,4 @@ async function compileSource(filePath) {
   return output.js.code
 }
 
-console.timeEnd('Loader initialisation')
+// console.timeEnd('Loader initialisation')

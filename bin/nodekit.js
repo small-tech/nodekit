@@ -29,8 +29,8 @@ app
       process.exit(1)
     }
 
-    console.log('Starting NodeKit…')
-    console.log('Serving', absolutePathToServe)
+    console.verbose('Starting NodeKit…')
+    console.verbose('Serving', absolutePathToServe)
     const nodeKit = new NodeKit(absolutePathToServe)
     await nodeKit.initialise()
   })

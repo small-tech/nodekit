@@ -9,7 +9,9 @@
 //
 ////////////////////////////////////////////////////////////
 
-console.log('------------------- MAIN PROCESS START ----------------------')
+console.verbose = process.env.VERBOSE ? function () { console.log(...arguments) } : () => {}
+
+console.verbose('------------------- MAIN PROCESS START ----------------------')
 
 import os from 'os'
 import fs from 'fs'
@@ -74,7 +76,7 @@ export default class NodeKit {
 
     this.broadcastChannel = new BroadcastChannel('loader-and-main-process')
     this.broadcastChannel.onmessage = event => {
-      console.log(`[Main process broadcast channel] Received contents of route`, event.data.route)
+      console.verbose(`[Main process broadcast channel] Received contents of route`, event.data.route)
       this.routes[event.data.route] = event.data.contents
     }
 
@@ -147,7 +149,7 @@ export default class NodeKit {
   handleRestartIfNeededFor(itemType, eventType, itemPath) {
     // If we’re already initialised, exit so we can be restarted.
     if (this.initialised) {
-      console.log(`${itemType.charAt(0).toUpperCase()+itemType.slice(1)} ${eventType} (${itemPath}), asking for restart.`)
+      console.verbose(`${itemType.charAt(0).toUpperCase()+itemType.slice(1)} ${eventType} (${itemPath}), asking for restart.`)
       process.exit(1)
     }
   }
@@ -169,12 +171,12 @@ export default class NodeKit {
   ensurePrivilegedPortsAreDisabled () {
     if (os.platform() === 'linux') {
       try {
-        console.log(' 😇 ❨NodeKit❩ Linux: about to disable privileged ports so we can bind to ports < 1024.')
-        console.log('    ❨NodeKit❩ For details, see: https://source.small-tech.org/site.js/app/-/issues/169')
+        console.verbose(' 😇 ❨NodeKit❩ Linux: about to disable privileged ports so we can bind to ports < 1024.')
+        console.verbose('    ❨NodeKit❩ For details, see: https://source.small-tech.org/site.js/app/-/issues/169')
 
         childProcess.execSync('sudo sysctl -w net.ipv4.ip_unprivileged_port_start=0', {env: process.env})
       } catch (error) {
-        console.log(`\n ❌ ❨NodeKit❩ Error: Could not disable privileged ports. Cannot bind to port 80 and 443. Exiting.`, error)
+        console.error(`\n ❌ ❨NodeKit❩ Error: Could not disable privileged ports. Cannot bind to port 80 and 443. Exiting.`, error)
         process.exit(1)
       }
     }
@@ -199,7 +201,7 @@ export default class NodeKit {
     const extension = path.extname(filePath).replace('.', '')
     const httpMethod = HTTP_METHODS.includes(extension) ? extension : 'get'
 
-    console.log('[FILES] Creating route', route, extension)
+    console.verbose('[FILES] Creating route', route, extension)
 
     // Handlers will lazy-load their content the first time they are hit so
     // what we really have is one meta-handler for every route that decides
@@ -210,7 +212,7 @@ export default class NodeKit {
         // WebSocket route.
         //
         if (this._handler === undefined) {
-          console.log('[Handler] Lazy loading WebSocket route', route)
+          console.verbose('[Handler] Lazy loading WebSocket route', route)
           const webSocketHandler = (await import(filePath)).default
           const webSocketRoute = new WebSocketRoute(webSocketHandler)
           this._handler = webSocketRoute.handler.bind(webSocketRoute)
@@ -221,7 +223,7 @@ export default class NodeKit {
         // All other routes.
         //
         if (this._handler === undefined) {
-          console.log('[Handler] Lazy loading route', route)
+          console.verbose('[Handler] Lazy loading route', route)
           const handlerRaw = (await import(filePath)).default
 
           if (handlerRaw.render) {
@@ -351,7 +353,7 @@ export default class NodeKit {
 
     this.server = https.createServer(this.options, handler)
     this.server.listen(443, () => {
-      console.log(`  🎉 ❨NodeKit❩ Server running at https://${this.hostname}.`)
+      console.log(`\n  🎉 ❨NodeKit❩ Server running at https://${this.hostname}.`)
     })
   }
 }
