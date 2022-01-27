@@ -2,4 +2,4 @@
 
 set -e
 
-NODE_OPTIONS='--require=./suppress-experimental.cjs' node --experimental-modules --experimental-specifier-resolution=node --experimental-loader ./loader.js bin/nodekit.js "$@"
+QUIET=true NODE_OPTIONS='--require=./suppress-experimental.cjs' node --experimental-modules --experimental-specifier-resolution=node --experimental-loader ./loader.js bin/nodekit.js "$@"

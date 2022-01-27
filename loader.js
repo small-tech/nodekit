@@ -1,5 +1,9 @@
 console.verbose = process.env.VERBOSE ? function () { console.log(...arguments) } : () => {}
 
+console.profileTime = process.env.PROFILE ? function () { console.time(...arguments) } : () => {}
+console.profileTimeEnd = process.env.PROFILE ? function () { console.timeEnd(...arguments) } : () => {}
+
+
 // console.time('Loader initialisation')
 
 console.verbose('================== LOADER PROCESS START =====================')

@@ -9,7 +9,10 @@
 //
 ////////////////////////////////////////////////////////////
 
+// Conditional logging.
 console.verbose = process.env.VERBOSE ? function () { console.log(...arguments) } : () => {}
+console.profileTime = process.env.PROFILE ? function () { console.profileTime(...arguments) } : () => {}
+console.profileTimeEnd = process.env.PROFILE ? function () { console.profileTimeEnd(...arguments) } : () => {}
 
 console.verbose('------------------- MAIN PROCESS START ----------------------')
 
@@ -104,7 +107,7 @@ export default class NodeKit {
 
   async initialise () {
     return new Promise((resolve, reject) => {
-      // console.time(`Files ${++Files.timeCounter}`)
+      // console.profileTime(`Files ${++Files.profileTimeCounter}`)
 
       const watcherGlob = `${this.basePath}/**/*.@(page|socket|${HTTP_METHODS.join('|')})`
       const watcherOptions = {
@@ -117,7 +120,7 @@ export default class NodeKit {
       chokidar
         .watch(watcherGlob, watcherOptions)
         .on('ready', async () => {
-          // console.timeEnd(`Files ${Files.timeCounter}`)
+          // console.profileTimeEnd(`Files ${Files.profileTimeCounter}`)
 
           // For now.
           await this.createRoutes()
@@ -237,7 +240,7 @@ export default class NodeKit {
             let className = classNameFromRoute(route)
 
             this._handler = async (request, response) => {
-              console.log('[Page Handler]', route, className)
+              console.verbose('[Page Handler]', route, className)
 
               // Load the node script for the route and write it into a temporary file
               // so we can import it.
@@ -252,19 +255,19 @@ export default class NodeKit {
                 await fsPromises.unlink(dynamicModule)
               }
 
-              console.time('  ╰─ Total')
-              console.time('  ╭─ Node script execution (initial data)')
+              console.profileTime('  ╰─ Total')
+              console.profileTime('  ╭─ Node script execution (initial data)')
               // Run the nodeScript if it exists
               const data = this._nodeScript ? await this._nodeScript(request) : undefined
 
-              console.timeEnd('  ╭─ Node script execution (initial data)')
+              console.profileTimeEnd('  ╭─ Node script execution (initial data)')
 
-              console.time('  ├─ Page render (html + css)')
+              console.profileTime('  ├─ Page render (html + css)')
               // Render the page, passing the server-side data as a property.
               const { html, css } = handlerRaw.render({data})
-              console.timeEnd('  ├─ Page render (html + css)')
+              console.profileTimeEnd('  ├─ Page render (html + css)')
 
-              console.time('  ├─ Final HTML render')
+              console.profileTime('  ├─ Final HTML render')
               const finalHtml = `
               <!DOCTYPE html>
                 <html lang='en'>
@@ -294,13 +297,13 @@ export default class NodeKit {
                 </body>
                 </html>
               `
-              console.timeEnd('  ├─ Final HTML render')
+              console.profileTimeEnd('  ├─ Final HTML render')
 
-              console.time('  ├─ Response send')
+              console.profileTime('  ├─ Response send')
               response.end(finalHtml)
-              console.timeEnd('  ├─ Response send')
+              console.profileTimeEnd('  ├─ Response send')
 
-              console.timeEnd('  ╰─ Total')
+              console.profileTimeEnd('  ╰─ Total')
             }
           } else {
             // This is a non-svelte route. It is expected to export the function
@@ -353,7 +356,7 @@ export default class NodeKit {
 
     this.server = https.createServer(this.options, handler)
     this.server.listen(443, () => {
-      console.log(`\n  🎉 ❨NodeKit❩ Server running at https://${this.hostname}.`)
+      console.info(`⬢ ❨NodeKit❩ Server running at https://${this.hostname}.`)
     })
   }
 }
