@@ -339,7 +339,6 @@ export default class NodeKit {
     // TODO: Move these elsewhere! This is just to get things up and running for now.
     const staticFolder = path.join(this.basePath, '#static')
     if (fs.existsSync(staticFolder)) {
-      console.log('>>>> ADDDING STATIC MIDDLEWARE <<<<<<<')
       this.app.use('/', serveStaticMiddleware(staticFolder, {
         // TODO: Only turn on dev mode if not in PRODUCTION
         dev: true
