@@ -74,9 +74,13 @@ During development, you can also run NodeKit from the source folder like this:
 bin/nodekit <path to serve>
 ```
 
-The best way to get started is to play with the examples.
+> 💡 By default, NodeKit will be as quiet as possible in the console and only surface warnings and errors.
+> If you want more extensive logging, you can start it with the VERBOSE environment variable set:
+> `VERBOSE=true nodekit <path to serve` or `VERBOSE=true bin/nodekit <path to serve>`.
 
 ## Examples
+
+The best way to get started is to play with the examples.
 
   - Hello Count: `examples/hello-count`
   - Persisted Hello Count: `examples/persisted-hello-count`
