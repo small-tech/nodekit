@@ -9,7 +9,7 @@ basePath=`pwd`
 
 # Run NodeKit from NodeKit distribution folder not folder nodekit command
 # was run from.
-pushd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+pushd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" > /dev/null
 
 until (QUIET=true NODE_OPTIONS='--require=./suppress-experimental.cjs' node --experimental-modules --experimental-specifier-resolution=node --experimental-loader ./loader-bundle.js ./nodekit-bundle.js --base-path="${basePath}" "$@"); do
   echo 'Restarting…'
