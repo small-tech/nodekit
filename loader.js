@@ -1,12 +1,11 @@
 console.verbose = process.env.VERBOSE ? function () { console.log(...arguments) } : () => {}
-
 console.profileTime = process.env.PROFILE ? function () { console.time(...arguments) } : () => {}
 console.profileTimeEnd = process.env.PROFILE ? function () { console.timeEnd(...arguments) } : () => {}
 
+console.verbose('================== LOADER PROCESS START =====================')
 
 // console.time('Loader initialisation')
 
-console.verbose('================== LOADER PROCESS START =====================')
 import path from 'path'
 import fs from 'fs'
 import { compile } from 'svelte/compiler'
@@ -126,7 +125,8 @@ export async function resolve(specifier, context, defaultResolve) {
   try {
     resolved = defaultResolve(specifier, context, defaultResolve)
   } catch (error) {
-    console.error('[LOADER] ERROR: Could not resolve', specifier)
+    console.error('[LOADER] ERROR: Could not resolve', specifier, context)
+    console.trace()
     process.exit(1)
   }
 
