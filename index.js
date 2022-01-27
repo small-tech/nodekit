@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////
 //
-// Files
+// NodeKit
 //
-// File system controller. Handles all aspects pertaining to
-// the file system, including initial route creation and
-// file system watching for updates.
+// Copyright ⓒ 2021-present, Aral Balkan
+// Small Technology Foundation
+//
+// License: AGPL version 3.0.
 //
 ////////////////////////////////////////////////////////////
 
