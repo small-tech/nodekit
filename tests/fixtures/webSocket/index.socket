@@ -1,6 +1,6 @@
 // Basic echo.
 export default (socket, request, response) => {
-  socket.on('message', data => {
-    socket.send(data.toString())
+  socket.addEventListener('message', event => {
+    socket.send(event.data)
   })
 }
