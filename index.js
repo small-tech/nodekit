@@ -39,7 +39,7 @@ import JSDB from '@small-tech/jsdb'
 
 import { BroadcastChannel } from 'worker_threads'
 
-export default class Files {
+export default class NodeKit {
   app
   server
   basePath
