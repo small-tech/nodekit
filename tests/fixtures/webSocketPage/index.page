@@ -1,0 +1,36 @@
+<script>
+  import { onMount } from 'svelte'
+
+  let socket
+  let message = ''
+  let messages = []
+
+  onMount(() => {
+    // Initialise the web socket
+    socket = new WebSocket(`wss://localhost/echo`)
+
+    socket.addEventListener('open', event => {
+      socket.send('Hello, there!')
+    })
+
+    socket.addEventListener('message', event => {
+      messages = [...messages, event.data]
+    })
+  })
+</script>
+
+<h1>WebSocket Echo Demo</h1>
+
+<form id='messageForm' on:submit|preventDefault={() => socket.send(message)}>
+  <label for='message'>Message:</label>
+  <input id='message' type='text' name='message' bind:value={message}>
+  <button type='submit'>Send</button>
+</form>
+
+<h2>Received messages</h2>
+
+<ul id='received'>
+  {#each messages as message}
+    <li>{message}</li>
+  {/each}
+</ul>
