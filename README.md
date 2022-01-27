@@ -65,18 +65,18 @@ __Instructions and examples in this section should work.__ If you’re having a 
 You can run NodeKit using the following syntax:
 
 ```shell
-nodekit <path to serve>
+nodekit [path to serve]
 ```
 
 During development, you can also run NodeKit from the source folder like this:
 
 ```shell
-bin/nodekit <path to serve>
+bin/nodekit [path to serve]
 ```
 
 > 💡 By default, NodeKit will be as quiet as possible in the console and only surface warnings and errors.
 > If you want more extensive logging, you can start it with the VERBOSE environment variable set:
-> `VERBOSE=true nodekit <path to serve` or `VERBOSE=true bin/nodekit <path to serve>`.
+> `VERBOSE=true nodekit [path to serve]` or `VERBOSE=true bin/nodekit [path to serve]`.
 
 ## Examples
 
@@ -521,10 +521,10 @@ You will find the distribution under the `dist/` folder.
 To run NodeKit from the distribution folder, use the following syntax:
 
 ```shell
-./nodekit <path to serve>
+./nodekit [path to serve]
 ```
 
-> 💡 It’s usually easier just to run the `./install` script as that will run build for you and install the nodekit command into your path.
+> 💡 It’s usually easier just to run `bin/nodekit [path to serve]` without building or, to test the distribution build, the `./quick-install` script as that will run build for you and install the nodekit command into your path so you can run it as `nodekit [path to serve]`
 
 > &nbsp;
 > &nbsp;
