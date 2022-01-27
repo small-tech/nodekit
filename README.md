@@ -292,6 +292,72 @@ export default (request, response) => {
 }
 ```
 
+## WebSocket routes
+
+WebSocket routes are defined in files ending with the `.socket` extension.
+
+They resemble HTTP routes but get the socket passed in as an extra initial parameter.
+
+For example, here’s a basic _echo.socket_ route that repeats whatever it receives back to you:
+
+```js
+export default (socket, request, response) => {
+  socket.addEventListener('message', event => {
+    socket.send(event.data)
+  })
+}
+```
+
+> 💡 Since we’re not using the `request` or `response` objects in this route, we could have just left them off of the function signature.
+
+And a simple _index.page_ route that uses it:
+
+```svelte
+<script>
+  import { onMount } from 'svelte'
+
+  let messageField
+
+  let socket
+  let message = ''
+  let messages = []
+
+  onMount(() => {
+    // Initialise the web socket
+    socket = new WebSocket(`wss://localhost/echo`)
+
+    socket.addEventListener('open', event => {
+      socket.send('Hello, there!')
+    })
+
+    socket.addEventListener('message', event => {
+      messages = [...messages, event.data]
+    })
+  })
+</script>
+
+<h1>WebSocket Echo Demo</h1>
+
+<form id='messageForm' on:submit|preventDefault={event => {
+  socket.send(message)
+  message = ''
+  messageField.focus()
+}}>
+  <label>Message:
+    <input type='text' bind:this={messageField} bind:value={message}>
+  </label>
+  <button type='submit'>Send</button>
+</form>
+
+<h2>Received messages</h2>
+
+<ul id='received'>
+  {#each messages as message}
+    <li>{message}</li>
+  {/each}
+</ul>
+```
+
 ## Database
 
 NodeKit has an integrated [JSDB](https://github.com/small-tech/jsdb) database that’s available from all your routes as `db`.
