@@ -1,6 +1,8 @@
 <script>
   import { onMount } from 'svelte'
 
+  let messageField
+
   let socket
   let message = ''
   let messages = []
@@ -21,9 +23,14 @@
 
 <h1>WebSocket Echo Demo</h1>
 
-<form id='messageForm' on:submit|preventDefault={() => socket.send(message)}>
-  <label for='message'>Message:</label>
-  <input id='message' type='text' name='message' bind:value={message}>
+<form id='messageForm' on:submit|preventDefault={event => {
+  socket.send(message)
+  message = ''
+  messageField.focus()
+}}>
+  <label>Message:
+    <input type='text' bind:this={messageField} bind:value={message}>
+  </label>
   <button type='submit'>Send</button>
 </form>
 
