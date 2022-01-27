@@ -526,6 +526,16 @@ To run NodeKit from the distribution folder, use the following syntax:
 
 > 💡 It’s usually easier just to run `bin/nodekit [path to serve]` without building or, to test the distribution build, the `./quick-install` script as that will run build for you and install the nodekit command into your path so you can run it as `nodekit [path to serve]`
 
+## Debugging
+
+To run NodeKit with the Node debugger (`node --inspect`), start it using:
+
+```shell
+bin/nodekit-inspect [path to serve]
+```
+
+> 💡 If you use VSCodium, you can add breakpoints in your code and attach to the process using the Attach command in the Run and Debug panel.
+
 > &nbsp;
 > &nbsp;
 > ## 🤓✋ You are now leaving the present and entering the future…
