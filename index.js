@@ -356,7 +356,7 @@ export default class NodeKit {
 
     this.server = https.createServer(this.options, handler)
     this.server.listen(443, () => {
-      console.info(`⬢ ❨NodeKit❩ Server running at https://${this.hostname}.`)
+      console.info(`⬢ NodeKit\n\n  💾 ${this.basePath}\n  🌍 https://${this.hostname}\n`)
     })
   }
 }
