@@ -11,7 +11,7 @@ import { BroadcastChannel } from 'worker_threads'
 import { fileURLToPath } from 'url'
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
-const nodekitAppPath = process.argv[1].replace('nodekit-bundle.js', '')
+const nodekitAppPath = process.argv[1].replace('nodekit-bundle.js', '').replace('bin/nodekit.js', '')
 const svelteExports = (await import(`${nodekitAppPath}/node_modules/svelte/package.json`)).default.exports
 
 function truthyHashmapFromArray(array) {

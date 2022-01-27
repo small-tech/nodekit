@@ -2,7 +2,6 @@ import sade from 'sade'
 
 import fs from 'fs'
 import path from 'path'
-import { fileURLToPath } from 'url'
 import NodeKit from '../index.js'
 
 import packageInfo from '../package.json'
@@ -18,7 +17,12 @@ app
   .option('--base-path', 'The path pathToServe is relative to', '/')
   .describe('Start server as regular process.')
   .action(async (pathToServe, options) => {
-    const absolutePathToServe = path.resolve(options['base-path'], pathToServe === undefined ? '.' : pathToServe)
+    // Resolve the path to serve so that it works both when run as
+    // nodekit <path to serve> from anywhere and, from the source folder, as
+    // bin/nodekit <path to serve>.
+    const _basePath = options['base-path'] === '/' ? '.' : options['base-path']
+    const _pathToServe = pathToServe === undefined ? '.' : pathToServe
+    const absolutePathToServe = path.resolve(_basePath, _pathToServe)
 
     if (!fs.existsSync(absolutePathToServe)) {
       console.error(`${absolutePathToServe} not found.`)
