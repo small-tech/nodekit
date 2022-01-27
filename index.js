@@ -27,9 +27,9 @@ import serveStaticMiddleware from '@small-tech/sirv'
 import https from '@small-tech/https'
 
 import { tinyws } from 'tinyws'
-import WebSocketRoute from './WebSocketRoute'
+import WebSocketRoute from './lib/WebSocketRoute'
 
-import { classNameFromRoute, routeFromFilePath, HTTP_METHODS } from './Utils'
+import { classNameFromRoute, routeFromFilePath, HTTP_METHODS } from './lib/Utils'
 
 import { fileURLToPath, URL } from 'url'
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
@@ -179,6 +179,17 @@ export default class Files {
     }
   }
 
+  // Creates a WebSocket at /.well-known/dev used for hot module reloading, etc., during
+  // development time.
+  createDevelopmentSocket () {
+    this.app['get']('/.well-known/dev', new WebSocketRoute((socket, request, response) => {
+      // TEST
+      setTimeout(() => {
+        socket.broadcast({})
+      })
+    }))
+  }
+
   async createRoute (filePath) {
     const routes = this.routes
     const basePath = this.basePath
@@ -223,7 +234,7 @@ export default class Files {
             let className = classNameFromRoute(route)
 
             this._handler = async (request, response) => {
-              // console.log('[Handler]', route, className)
+              console.log('[Page Handler]', route, className)
 
               // Load the node script for the route and write it into a temporary file
               // so we can import it.
@@ -327,7 +338,11 @@ export default class Files {
     // TODO: Move these elsewhere! This is just to get things up and running for now.
     const staticFolder = path.join(this.basePath, '#static')
     if (fs.existsSync(staticFolder)) {
-      this.app.use('/', serveStaticMiddleware(staticFolder))
+      console.log('>>>> ADDDING STATIC MIDDLEWARE <<<<<<<')
+      this.app.use('/', serveStaticMiddleware(staticFolder, {
+        // TODO: Only turn on dev mode if not in PRODUCTION
+        dev: true
+      }))
     }
 
     // Get the handler from the Polka instance and create a secure site using it.

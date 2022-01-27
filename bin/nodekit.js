@@ -3,7 +3,7 @@ import sade from 'sade'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import Files from '../lib/Files.js'
+import NodeKit from '../index.js'
 
 import packageInfo from '../package.json'
 
@@ -25,10 +25,10 @@ app
       process.exit(1)
     }
 
-    console.log('Starting NodeKit server…')
+    console.log('Starting NodeKit…')
     console.log('Serving', absolutePathToServe)
-    const files = new Files(absolutePathToServe)
-    await files.initialise()
+    const nodeKit = new NodeKit(absolutePathToServe)
+    await nodeKit.initialise()
   })
 
 app
