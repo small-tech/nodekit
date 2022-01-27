@@ -4,15 +4,14 @@ import path from 'path'
 import fs from 'fs'
 import { compile } from 'svelte/compiler'
 import { hydrationScriptCompiler } from './lib/HydrationScriptCompiler.js'
-import { routeFromFilePath } from './lib/Utils.js'
+import { loaderPaths, routeFromFilePath } from './lib/Utils.js'
 
 import { BroadcastChannel } from 'worker_threads'
-
 import { fileURLToPath } from 'url'
-const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
-const nodekitAppPath = process.argv[1].replace('nodekit-bundle.js', '').replace('bin/nodekit.js', '')
-const svelteExports = (await import(`${nodekitAppPath}/node_modules/svelte/package.json`)).default.exports
+const { nodekitAppPath, svelteExports } = await loaderPaths()
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 function truthyHashmapFromArray(array) {
   return array.reduce((obj, key) => { obj[key] = true; return obj}, {})
