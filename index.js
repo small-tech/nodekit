@@ -11,8 +11,8 @@
 
 // Conditional logging.
 console.verbose = process.env.VERBOSE ? function () { console.log(...arguments) } : () => {}
-console.profileTime = process.env.PROFILE ? function () { console.profileTime(...arguments) } : () => {}
-console.profileTimeEnd = process.env.PROFILE ? function () { console.profileTimeEnd(...arguments) } : () => {}
+console.profileTime = process.env.PROFILE ? function () { console.time(...arguments) } : () => {}
+console.profileTimeEnd = process.env.PROFILE ? function () { console.timeEnd(...arguments) } : () => {}
 
 console.verbose('------------------- MAIN PROCESS START ----------------------')
 
@@ -197,9 +197,9 @@ export default class NodeKit {
     const devSocket = new WebSocketRoute((socket, request, response) => {
       console.info('[DEV SOCKET] New connection')
       // Test
-      setTimeout(() => {
-        socket.send(JSON.stringify({ type: 'reload' }))
-      }, 5000)
+      // setTimeout(() => {
+      //   socket.send(JSON.stringify({ type: 'reload' }))
+      // }, 5000)
     })
 
     this.app.get('/.well-known/dev', devSocket.handler.bind(devSocket))
