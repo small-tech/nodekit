@@ -57,12 +57,13 @@ const fileUrlExtensionRegExp = /.+?(?<extension>\..*?$)/
 
 const broadcastChannel = new BroadcastChannel('loader-and-main-process')
 
-function extensionOf(urlString) {
+function extensionOf(_urlString) {
+  const urlString = _urlString.replace(/\?.*$/, '')
   const result = urlString.match(fileUrlExtensionRegExp)
   return result ? result.groups.extension : null
 }
 
-export async function resolve(specifier, context, defaultResolve) {
+export async function resolve(_specifier, context, defaultResolve) {
 
   // Since we don’t want every NodeKit project to have to npm install Svelte
   // to work, we resolve Svelte URLs to the version of Svelte that we’ve
@@ -70,6 +71,9 @@ export async function resolve(specifier, context, defaultResolve) {
   // script run by esbuild in the loader and the Svelte SSR compiler in the
   // main worker use the same version of Svelte so we don’t run into any
   // versioning issues either.
+
+  // Remove query string (testing, for now.)
+  const specifier = _specifier.replace(/\?.*$/, '')
 
   // TODO: Refactor to remove redundancy.
   if (specifier === 'svelte') {
@@ -108,12 +112,13 @@ export async function resolve(specifier, context, defaultResolve) {
   }
 
   // Handle NodeKit assets.
-  if (allAliases[path.extname(specifier)]) {
+  const specifierExtension = path.extname(specifier)
+  if (allAliases[specifierExtension]) {
     const parentURL = new URL(context.parentURL)
     const parentPath = path.dirname(parentURL.pathname)
     const absolutePath = path.resolve(parentPath, specifier)
 
-    const resolved = { url: `file://${absolutePath}` }
+    const resolved = { url: `file://${absolutePath}` + '?id=' + Math.random().toString(36).substring(3)}
 
     // console.log('[LOADER]', 'Loading:', specifier, `(NodeKit asset: ${resolved.url.replace('file://', '') === specifier ? 'OK': `NOT ok: ${resolved.url}`})`)
 
