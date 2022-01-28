@@ -125,6 +125,9 @@ export default class NodeKit {
           // For now.
           await this.createRoutes()
 
+          // Create development socket.
+          this.createDevelopmentSocket()
+
           this.initialised = true
 
           resolve(this.filesByExtension)
@@ -151,10 +154,11 @@ export default class NodeKit {
 
   handleRestartIfNeededFor(itemType, eventType, itemPath) {
     // If we’re already initialised, exit so we can be restarted.
-    if (this.initialised) {
-      console.verbose(`${itemType.charAt(0).toUpperCase()+itemType.slice(1)} ${eventType} (${itemPath}), asking for restart.`)
-      process.exit(1)
-    }
+    // if (this.initialised) {
+    //   console.verbose(`${itemType.charAt(0).toUpperCase()+itemType.slice(1)} ${eventType} (${itemPath}), asking for restart.`)
+    //   process.exit(1)
+    // }
+    console.warn('[handleRestartIfNeededFor]', itemPath, 'ignoring', 'under dev')
   }
 
   async close() {
@@ -188,12 +192,17 @@ export default class NodeKit {
   // Creates a WebSocket at /.well-known/dev used for hot module reloading, etc., during
   // development time.
   createDevelopmentSocket () {
-    this.app['get']('/.well-known/dev', new WebSocketRoute((socket, request, response) => {
-      // TEST
+    console.info('Creating dev socket')
+
+    const devSocket = new WebSocketRoute((socket, request, response) => {
+      console.info('[DEV SOCKET] New connection')
+      // Test
       setTimeout(() => {
-        socket.broadcast({})
-      })
-    }))
+        socket.send(JSON.stringify({ type: 'reload' }))
+      }, 5000)
+    })
+
+    this.app.get('/.well-known/dev', devSocket.handler.bind(devSocket))
   }
 
   async createRoute (filePath) {
@@ -294,6 +303,21 @@ export default class NodeKit {
                       }
                     })
                 </script>
+                ${
+                  process.env.PRODUCTION ? '' : `
+                  <script>
+                    // Development socket connection.
+                    const __devSocket = new WebSocket('wss://localhost/.well-known/dev')
+                    __devSocket.addEventListener('message', event => {
+                      const message = JSON.parse(event.data)
+                      if (message.type === 'reload') {
+                        // For now, just test a reload
+                        window.location.reload(true)
+                      }
+                    })
+                  </script>
+                  `
+                }
                 </body>
                 </html>
               `
