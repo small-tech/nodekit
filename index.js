@@ -18,6 +18,8 @@ console.verbose('------------------- MAIN PROCESS START ----------------------')
 
 import os from 'os'
 import vm from 'vm'
+import esbuild from 'esbuild'
+import { _findPath } from 'module'
 import fs from 'fs'
 import path from 'path'
 import childProcess from 'child_process'
@@ -271,15 +273,54 @@ export default class NodeKit {
               // Run NodeScript module (if any) in its own V8 Virtual Machine context.
               let data = undefined
               if (routeCache.nodeScript) {
-                const context = vm.createContext({ db: globalThis.db, console })
+                // Using esbuild
+                const buildResult = await esbuild.build({
+                  stdin: {
+                    contents: routeCache.nodeScript,
+                    resolveDir: basePath,
+                    sourcefile: 'node-script.js',
+                    loader: 'js'
+                  },
+                  bundle: true,
+                  format: 'esm',
+                  platform: 'node',
+                  write: false
+                })
+
+                const bundle = buildResult.outputFiles[0].text
+                const context = vm.createContext({ db: globalThis.db, console, URLSearchParams, URL, process })
 
                 // TODO: Implement cache using sourceTextModule.createCachedData()
-                const module = new vm.SourceTextModule(routeCache.nodeScript, { context })
+                const module = new vm.SourceTextModule(bundle, { context })
 
-                // TODO: Implement linker.
                 await module.link(async (specifier, referencingModule) => {
-                  throw new Error(`[LINKER] Not implemented yet. Cannot yet use import in NodeScripts.`)
+                  // throw new Error(`[LINKER] Bundle should not have any imports but received ${specifier} from ${referencingModule}`)
+
+                  return new Promise(async (resolve, reject) => {
+                    console.log('Linking: ', specifier)
+
+                    const module = await import(specifier)
+                    const exportNames = Object.keys(module)
+
+                    // In order to interoperate with Node’s own ES Module Loader,
+                    // we have to resort to creating a synthetic module to
+                    // translate for us.
+                    //
+                    // Thanks to László Szirmai for the tactic
+                    // (https://github.com/nodejs/node/issues/35848).
+                    const syntheticModule = new vm.SyntheticModule(
+                      exportNames,
+                      function () {
+                        exportNames.forEach(key => {
+                          this.setExport(key, module[key])
+                      })
+                    }, { context })
+
+                    resolve(syntheticModule)
+                  })
                 })
+
+                console.log('LINKED!')
 
                 // Evaluate the module. After successful completion of this step,
                 // the module is available from the module.namespace reference.
