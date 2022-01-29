@@ -7,7 +7,7 @@ console.verbose('================== LOADER PROCESS START =====================')
 // console.time('Loader initialisation')
 
 import path from 'path'
-import fs from 'fs'
+import fsPromises from 'fs/promises'
 import { compile } from 'svelte/compiler'
 import { hydrationScriptCompiler } from './lib/HydrationScriptCompiler.js'
 import { loaderPaths, routeFromFilePath } from './lib/Utils.js'
@@ -71,6 +71,8 @@ export async function resolve(_specifier, context, defaultResolve) {
   // script run by esbuild in the loader and the Svelte SSR compiler in the
   // main worker use the same version of Svelte so we don’t run into any
   // versioning issues either.
+
+  console.verbose('[LOADER] Resolving', _specifier, context)
 
   // Remove query string (testing, for now.)
   const specifier = _specifier.replace(/\?.*$/, '')
@@ -166,7 +168,7 @@ export async function load(url /* string */, context, defaultLoad) {
       return { format, source }
     } else if (javaScriptAliases[extensionOf(url)]) {
       // JavaScript route.
-      const source = fs.readFileSync(_url.pathname)
+      const source = await fsPromises.readFile(_url.pathname)
       return { format, source }
     }
   }
@@ -176,7 +178,7 @@ export async function load(url /* string */, context, defaultLoad) {
 
 async function compileSource(filePath) {
 
-  const source = fs.readFileSync(filePath, 'utf8')
+  const source = await fsPromises.readFile(filePath, 'utf8')
   const routeRelativePath = path.relative(__dirname, filePath)
 
   // TODO: Refactor – pull these out into the shared route calculation method.
