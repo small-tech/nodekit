@@ -11,7 +11,7 @@ basePath=`pwd`
 # was run from.
 pushd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" > /dev/null
 
-until (QUIET=true NODE_OPTIONS='--require=./suppress-experimental.cjs' node --experimental-modules --experimental-specifier-resolution=node --experimental-loader ./loader-bundle.js ./nodekit-bundle.js --base-path="${basePath}" "$@"); do
+until (QUIET=true NODE_OPTIONS='--require=./suppress-experimental.cjs' node --experimental-modules --experimental-specifier-resolution=node --experimental-vm-modules --experimental-loader ./loader-bundle.js ./nodekit-bundle.js --base-path="${basePath}" "$@"); do
   echo 'Restarting…'
   sleep 1
 done
