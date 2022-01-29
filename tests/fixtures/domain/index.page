@@ -1,19 +1,20 @@
 <data>
-  // TODO: Review/update this once NodeKit starts working.
-  import { _ } from './.db/settings.js'
+  // db is a global reference to the app’s database that
+  // we inherit from the server’s context.
+
   export default async request => {
     const config = {
       payment: {
-        provider: _.payment.provider
+        provider: db.settings.payment.provider
       },
       dns: {
-        domain: _.dns.domain
+        domain: db.settings.dns.domain
       },
-      org: _.org
+      org: db.settings.org
     }
 
     if (config.payment.provider === 2 /* Stripe */) {
-      const stripe = _.payment.providers[2]
+      const stripe = db.settings.payment.providers[2]
       config.payment.mode = stripe.mode,
       config.payment.currency = stripe.currency,
       config.payment.price = stripe.price
