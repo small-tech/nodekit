@@ -17,8 +17,8 @@ console.profileTimeEnd = process.env.PROFILE ? function () { console.timeEnd(...
 console.verbose('------------------- MAIN PROCESS START ----------------------')
 
 import os from 'os'
+import vm from 'vm'
 import fs from 'fs'
-import fsPromises from 'fs/promises'
 import path from 'path'
 import childProcess from 'child_process'
 
@@ -43,6 +43,21 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
 import JSDB from '@small-tech/jsdb'
 
 import { BroadcastChannel } from 'worker_threads'
+
+// class Handler {
+//   _handler
+//   _ready
+//   _beingLoaded
+
+//   async function ready () {
+//     if (!_beingLoaded) return true
+//     return new Promise((resolve, reject) => {
+//       // LEFT OFF HERE.
+//       // Need a way to wait on multiple accesses to a route
+//       // If it is being loaded/rendered.
+//     })
+//   }
+// }
 
 export default class NodeKit {
   app
@@ -158,7 +173,7 @@ export default class NodeKit {
     //   console.verbose(`${itemType.charAt(0).toUpperCase()+itemType.slice(1)} ${eventType} (${itemPath}), asking for restart.`)
     //   process.exit(1)
     // }
-    console.warn('[handleRestartIfNeededFor]', itemPath, 'ignoring', 'under dev')
+    // console.warn('[handleRestartIfNeededFor]', itemPath, 'ignoring', 'under dev')
   }
 
   async close() {
@@ -239,7 +254,7 @@ export default class NodeKit {
           const handlerRaw = (await import(filePath)).default
 
           if (handlerRaw.render) {
-            // This is a svelte page. Create a custom route to serve it.
+            // This is a NodeKit page. Create a custom route to serve it.
             // console.log('[Handler] Attempting to get route cache for route', route)
             const routeCache = routes[route]
             const hydrationScript = routeCache.hydrationScript
@@ -250,24 +265,31 @@ export default class NodeKit {
 
             this._handler = async (request, response) => {
               console.verbose('[Page Handler]', route, className)
-
-              // Load the node script for the route and write it into a temporary file
-              // so we can import it.
-              // NOTE: We can just build a loader for this to load it from string. No need
-              // to write to filesystem… but what about imports in the script, etc.?
-              if (routeCache.nodeScript && this._nodeScript == undefined) {
-                const dynamicModule = path.join(basePath, `${className}.${Date.now()}.script.tmp.mjs`)
-                const relativePathToDynamicModule = './' + path.relative(__dirname, dynamicModule)
-
-                await fsPromises.writeFile(dynamicModule, routeCache.nodeScript)
-                this._nodeScript = (await import(relativePathToDynamicModule)).default
-                await fsPromises.unlink(dynamicModule)
-              }
-
               console.profileTime('  ╰─ Total')
               console.profileTime('  ╭─ Node script execution (initial data)')
-              // Run the nodeScript if it exists
-              const data = this._nodeScript ? await this._nodeScript(request) : undefined
+
+              // Run NodeScript module (if any) in its own V8 Virtual Machine context.
+              let data = undefined
+              if (routeCache.nodeScript) {
+                const context = vm.createContext({ db: globalThis.db, console })
+
+                // TODO: Implement cache using sourceTextModule.createCachedData()
+                const module = new vm.SourceTextModule(routeCache.nodeScript, { context })
+
+                // TODO: Implement linker.
+                await module.link(async (specifier, referencingModule) => {
+                  throw new Error(`[LINKER] Not implemented yet. Cannot yet use import in NodeScripts.`)
+                })
+
+                // Evaluate the module. After successful completion of this step,
+                // the module is available from the module.namespace reference.
+                await module.evaluate()
+
+                const nodeScript = module.namespace.default
+
+                // Run the nodeScript.
+                data = await nodeScript(request, response)
+              }
 
               console.profileTimeEnd('  ╭─ Node script execution (initial data)')
 
