@@ -27,6 +27,8 @@ import childProcess from 'child_process'
 import chokidar from 'chokidar'
 import polka from 'polka'
 
+import { fetch } from 'undici'
+
 // Temporarily using my own fork where sirv only responds to GET requests that
 // are not WebSocket requests (so as not to mask POST, WebSocket, etc., requests
 // that may be on the same path).
@@ -297,7 +299,17 @@ export default class NodeKit {
                 console.log('BUILD RESULT', buildResult)
 
                 const bundle = buildResult.outputFiles[0].text
-                const context = vm.createContext({ db: globalThis.db, console, URLSearchParams, URL, process })
+                const context = vm.createContext({
+                  // NodeKit globals.
+                  db: globalThis.db,
+                  // Node.js globals.
+                  console, URLSearchParams, URL, process,
+                  // (Fetch is part of undici right now but slated to be part
+                  // of Node 16 under an experimental flag and Node 18 without.
+                  // Once that lands, we can replace this with the standard
+                  // implementation.)
+                  fetch
+                })
 
                 // TODO: Implement cache using sourceTextModule.createCachedData()
                 const module = new vm.SourceTextModule(bundle, { context })
