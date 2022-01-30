@@ -17,13 +17,13 @@ mkdir -p dist/node_modules
 
 echo '  ├─── Building nodekit (main process).'
 
-node_modules/esbuild/bin/esbuild bin/nodekit.js --bundle --platform=node --format=esm --outfile=dist/nodekit-bundle.js --banner:js='import { createRequire as topLevelCreateRequire } from "module"; const require = topLevelCreateRequire(import.meta.url);'
+node_modules/esbuild/bin/esbuild bin/nodekit.js --sourcemap=inline --bundle --platform=node --format=esm --outfile=dist/nodekit-bundle.js --external:esbuild --banner:js='import { createRequire as topLevelCreateRequire } from "module"; const require = topLevelCreateRequire(import.meta.url);'
 
 # Create dist/loader-bundle.js
 
 echo '  ├─── Building nodekit (ES Module loader process).'
 
-node_modules/esbuild/bin/esbuild loader.js --bundle --platform=node --format=esm --outfile=dist/loader-bundle.js --external:esbuild --banner:js='import { createRequire as topLevelCreateRequire } from "module"; import { dirname } from "path"; const __filename = fileURLToPath(import.meta.url);const require = topLevelCreateRequire(import.meta.url);'
+node_modules/esbuild/bin/esbuild loader.js --sourcemap=inline --bundle --platform=node --format=esm --outfile=dist/loader-bundle.js --external:esbuild --banner:js='import { createRequire as topLevelCreateRequire } from "module"; import { dirname } from "path"; const __filename = fileURLToPath(import.meta.url);const require = topLevelCreateRequire(import.meta.url);'
 
 # Copy esbuild package, including the Linux 64 binary as an external module.
 # (esbuild cannot be bundled using esbuild as it contains a binary.)
