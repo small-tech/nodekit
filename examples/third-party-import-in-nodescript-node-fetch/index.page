@@ -1,4 +1,6 @@
 <data>
+  import fetch from 'node-fetch'
+
   export default async () => {
     const response = await fetch('https://mastodon.ar.al/api/v1/timelines/public')
     return await response.json()
