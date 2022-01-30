@@ -147,7 +147,7 @@ Now run `nodekit` and refresh the page to see the counter increase.
 >
 > A page in NodeKit is written in [NodeScript](#nodescript), which is a superset of [Svelte](https://svelte.dev).
 >
-> In addition to what Svelte can do, NodeScript gives you the ability to add server-side code to your pages in a `<data>` section.
+> In addition to what Svelte can do, NodeScript gives you the ability to add server-side code to your pages in a `<data>` block.
 >
 > The default function you export from it is evaluated every time the route is requested and anything it returns is injected into the `data` variable you exported from your `<script>` block.
 >
@@ -214,6 +214,82 @@ That’s what a table looks like in JavaScript Database (JSDB), which is integra
 Yes, you need never fear persistence ever again.
 
 There’s so much more to JSDB that you can learn about in [the JSDB documentation](https://github.com/small-tech/jsdb#readme).
+
+## Make Fetch Happen
+
+While you can import any Node module that you install in your app from within the data block of your pages, there are are commonly used global APIs that you can use without importing. You saw one of those, the JavaScript Database (JSDB), above, that’s available as `db`. Similarly, the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) is available for use from your data blocks as `fetch`.
+
+Here’s an example of how to use the Fetch API to get the list of public posts from a [Mastodon](https://joinmastodon.org/) instance.
+
+This is the instance we’ll be using: https://mastodon.ar.al
+
+And this is the JSON endpoint with the public timeline data: https://mastodon.ar.al/api/v1/timelines/public
+
+Take a look at both to understand what we’re working with before creating a new folder called _make-fetch-happen_ with a file called _index.page_ in it. Then add the following code to that file:
+
+```svelte
+<data>
+  export default async () => {
+    const response = await fetch('https://mastodon.ar.al/api/v1/timelines/public')
+    return await response.json()
+  }
+</data>
+
+<script>
+  export let data
+</script>
+
+<h1>Aral’s Fediverse Public Timeline</h1>
+<ul>
+  {#each data as post}
+    <li>
+      <a class='avatar-link' href='{post.account.url}'>
+        <img class='avatar' src='{post.account.avatar}' alt='{post.account.username}’s avatar'>
+      </a>
+      <div class='content'>
+        {@html post.content}
+        {#each post.media_attachments as media}
+          {#if media.type === 'image'}
+            <img class='image' src='{media.url}'>
+          {/if}
+        {/each}
+      </div>
+    </li>
+  {/each}
+</ul>
+
+<style>
+  :global(body) { font-family: sans-serif; font-size: 1.25em; }
+  :global(p:first-of-type) { margin-top: 0; }
+  :global(p) { line-height: 1.5; }
+  :global(a:not(.avatar-link)) {
+    text-decoration: none; background-color: rgb(139, 218, 255);
+    border-radius: 0.25em; padding: 0.25em; color: black;
+  }
+  h1 { font-size: 2.5em; text-align: center; }
+  li {
+    display: flex; align-items: flex-start; column-gap: 1em; padding: 1em;
+    margin-bottom: 1em; background-color: #ccc; border-radius: 1em;
+  }
+  .avatar { width: 8em; border-radius: 1em; }
+  .content { flex: 1; }
+  .image { max-width: 100%; }
+</style>
+```
+
+Now, run Nodekit with:
+
+```shell
+nodekit make-fetch-happen
+```
+
+And hit _https://localhost_ to see the latest public timeline from Aral’s mastodon instance.
+
+> 💾 This example is available in _examples/make-fetch-happen_. You can also find a version that demonstrates importing a third-party module called [node-fetch](https://github.com/node-fetch/node-fetch) and using that instead in _examples/_third-party-import-in-nodescript-node-fetch_.
+
+> 💡 Fetch is not a native part of Node.js yet but it will be soon. NodeKit currently includes [undici’s](https://github.com/nodejs/undici) [fetch implementation](https://github.com/nodejs/undici#undicifetchinput-init-promise). This is [in the process of being included in Node.js core.](https://github.com/nodejs/node/pull/41749). Once it is, NodeKit will simply remove the third-party library and replace the reference with the internal one and your apps should continue to work as before.
+>
+> If you notice any issues with the fetch functionality, please report them on [undici’s issue tracker](https://github.com/nodejs/undici/issues) and you will help make Node.js and NodeKit better in the process. (Thank you.)
 
 ## NodeScript
 
