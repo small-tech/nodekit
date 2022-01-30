@@ -20,7 +20,7 @@
         {@html post.content}
         {#each post.media_attachments as media}
           {#if media.type === 'image'}
-            <img class='image' src='{media.url}'>
+            <img class='image' src='{media.url}' alt={media.meta.description || ''}>
           {/if}
         {/each}
       </div>
