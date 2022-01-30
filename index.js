@@ -274,18 +274,27 @@ export default class NodeKit {
               let data = undefined
               if (routeCache.nodeScript) {
                 // Using esbuild
-                const buildResult = await esbuild.build({
-                  stdin: {
-                    contents: routeCache.nodeScript,
-                    resolveDir: basePath,
-                    sourcefile: 'node-script.js',
-                    loader: 'js'
-                  },
-                  bundle: true,
-                  format: 'esm',
-                  platform: 'node',
-                  write: false
-                })
+                let buildResult
+                try {
+                  buildResult = await esbuild.build({
+                    stdin: {
+                      contents: routeCache.nodeScript,
+                      resolveDir: basePath,
+                      sourcefile: 'node-script.js',
+                      loader: 'js'
+                    },
+                    bundle: true,
+                    format: 'esm',
+                    platform: 'node',
+                    write: false
+                  })
+                } catch (error) {
+                  console.error(error)
+                  response.statusCode = 500
+                  response.end(error.stack.toString())
+                }
+
+                console.log('BUILD RESULT', buildResult)
 
                 const bundle = buildResult.outputFiles[0].text
                 const context = vm.createContext({ db: globalThis.db, console, URLSearchParams, URL, process })
