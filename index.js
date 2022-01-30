@@ -211,10 +211,9 @@ export default class NodeKit {
   // Creates a WebSocket at /.well-known/dev used for hot module reloading, etc., during
   // development time.
   createDevelopmentSocket () {
-    console.info('Creating dev socket')
-
+    // console.info('Creating dev socket')
     const devSocket = new WebSocketRoute((socket, request, response) => {
-      console.info('[DEV SOCKET] New connection')
+      // console.info('[DEV SOCKET] New connection')
       // Test
       // setTimeout(() => {
       //   socket.send(JSON.stringify({ type: 'reload' }))
@@ -296,8 +295,6 @@ export default class NodeKit {
                   response.end(error.stack.toString())
                 }
 
-                console.log('BUILD RESULT', buildResult)
-
                 const bundle = buildResult.outputFiles[0].text
                 const context = vm.createContext({
                   // NodeKit globals.
@@ -340,8 +337,6 @@ export default class NodeKit {
                     resolve(syntheticModule)
                   })
                 })
-
-                console.log('LINKED!')
 
                 // Evaluate the module. After successful completion of this step,
                 // the module is available from the module.namespace reference.
