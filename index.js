@@ -66,6 +66,7 @@ import { BroadcastChannel } from 'worker_threads'
 export default class NodeKit {
   app
   server
+  context
   basePath
   watcher
   filesByExtension
@@ -122,6 +123,21 @@ export default class NodeKit {
 
     // Add the WebSocket server.
     this.app.use(tinyws())
+
+    // Create a separate context for each route but do this when the route
+    // is being created so that any values set on the route survive future
+    // calls to the route.
+    this.context = vm.createContext({
+      // NodeKit globals.
+      db: globalThis.db,
+      // Node.js globals.
+      console, URLSearchParams, URL, process,
+      // (Fetch is part of undici right now but slated to be part
+      // of Node 16 under an experimental flag and Node 18 without.
+      // Once that lands, we can replace this with the standard
+      // implementation.)
+      fetch
+    })
   }
 
   async initialise () {
@@ -226,6 +242,7 @@ export default class NodeKit {
   async createRoute (filePath) {
     const routes = this.routes
     const basePath = this.basePath
+    const context = this.context
 
     const route = routeFromFilePath(filePath)
     const extension = path.extname(filePath).replace('.', '')
@@ -273,79 +290,72 @@ export default class NodeKit {
 
               // Run NodeScript module (if any) in its own V8 Virtual Machine context.
               let data = undefined
+
               if (routeCache.nodeScript) {
-                // Using esbuild
-                let buildResult
-                try {
-                  buildResult = await esbuild.build({
-                    stdin: {
-                      contents: routeCache.nodeScript,
-                      resolveDir: basePath,
-                      sourcefile: 'node-script.js',
-                      loader: 'js'
-                    },
-                    bundle: true,
-                    format: 'esm',
-                    platform: 'node',
-                    write: false
+                // Cache the nodeScript.
+                // TODO: Update cache if source changes.
+                if (!routeCache.nodeScriptHandler) {
+                  // Using esbuild
+                  let buildResult
+                  try {
+                    buildResult = await esbuild.build({
+                      stdin: {
+                        contents: routeCache.nodeScript,
+                        resolveDir: basePath,
+                        sourcefile: 'node-script.js',
+                        loader: 'js'
+                      },
+                      bundle: true,
+                      format: 'esm',
+                      platform: 'node',
+                      write: false
+                    })
+                  } catch (error) {
+                    console.error(error)
+                    response.statusCode = 500
+                    response.end(error.stack.toString())
+                  }
+                  const bundle = buildResult.outputFiles[0].text
+
+                  // TODO: Implement cache using sourceTextModule.createCachedData()
+                  const module = new vm.SourceTextModule(bundle, { context })
+
+                  await module.link(async (specifier, referencingModule) => {
+                    // throw new Error(`[LINKER] Bundle should not have any imports but received ${specifier} from ${referencingModule}`)
+
+                    return new Promise(async (resolve, reject) => {
+                      console.verbose('Linking: ', specifier)
+
+                      const module = await import(specifier)
+                      const exportNames = Object.keys(module)
+
+                      // In order to interoperate with Node’s own ES Module Loader,
+                      // we have to resort to creating a synthetic module to
+                      // translate for us.
+                      //
+                      // Thanks to László Szirmai for the tactic
+                      // (https://github.com/nodejs/node/issues/35848).
+                      const syntheticModule = new vm.SyntheticModule(
+                        exportNames,
+                        function () {
+                          exportNames.forEach(key => {
+                            this.setExport(key, module[key])
+                        })
+                      }, { context })
+
+                      resolve(syntheticModule)
+                    })
                   })
-                } catch (error) {
-                  console.error(error)
-                  response.statusCode = 500
-                  response.end(error.stack.toString())
+
+                  // Evaluate the module. After successful completion of this step,
+                  // the module is available from the module.namespace reference.
+                  await module.evaluate()
+
+                  routeCache.nodeScriptHandler = module.namespace.default
                 }
 
-                const bundle = buildResult.outputFiles[0].text
-                const context = vm.createContext({
-                  // NodeKit globals.
-                  db: globalThis.db,
-                  // Node.js globals.
-                  console, URLSearchParams, URL, process,
-                  // (Fetch is part of undici right now but slated to be part
-                  // of Node 16 under an experimental flag and Node 18 without.
-                  // Once that lands, we can replace this with the standard
-                  // implementation.)
-                  fetch
-                })
-
-                // TODO: Implement cache using sourceTextModule.createCachedData()
-                const module = new vm.SourceTextModule(bundle, { context })
-
-                await module.link(async (specifier, referencingModule) => {
-                  // throw new Error(`[LINKER] Bundle should not have any imports but received ${specifier} from ${referencingModule}`)
-
-                  return new Promise(async (resolve, reject) => {
-                    console.log('Linking: ', specifier)
-
-                    const module = await import(specifier)
-                    const exportNames = Object.keys(module)
-
-                    // In order to interoperate with Node’s own ES Module Loader,
-                    // we have to resort to creating a synthetic module to
-                    // translate for us.
-                    //
-                    // Thanks to László Szirmai for the tactic
-                    // (https://github.com/nodejs/node/issues/35848).
-                    const syntheticModule = new vm.SyntheticModule(
-                      exportNames,
-                      function () {
-                        exportNames.forEach(key => {
-                          this.setExport(key, module[key])
-                      })
-                    }, { context })
-
-                    resolve(syntheticModule)
-                  })
-                })
-
-                // Evaluate the module. After successful completion of this step,
-                // the module is available from the module.namespace reference.
-                await module.evaluate()
-
-                const nodeScript = module.namespace.default
-
                 // Run the nodeScript.
-                data = await nodeScript(request, response)
+                data = await routeCache.nodeScriptHandler(request, response)
               }
 
               console.profileTimeEnd('  ╭─ Node script execution (initial data)')
