@@ -43,6 +43,8 @@ const _javaScriptAliases = [
   '.socket'
 ]
 
+const dependencyMap = new Map()
+
 const _allAliases = _svelteAliases.concat(_javaScriptAliases)
 
 const svelteAliases = truthyHashmapFromArray(_svelteAliases)
@@ -71,8 +73,6 @@ export async function resolve(_specifier, context, defaultResolve) {
   // script run by esbuild in the loader and the Svelte SSR compiler in the
   // main worker use the same version of Svelte so we don’t run into any
   // versioning issues either.
-
-  console.verbose('[LOADER] Resolving', _specifier, context)
 
   // Remove query string (testing, for now.)
   const specifier = _specifier.replace(/\?.*$/, '')
@@ -113,6 +113,7 @@ export async function resolve(_specifier, context, defaultResolve) {
     return resolved
   }
 
+
   // Handle NodeKit assets.
   const specifierExtension = path.extname(specifier)
   if (allAliases[specifierExtension]) {
@@ -122,10 +123,56 @@ export async function resolve(_specifier, context, defaultResolve) {
 
     const resolved = { url: `file://${absolutePath}` + '?id=' + Math.random().toString(36).substring(3)}
 
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Update dependency map (Test)
+    ////////////////////////////////////////////////////////////////////////////
+    if (
+      !context.parentURL.includes('/nodekit/app/') 
+      && !context.parentURL.includes('/node_modules/')
+      && specifier.startsWith('.')
+    ) {
+      if (!dependencyMap.has(absolutePath)) {
+        dependencyMap.set(absolutePath, new Set())
+      }
+
+      /** @type Set */
+      const dependency = dependencyMap.get(absolutePath)
+      dependency.add(parentPath)
+      
+      console.verbose(dependencyMap)
+    }
+    ////////////////////////////////////////////////////////////////////////////
+
+
     // console.log('[LOADER]', 'Loading:', specifier, `(NodeKit asset: ${resolved.url.replace('file://', '') === specifier ? 'OK': `NOT ok: ${resolved.url}`})`)
 
     return resolved
   }
+
+
+  // Update dependency map for everything else.
+  if (context.parentURL !== undefined) {
+    if (
+      !context.parentURL.includes('/nodekit/app/') 
+      && !context.parentURL.includes('/node_modules/')
+      && specifier.startsWith('.')
+    ) {
+      console.verbose('[LOADER] Resolving', specifier, context)
+
+      const absolutePathOfDependency = path.resolve(specifier)
+      if (!dependencyMap.has(absolutePathOfDependency)) {
+        dependencyMap.set(absolutePathOfDependency, new Set())
+      }
+
+      /** @type Set */
+      const dependency = dependencyMap.get(absolutePathOfDependency)
+      dependency.add(context.parentURL)
+      
+      console.verbose(dependencyMap)
+    }  
+  }
+
 
   // For anything else, let Node do its own magic.
   let resolved
@@ -158,7 +205,7 @@ export async function resolve(_specifier, context, defaultResolve) {
 export async function load(url /* string */, context, defaultLoad) {
   const _url = new URL(url)
 
-  console.verbose(`[LOADER] Loading ${_url}`)
+  // console.verbose(`[LOADER] Loading ${_url}`)
 
   if (_url.protocol === 'file:') {
     const format = 'module'

@@ -63,7 +63,16 @@ import { BroadcastChannel } from 'worker_threads'
 //   }
 // }
 
-export default class NodeKit {
+class CustomEvent extends Event {
+  detail
+
+  constructor (type, eventInitDict) {
+    super (type, eventInitDict)
+    this.detail = eventInitDict.detail
+  }
+}
+
+export default class NodeKit extends EventTarget {
   app
   server
   context
@@ -80,6 +89,8 @@ export default class NodeKit {
   static timeCounter = 0
 
   constructor (basePath = process.cwd()) {
+
+    super()
 
     // Ensure database is ready
     // TODO: Keep the database elsewhere outside of the project folder structure. It’s too easy
@@ -168,7 +179,10 @@ export default class NodeKit {
           resolve(this.filesByExtension)
         })
         .on('add', (filePath, stats) => {
-          this.handleRestartIfNeededFor('file', 'added', filePath)
+
+          console.verbose('Chokidar add:', filePath)
+
+          this.handleFileChange('file', 'added', filePath)
 
           const extension = path.extname(filePath).replace('.', '')
           if (!this.filesByExtension[extension]) {
@@ -176,10 +190,10 @@ export default class NodeKit {
           }
           this.filesByExtension[extension].push(filePath)
         })
-        .on('change', filePath => { this.handleRestartIfNeededFor('file', 'added', filePath) })
-        .on('unlink', filePath => { this.handleRestartIfNeededFor('file', 'unlinked', filePath) })
-        .on('addDir', filePath => { this.handleRestartIfNeededFor('directory', 'added', filePath)})
-        .on('unlinkDir', filePath => { this.handleRestartIfNeededFor('directory', 'unlinked', filePath) })
+        .on('change', filePath => { this.handleFileChange('file', 'added', filePath) })
+        .on('unlink', filePath => { this.handleFileChange('file', 'unlinked', filePath) })
+        .on('addDir', filePath => { this.handleFileChange('directory', 'added', filePath)})
+        .on('unlinkDir', filePath => { this.handleFileChange('directory', 'unlinked', filePath) })
         .on('error', async error => {
           await this.watcher.close()
           reject(error)
@@ -187,13 +201,36 @@ export default class NodeKit {
     })
   }
 
-  handleRestartIfNeededFor(itemType, eventType, itemPath) {
-    // If we’re already initialised, exit so we can be restarted.
-    // if (this.initialised) {
-    //   console.verbose(`${itemType.charAt(0).toUpperCase()+itemType.slice(1)} ${eventType} (${itemPath}), asking for restart.`)
-    //   process.exit(1)
-    // }
-    // console.warn('[handleRestartIfNeededFor]', itemPath, 'ignoring', 'under dev')
+  async handleFileChange(itemType, eventType, itemPath) {
+    if (this.initialised) {
+      if (process.env.PRODUCTION) {
+        // In production, simply exit (systemd will handle the restart).
+        console.verbose(`${itemType.charAt(0).toUpperCase()+itemType.slice(1)} ${eventType} (${itemPath}), asking for restart.`)
+        process.exit(1)
+      } else {
+        // In development, we implement hot module reloading for a lovely
+        // experience. This is a more convoluted process where try and figure
+        // out which page(s) are impacted by code changes and update them via
+        // a development-time web socket connection.
+
+        if (eventType === 'added' && itemPath.endsWith('.page')) {
+          console.verbose("<<<< PAGE CHANGED >>>>")
+          
+          this.dispatchEvent(new CustomEvent('hotReload', {
+            detail: {
+              type: 'reload',
+              path: itemPath  
+            }
+          }))
+        }
+
+        // TODO
+        console.verbose('[handleFileChange]', itemPath, 'unimplemented', 'under development')
+        console.verbose(itemPath, eventType, itemPath)
+      }
+    } else {
+      console.warn('[handleFileChange]', itemPath, 'ignoring', 'under production')
+    }
   }
 
   async close() {
@@ -228,8 +265,16 @@ export default class NodeKit {
   // development time.
   createDevelopmentSocket () {
     // console.info('Creating dev socket')
+    const self = this
     const devSocket = new WebSocketRoute((socket, request, response) => {
-      // console.info('[DEV SOCKET] New connection')
+      console.verbose('[DEV SOCKET] New connection')
+
+      console.log('>>> self', self)
+      self.addEventListener('hotReload', function (event) {
+        console.verbose('[[[DEV SOCKET EVENT]]]', event)
+        socket.all(JSON.stringify(event.detail))
+      })
+
       // Test
       // setTimeout(() => {
       //   socket.send(JSON.stringify({ type: 'reload' }))
@@ -240,6 +285,7 @@ export default class NodeKit {
   }
 
   async createRoute (filePath) {
+    const self = this
     const routes = this.routes
     const basePath = this.basePath
     const context = this.context
@@ -254,6 +300,22 @@ export default class NodeKit {
     // what we really have is one meta-handler for every route that decides
     // what to load at runtime.
     const handler = (async function (request, response) {
+
+      console.verbose('[[[[[]]]]]] FILEPATH: ', filePath, this._handler)
+
+      const handlerSelf = this
+      if (filePath.endsWith('.page')) {
+        self.addEventListener('hotReload', (event) => {
+          console.verbose('[[[Hot reload in HANDLER]]]', event)
+          console.log('>>>>>>>>', event.detail.path, filePath)
+          if (event.detail.path === filePath) {
+            console.log('=================== INVALIDATING HANDLER ===========================')
+            console.log('this._handler', handlerSelf._handler)
+            handlerSelf._handler = undefined
+          }
+        })  
+      }
+
       if (extension === 'socket') {
         //
         // WebSocket route.
@@ -270,8 +332,8 @@ export default class NodeKit {
         // All other routes.
         //
         if (this._handler === undefined) {
-          console.verbose('[Handler] Lazy loading route', route)
-          const handlerRaw = (await import(filePath)).default
+          console.verbose('---------------------------[Handler] Lazy loading route--------------------------------', route)
+          const handlerRaw = (await import(filePath + `?no_cache=${Math.floor(Math.random()*10000000)}`)).default
 
           if (handlerRaw.render) {
             // This is a NodeKit page. Create a custom route to serve it.
@@ -398,6 +460,7 @@ export default class NodeKit {
                     // Development socket connection.
                     const __devSocket = new WebSocket('wss://localhost/.well-known/dev')
                     __devSocket.addEventListener('message', event => {
+                      console.log(event)
                       const message = JSON.parse(event.data)
                       if (message.type === 'reload') {
                         // For now, just test a reload
