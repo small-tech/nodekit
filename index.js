@@ -118,6 +118,7 @@ export default class NodeKit extends EventTarget {
     // folder directly or in a subfolder called src.
     const srcFolder = path.join(basePath, 'src')
     this.basePath = fs.existsSync(srcFolder) ? srcFolder : basePath
+    this.nodekitAppPath = process.argv[1].replace('nodekit-bundle.js', '').replace('bin/nodekit.js', '')
 
     // Set the basePath as an environment variable so the ESM Module Loader
     // can access it also. It can use it to ensure that it saves the route
@@ -134,6 +135,14 @@ export default class NodeKit extends EventTarget {
 
     // Add the WebSocket server.
     this.app.use(tinyws())
+
+    // Serve morphdom during development.
+    const morphDom = fs.readFileSync(path.join(this.nodekitAppPath, 'node_modules', 'morphdom', 'dist', 'morphdom-umd.min.js'))
+    this.app.get('/js/morphdom.min.js', (request, response) => {
+      response
+        .setHeader('content-type', 'application/javascript')
+        .end(morphDom)
+    })
 
     // Create a separate context for each route but do this when the route
     // is being created so that any values set on the route survive future
@@ -436,7 +445,7 @@ export default class NodeKit extends EventTarget {
                   <meta http-equiv='X-UA-Compatible' content='IE=edge'>
                   <meta name='viewport' content='width=device-width, initial-scale=1.0'>
                   <link rel="icon" href="data:,">
-                  <title>Document</title>
+                  <title>${route}</title>
                   <style>${css.code}</style>
                 </head>
                 <body>
@@ -456,6 +465,7 @@ export default class NodeKit extends EventTarget {
                 </script>
                 ${
                   process.env.PRODUCTION ? '' : `
+                  <script src='/js/morphdom.min.js'></script>
                   <script>
                     // Development socket connection.
                     const __devSocket = new WebSocket('wss://localhost/.well-known/dev')
