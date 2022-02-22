@@ -111,7 +111,7 @@ export default class NodeKit extends EventTarget {
 
     this.broadcastChannel = new BroadcastChannel('loader-and-main-process')
     this.broadcastChannel.onmessage = event => {
-      console.verbose(`[Main process broadcast channel] Received contents of route`, event.data.route, /Hello.*?\!/s.exec(event.data.contents.hydrationScript)[0])
+      console.verbose(`[Main process broadcast channel] Received contents of route`, event.data.route)
       this.routes[event.data.route] = event.data.contents
 
       // TODO: Ensure socket exists (it won’t if we’re not in development mode)
@@ -386,17 +386,11 @@ export default class NodeKit extends EventTarget {
       let className = classNameFromRoute(route)
       
       handler = async (request, response) => {
-        // const route = _routeFromFilePath(filePath)
         // This is a NodeKit page. Create a custom route to serve it.
         // console.log('[Handler] Attempting to get route cache for route', route)
-        const hydrationScript = routes[route].hydrationScript
-
-        console.log('.......................................')
-        // console.log(routes)
-        // console.log(routes[route])
-        console.log(/Hello.*?!/.exec(routes[route].hydrationScript)[0])
-        console.log('.......................................')
         const routeCache = routes[route]
+        const hydrationScript = routeCache.hydrationScript
+
         console.verbose('[Page Handler]', route, className)
         console.profileTime('  ╰─ Total')
         console.profileTime('  ╭─ Node script execution (initial data)')
