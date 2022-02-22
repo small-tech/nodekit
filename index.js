@@ -83,6 +83,7 @@ export default class NodeKit extends EventTarget {
   options
   routes
   initialised = false
+  notifyChangeListeners = false
 
   broadcastChannel
 
@@ -110,8 +111,15 @@ export default class NodeKit extends EventTarget {
 
     this.broadcastChannel = new BroadcastChannel('loader-and-main-process')
     this.broadcastChannel.onmessage = event => {
-      console.verbose(`[Main process broadcast channel] Received contents of route`, event.data.route)
+      console.verbose(`[Main process broadcast channel] Received contents of route`, event.data.route, /Hello.*?\!/s.exec(event.data.contents.hydrationScript)[0])
       this.routes[event.data.route] = event.data.contents
+
+      // TODO: Ensure socket exists (it won’t if we’re not in development mode)
+      if (this.notifyChangeListeners) {
+        console.verbose('<<<<<<< NOTIFYING CHANGLE LISTENERS >>>>>>>')
+        this.socket.send(JSON.stringify({type: 'reload'}))
+        this.notifyChangeListeners = false
+      }
     }
 
     // You can place your source files either in the project
@@ -199,7 +207,7 @@ export default class NodeKit extends EventTarget {
           }
           this.filesByExtension[extension].push(filePath)
         })
-        .on('change', filePath => { this.handleFileChange('file', 'added', filePath) })
+        .on('change', filePath => { this.handleFileChange('file', 'changed', filePath) })
         .on('unlink', filePath => { this.handleFileChange('file', 'unlinked', filePath) })
         .on('addDir', filePath => { this.handleFileChange('directory', 'added', filePath)})
         .on('unlinkDir', filePath => { this.handleFileChange('directory', 'unlinked', filePath) })
@@ -214,15 +222,16 @@ export default class NodeKit extends EventTarget {
     if (this.initialised) {
       if (process.env.PRODUCTION) {
         // In production, simply exit (systemd will handle the restart).
-        console.verbose(`${itemType.charAt(0).toUpperCase()+itemType.slice(1)} ${eventType} (${itemPath}), asking for restart.`)
+        console.verbose(`${itemType.charAt(0).toUpperCase()+itemType.slice(1)} ${eventType} (${itemPath}), asking for restart in production.`)
         process.exit(1)
       } else {
         // In development, we implement hot module reloading for a lovely
         // experience. This is a more convoluted process where try and figure
         // out which page(s) are impacted by code changes and update them via
         // a development-time web socket connection.
+        console.verbose('[handleFileChange]', itemPath, eventType, itemPath)
 
-        if (eventType === 'added' && itemPath.endsWith('.page')) {
+        if (itemType === 'file' && eventType === 'changed' && itemPath.endsWith('.page')) {
           console.verbose("<<<< PAGE CHANGED >>>>")
           
           this.dispatchEvent(new CustomEvent('hotReload', {
@@ -232,13 +241,9 @@ export default class NodeKit extends EventTarget {
             }
           }))
         }
-
-        // TODO
-        console.verbose('[handleFileChange]', itemPath, 'unimplemented', 'under development')
-        console.verbose(itemPath, eventType, itemPath)
       }
     } else {
-      console.warn('[handleFileChange]', itemPath, 'ignoring', 'under production')
+      console.warn('[handleFileChange]', itemPath, 'ignoring', 'not initialised')
     }
   }
 
@@ -273,21 +278,10 @@ export default class NodeKit extends EventTarget {
   // Creates a WebSocket at /.well-known/dev used for hot module reloading, etc., during
   // development time.
   createDevelopmentSocket () {
-    // console.info('Creating dev socket')
     const self = this
     const devSocket = new WebSocketRoute((socket, request, response) => {
       console.verbose('[DEV SOCKET] New connection')
-
-      console.log('>>> self', self)
-      self.addEventListener('hotReload', function (event) {
-        console.verbose('[[[DEV SOCKET EVENT]]]', event)
-        socket.all(JSON.stringify(event.detail))
-      })
-
-      // Test
-      // setTimeout(() => {
-      //   socket.send(JSON.stringify({ type: 'reload' }))
-      // }, 5000)
+      self.socket = socket
     })
 
     this.app.get('/.well-known/dev', devSocket.handler.bind(devSocket))
@@ -305,24 +299,40 @@ export default class NodeKit extends EventTarget {
 
     console.verbose('[FILES] Creating route', route, extension)
 
+    const handlerThisObject = {}
+    console.verbose('HANDLER THIS', handlerThisObject)
+
     // Handlers will lazy-load their content the first time they are hit so
     // what we really have is one meta-handler for every route that decides
     // what to load at runtime.
     const handler = (async function (request, response) {
 
-      console.verbose('[[[[[]]]]]] FILEPATH: ', filePath, this._handler)
+      console.verbose('[[[[[]]]]]] FILEPATH: ', filePath, this._handler, this)
 
-      const handlerSelf = this
-      if (filePath.endsWith('.page')) {
-        self.addEventListener('hotReload', (event) => {
-          console.verbose('[[[Hot reload in HANDLER]]]', event)
-          console.log('>>>>>>>>', event.detail.path, filePath)
-          if (event.detail.path === filePath) {
-            console.log('=================== INVALIDATING HANDLER ===========================')
-            console.log('this._handler', handlerSelf._handler)
-            handlerSelf._handler = undefined
+      // const handlerSelf = this
+      if (!this.hotReloadListener) {
+        console.verbose('**** ADDING HOT RELOAD LISTENER ******')
+        if (filePath.endsWith('.page')) {
+          const reloadListener = async event => {
+            console.verbose('[[[Hot reload in HANDLER]]]', event)
+            console.log('>>>>>>>>', event.detail.path, filePath)
+            if (event.detail.path === filePath) {
+              console.log('=================== RELOADING HANDLER ===========================')
+              console.log('this._handler', this._handler)
+              // this._handler = await self.loadHttpRoute(routes, route, basePath, filePath, context)        
+              console.verbose('----- REMOVING OLD HOT RELOAD LISTENER ------')
+              self.removeEventListener('hotReload', reloadListener)
+              this.hotReloadListener = false
+              // Reload the page.
+              this._handler = await self.loadHttpRoute(routes, route, basePath, filePath, context)
+              // self.socket.send(JSON.stringify(event.detail))    
+              self.notifyChangeListeners = true
+            }
           }
-        })  
+  
+          self.addEventListener('hotReload', reloadListener)  
+        }
+        this.hotReloadListener = true
       }
 
       if (extension === 'socket') {
@@ -341,170 +351,16 @@ export default class NodeKit extends EventTarget {
         // All other routes.
         //
         if (this._handler === undefined) {
-          console.verbose('---------------------------[Handler] Lazy loading route--------------------------------', route)
-          const handlerRaw = (await import(filePath + `?no_cache=${Math.floor(Math.random()*10000000)}`)).default
-
-          if (handlerRaw.render) {
-            // This is a NodeKit page. Create a custom route to serve it.
-            // console.log('[Handler] Attempting to get route cache for route', route)
-            const routeCache = routes[route]
-            const hydrationScript = routeCache.hydrationScript
-
-            // This is the same class name that was set by the hydration script compiler
-            // in the module loader.
-            let className = classNameFromRoute(route)
-
-            this._handler = async (request, response) => {
-              console.verbose('[Page Handler]', route, className)
-              console.profileTime('  ╰─ Total')
-              console.profileTime('  ╭─ Node script execution (initial data)')
-
-              // Run NodeScript module (if any) in its own V8 Virtual Machine context.
-              let data = undefined
-
-              if (routeCache.nodeScript) {
-                // Cache the nodeScript.
-                // TODO: Update cache if source changes.
-                if (!routeCache.nodeScriptHandler) {
-                  // Using esbuild
-                  let buildResult
-                  try {
-                    buildResult = await esbuild.build({
-                      stdin: {
-                        contents: routeCache.nodeScript,
-                        resolveDir: basePath,
-                        sourcefile: 'node-script.js',
-                        loader: 'js'
-                      },
-                      bundle: true,
-                      format: 'esm',
-                      platform: 'node',
-                      write: false
-                    })
-                  } catch (error) {
-                    console.error(error)
-                    response.statusCode = 500
-                    response.end(error.stack.toString())
-                  }
-                  const bundle = buildResult.outputFiles[0].text
-
-                  // TODO: Implement cache using sourceTextModule.createCachedData()
-                  const module = new vm.SourceTextModule(bundle, { context })
-
-                  await module.link(async (specifier, referencingModule) => {
-                    // throw new Error(`[LINKER] Bundle should not have any imports but received ${specifier} from ${referencingModule}`)
-
-                    return new Promise(async (resolve, reject) => {
-                      console.verbose('Linking: ', specifier)
-
-                      const module = await import(specifier)
-                      const exportNames = Object.keys(module)
-
-                      // In order to interoperate with Node’s own ES Module Loader,
-                      // we have to resort to creating a synthetic module to
-                      // translate for us.
-                      //
-                      // Thanks to László Szirmai for the tactic
-                      // (https://github.com/nodejs/node/issues/35848).
-                      const syntheticModule = new vm.SyntheticModule(
-                        exportNames,
-                        function () {
-                          exportNames.forEach(key => {
-                            this.setExport(key, module[key])
-                        })
-                      }, { context })
-
-                      resolve(syntheticModule)
-                    })
-                  })
-
-                  // Evaluate the module. After successful completion of this step,
-                  // the module is available from the module.namespace reference.
-                  await module.evaluate()
-
-                  routeCache.nodeScriptHandler = module.namespace.default
-                }
-
-                // Run the nodeScript.
-                data = await routeCache.nodeScriptHandler(request, response)
-              }
-
-              console.profileTimeEnd('  ╭─ Node script execution (initial data)')
-
-              console.profileTime('  ├─ Page render (html + css)')
-              // Render the page, passing the server-side data as a property.
-              const { html, css } = handlerRaw.render({data})
-              console.profileTimeEnd('  ├─ Page render (html + css)')
-
-              console.profileTime('  ├─ Final HTML render')
-              const finalHtml = `
-              <!DOCTYPE html>
-                <html lang='en'>
-                <head>
-                  <meta charset='UTF-8'>
-                  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-                  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-                  <link rel="icon" href="data:,">
-                  <title>${route}</title>
-                  <style>${css.code}</style>
-                </head>
-                <body>
-                    <div id='application'>
-                      ${html}
-                    </div>
-                    <script type='module'>
-                    ${hydrationScript}
-
-                    new ${className}({
-                      target: document.getElementById('application'),
-                      hydrate: true,
-                      props: {
-                        data: ${JSON.stringify(data)}
-                      }
-                    })
-                </script>
-                ${
-                  process.env.PRODUCTION ? '' : `
-                  <script src='/js/morphdom.min.js'></script>
-                  <script>
-                    // Development socket connection.
-                    const __devSocket = new WebSocket('wss://localhost/.well-known/dev')
-                    __devSocket.addEventListener('message', event => {
-                      console.log(event)
-                      const message = JSON.parse(event.data)
-                      if (message.type === 'reload') {
-                        // For now, just test a reload
-                        window.location.reload(true)
-                      }
-                    })
-                  </script>
-                  `
-                }
-                </body>
-                </html>
-              `
-              console.profileTimeEnd('  ├─ Final HTML render')
-
-              console.profileTime('  ├─ Response send')
-              response.end(finalHtml)
-              console.profileTimeEnd('  ├─ Response send')
-
-              console.profileTimeEnd('  ╰─ Total')
-            }
-          } else {
-            // This is a non-svelte route. It is expected to export the function
-            // itself so we can just use it as the route handler.
-            this._handler = handlerRaw
-          }
+          this._handler = await self.loadHttpRoute(routes, route, basePath, filePath, context)
         }
         // Called the cached handler.
-        await this._handler(request,response)
+        return await this._handler(request,response)
       }
-    }).bind(new Object())
+    }).bind(handlerThisObject)
 
     // Add the route
 
-    // console.log('[FILES] Adding route', httpMethod, route, filePath, handler)
+    console.verbose('[FILES] Adding route', httpMethod, route, filePath, handler)
 
     // Add handler to server.
     this.app[httpMethod](route, handler)
@@ -513,6 +369,177 @@ export default class NodeKit extends EventTarget {
     // console.log(this.app.routes.forEach(route => console.log(route.handlers)))
   }
 
+
+  async loadHttpRoute (routes, route, basePath, filePath, context) {
+    console.verbose('---------------------------[loadHttpRoute()] Lazy loading route--------------------------------', route)
+    const handlerRaw = (await import(filePath)).default
+
+    let handler
+
+    const _routeFromFilePath = routeFromFilePath
+
+
+    if (handlerRaw.render) {
+      
+      // This is the same class name that was set by the hydration script compiler
+      // in the module loader.
+      let className = classNameFromRoute(route)
+      
+      handler = async (request, response) => {
+        // const route = _routeFromFilePath(filePath)
+        // This is a NodeKit page. Create a custom route to serve it.
+        // console.log('[Handler] Attempting to get route cache for route', route)
+        const hydrationScript = routes[route].hydrationScript
+
+        console.log('.......................................')
+        // console.log(routes)
+        // console.log(routes[route])
+        console.log(/Hello.*?!/.exec(routes[route].hydrationScript)[0])
+        console.log('.......................................')
+        const routeCache = routes[route]
+        console.verbose('[Page Handler]', route, className)
+        console.profileTime('  ╰─ Total')
+        console.profileTime('  ╭─ Node script execution (initial data)')
+
+        // Run NodeScript module (if any) in its own V8 Virtual Machine context.
+        let data = undefined
+
+        if (routeCache.nodeScript) {
+          // Cache the nodeScript.
+          // TODO: Update cache if source changes.
+          if (!routeCache.nodeScriptHandler) {
+            // Using esbuild
+            let buildResult
+            try {
+              buildResult = await esbuild.build({
+                stdin: {
+                  contents: routeCache.nodeScript,
+                  resolveDir: basePath,
+                  sourcefile: 'node-script.js',
+                  loader: 'js'
+                },
+                bundle: true,
+                format: 'esm',
+                platform: 'node',
+                write: false
+              })
+            } catch (error) {
+              console.error(error)
+              response.statusCode = 500
+              response.end(error.stack.toString())
+            }
+            const bundle = buildResult.outputFiles[0].text
+
+            // TODO: Implement cache using sourceTextModule.createCachedData()
+            const module = new vm.SourceTextModule(bundle, { context })
+
+            await module.link(async (specifier, referencingModule) => {
+              // throw new Error(`[LINKER] Bundle should not have any imports but received ${specifier} from ${referencingModule}`)
+
+              return new Promise(async (resolve, reject) => {
+                console.verbose('Linking: ', specifier)
+
+                const module = await import(specifier)
+                const exportNames = Object.keys(module)
+
+                // In order to interoperate with Node’s own ES Module Loader,
+                // we have to resort to creating a synthetic module to
+                // translate for us.
+                //
+                // Thanks to László Szirmai for the tactic
+                // (https://github.com/nodejs/node/issues/35848).
+                const syntheticModule = new vm.SyntheticModule(
+                  exportNames,
+                  function () {
+                    exportNames.forEach(key => {
+                      this.setExport(key, module[key])
+                  })
+                }, { context })
+
+                resolve(syntheticModule)
+              })
+            })
+
+            // Evaluate the module. After successful completion of this step,
+            // the module is available from the module.namespace reference.
+            await module.evaluate()
+
+            routeCache.nodeScriptHandler = module.namespace.default
+          }
+
+          // Run the nodeScript.
+          data = await routeCache.nodeScriptHandler(request, response)
+        }
+
+        console.profileTimeEnd('  ╭─ Node script execution (initial data)')
+
+        console.profileTime('  ├─ Page render (html + css)')
+        // Render the page, passing the server-side data as a property.
+        const { html, css } = handlerRaw.render({data})
+        console.profileTimeEnd('  ├─ Page render (html + css)')
+
+        console.profileTime('  ├─ Final HTML render')
+        const finalHtml = `
+        <!DOCTYPE html>
+          <html lang='en'>
+          <head>
+            <meta charset='UTF-8'>
+            <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <link rel="icon" href="data:,">
+            <title>${route}</title>
+            <style>${css.code}</style>
+          </head>
+          <body>
+              <div id='application'>
+                ${html}
+              </div>
+              <script type='module'>
+              ${hydrationScript}
+
+              new ${className}({
+                target: document.getElementById('application'),
+                hydrate: true,
+                props: {
+                  data: ${JSON.stringify(data)}
+                }
+              })
+          </script>
+          ${
+            process.env.PRODUCTION ? '' : `
+            <script src='/js/morphdom.min.js'></script>
+            <script>
+              // Development socket connection.
+              const __devSocket = new WebSocket('wss://localhost/.well-known/dev')
+              __devSocket.addEventListener('message', event => {
+                console.log(event)
+                // const message = JSON.parse(event.data)
+                // if (message.type === 'reload') {
+                  // For now, just test a reload
+                  window.location.reload(true)
+                // }
+              })
+            </script>
+            `
+          }
+          </body>
+          </html>
+        `
+        console.profileTimeEnd('  ├─ Final HTML render')
+
+        console.profileTime('  ├─ Response send')
+        response.end(finalHtml)
+        console.profileTimeEnd('  ├─ Response send')
+
+        console.profileTimeEnd('  ╰─ Total')
+      }
+    } else {
+      // This is a non-svelte route. It is expected to export the function
+      // itself so we can just use it as the route handler.
+      handler = handlerRaw
+    }
+    return handler
+  }
 
 
   // Create the routes and add them to the server.

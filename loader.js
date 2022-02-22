@@ -121,8 +121,9 @@ export async function resolve(_specifier, context, defaultResolve) {
     const parentPath = path.dirname(parentURL.pathname)
     const absolutePath = path.resolve(parentPath, specifier)
 
-    const resolved = { url: `file://${absolutePath}` + '?id=' + Math.random().toString(36).substring(3)}
+    const resolved = { url: `file://${absolutePath}?` + Date.now() + Math.random() }
 
+    console.verbose('resolved', resolved)
 
     ////////////////////////////////////////////////////////////////////////////
     // Update dependency map (Test)
