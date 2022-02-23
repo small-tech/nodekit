@@ -97,6 +97,9 @@ export default class NodeKit extends EventTarget {
     // ===== to accidentally upload it somewhere otherwise by messing up your .gitignore (security).
     globalThis.db = JSDB.open(path.join(basePath, '.db'))
 
+    // Save a reference to the app in the global scope also.
+    globalThis.app = this
+
     this.routes = {}
     this.filesByExtension = {}
 
@@ -151,6 +154,8 @@ export default class NodeKit extends EventTarget {
     this.context = vm.createContext({
       // NodeKit globals.
       db: globalThis.db,
+      // The app itself for advanced uses.
+      app: globalThis.app,
       // Node.js globals.
       console, URLSearchParams, URL, process,
       // (Fetch is part of undici right now but slated to be part
