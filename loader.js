@@ -122,7 +122,9 @@ export async function resolve(_specifier, context, defaultResolve) {
     const parentPath = path.dirname(parentURL.pathname)
     const absolutePath = path.resolve(parentPath, specifier)
 
-    const resolved = { url: `file://${absolutePath}?` + Date.now() + Math.random() }
+    // Add a unique cache-busting query string so we can live reload during development.
+    const cacheBusterDuringDevelopment = process.env.PRODUCTION ? '' : `?${Date.now()}${Math.random()}`
+    const resolved = { url: `file://${absolutePath}${cacheBusterDuringDevelopment}`}
 
     ////////////////////////////////////////////////////////////////////////////
     // Update dependency map (Test)
@@ -150,7 +152,6 @@ export async function resolve(_specifier, context, defaultResolve) {
     return resolved
   }
 
-
   // Update dependency map for everything else.
   if (context.parentURL !== undefined) {
     if (
@@ -173,7 +174,6 @@ export async function resolve(_specifier, context, defaultResolve) {
     }  
   }
 
-
   // For anything else, let Node do its own magic.
   let resolved
   try {
@@ -195,7 +195,7 @@ export async function resolve(_specifier, context, defaultResolve) {
 //
 // Note: .component is just a (semantically more accurate, given our use case) alias
 // ===== for .svelte and is treated in exactly the same way. On the other hand,
-//       .page and .layout are supersets of Svelte and can include a script block
+//       .page and .layout (TODO) are supersets of Svelte and can include a script block
 //       with a context of 'node' that gets executed in Node before every render. The data
 //       returned is injected into the page as it is being rendered. Additionally,
 //       .layout files get special treatment in that they are injected into every page
@@ -223,12 +223,11 @@ export async function load(url /* string */, context, defaultLoad) {
   return defaultLoad(url, context, defaultLoad)
 }
 
+// Compiles Svelte-related sources (including .pages, etc.)
 async function compileSource(filePath) {
-
   const source = await fsPromises.readFile(filePath, 'utf8')
   const routeRelativePath = path.relative(__dirname, filePath)
 
-  // TODO: Refactor – pull these out into the shared route calculation method.
   // Transform an absolute file system path to a web server route.
   const route = routeFromFilePath(filePath)
 
