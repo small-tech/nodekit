@@ -304,25 +304,18 @@ export default class NodeKit extends EventTarget {
 
       // const handlerSelf = this
       if (!this.hotReloadListener) {
-        console.verbose('**** ADDING HOT RELOAD LISTENER ******')
         if (filePath.endsWith('.page')) {
           const reloadListener = async event => {
-            console.verbose('[[[Hot reload in HANDLER]]]', event)
-            console.log('>>>>>>>>', event.detail.path, filePath)
             if (event.detail.path === filePath) {
-              console.log('=================== RELOADING HANDLER ===========================')
-              console.log('this._handler', this._handler)
-              // this._handler = await self.loadHttpRoute(routes, route, basePath, filePath, context)        
-              console.verbose('----- REMOVING OLD HOT RELOAD LISTENER ------')
               self.removeEventListener('hotReload', reloadListener)
               this.hotReloadListener = false
               // Reload the page.
               this._handler = await self.loadHttpRoute(routes, route, basePath, filePath, context)
-              // self.socket.send(JSON.stringify(event.detail))    
+
+              // Flag that we must notify pages of that an update has occured.
               self.notifyChangeListeners = true
             }
-          }
-  
+          }  
           self.addEventListener('hotReload', reloadListener)  
         }
         this.hotReloadListener = true
@@ -364,13 +357,10 @@ export default class NodeKit extends EventTarget {
 
 
   async loadHttpRoute (routes, route, basePath, filePath, context) {
-    console.verbose('---------------------------[loadHttpRoute()] Lazy loading route--------------------------------', route)
     const handlerRaw = (await import(filePath)).default
 
     let handler
-
     const _routeFromFilePath = routeFromFilePath
-
 
     if (handlerRaw.render) {
       
