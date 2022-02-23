@@ -108,7 +108,10 @@ export default class NodeKit extends EventTarget {
 
     this.options = { domains: [this.hostname] }
 
+    // We use a regular broadcast channel to communicate with the ESM Loader,
+    // which is really just another worker process.
     this.broadcastChannel = new BroadcastChannel('loader-and-main-process')
+
     this.broadcastChannel.onmessage = event => {
       console.verbose(`[Main process broadcast channel] Received contents of route`, event.data.route)
       this.routes[event.data.route] = event.data.contents
@@ -125,7 +128,6 @@ export default class NodeKit extends EventTarget {
     // folder directly or in a subfolder called src.
     const srcFolder = path.join(basePath, 'src')
     this.basePath = fs.existsSync(srcFolder) ? srcFolder : basePath
-    this.nodekitAppPath = process.argv[1].replace('nodekit-bundle.js', '').replace('bin/nodekit.js', '')
 
     // Set the basePath as an environment variable so the ESM Module Loader
     // can access it also. It can use it to ensure that it saves the route
