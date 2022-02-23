@@ -69,7 +69,7 @@ export async function resolve(_specifier, context, defaultResolve) {
 
   // Since we don’t want every NodeKit project to have to npm install Svelte
   // to work, we resolve Svelte URLs to the version of Svelte that we’ve
-  // installed with NodeKit. This will also ensure that both the hydration
+  // installed with NodeKit. This also ensures that both the hydration
   // script run by esbuild in the loader and the Svelte SSR compiler in the
   // main worker use the same version of Svelte so we don’t run into any
   // versioning issues either.
@@ -81,14 +81,9 @@ export async function resolve(_specifier, context, defaultResolve) {
   if (specifier === 'svelte') {
     const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), svelteExports['.'].node.import)
     const resolved = { url: `file://${importPath}` }
-
-    // console.log('[LOADER]', 'Loading:', specifier, `Main svelte package from NodeKit (${resolved.url})`)
-
     return resolved
   } else if (specifier.startsWith('svelte/')) {
-    // console.log('Attempting to resolve internal Svelte package…')
     const svelteExport = specifier.replace('svelte', '.')
-    // console.log('svelteExport', svelteExport)
     const pathToExport = svelteExports[svelteExport]
 
     if (pathToExport === undefined) {
@@ -96,20 +91,11 @@ export async function resolve(_specifier, context, defaultResolve) {
       process.exit(1)
     }
     const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), pathToExport.import)
-
     const resolved = { url: `file://${importPath}` }
-
-    // console.log('[LOADER]', 'Loading:', specifier, `(Svelte sub-package; serving from NodeKit: ${resolved.url})`)
-
     return resolved
   } else if (context.parentURL != undefined && context.parentURL.includes('/node_modules/svelte/')) {
-    // console.log('Attempting to resolve package with parent in Svelte package…')
-    // console.log('specifier', specifier)
     const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), specifier.replace('..', '.'))
     const resolved = { url: `file://${importPath}` }
-
-    // console.log('[LOADER]', 'Loading:', specifier, `Svelte internal relative package reference (${resolved.url})`)
-
     return resolved
   }
 
@@ -122,8 +108,6 @@ export async function resolve(_specifier, context, defaultResolve) {
     const absolutePath = path.resolve(parentPath, specifier)
 
     const resolved = { url: `file://${absolutePath}?` + Date.now() + Math.random() }
-
-    console.verbose('resolved', resolved)
 
     ////////////////////////////////////////////////////////////////////////////
     // Update dependency map (Test)
@@ -141,7 +125,7 @@ export async function resolve(_specifier, context, defaultResolve) {
       const dependency = dependencyMap.get(absolutePath)
       dependency.add(parentPath)
       
-      console.verbose(dependencyMap)
+      console.verbose('Dependency map', dependencyMap)
     }
     ////////////////////////////////////////////////////////////////////////////
 
@@ -170,7 +154,7 @@ export async function resolve(_specifier, context, defaultResolve) {
       const dependency = dependencyMap.get(absolutePathOfDependency)
       dependency.add(context.parentURL)
       
-      console.verbose(dependencyMap)
+      console.verbose('Dependency map', dependencyMap)
     }  
   }
 
