@@ -75,8 +75,16 @@ bin/nodekit [path to serve]
 ```
 
 > 💡 By default, NodeKit will be as quiet as possible in the console and only surface warnings and errors.
+>
 > If you want more extensive logging, you can start it with the VERBOSE environment variable set:
-> `VERBOSE=true nodekit [path to serve]` or `VERBOSE=true bin/nodekit [path to serve]`.
+>
+> `VERBOSE=true nodekit [path to serve]`
+>
+> or
+>
+> `VERBOSE=true bin/nodekit [path to serve]`
+>
+> Similarly, if you want to see performance statistics, set `PROFILE=true`.
 
 ## Examples
 
@@ -85,6 +93,8 @@ The best way to get started is to play with the examples.
   - Hello Count: `examples/hello-count`
   - Persisted Hello Count: `examples/persisted-hello-count`
   - Simple Chat: `examples/simple-chat`
+  - Make Fetch Happen: `examples/make-fetch-happen`
+  - Streaming Fediverse Posts: `examples/streaming-fediverse-posts`
   - Non-SSR Svelte Compiled Component Workaround (Particles): `examples/non-ssr-svelte-compiled-component-workaround-particles`
 
 e.g., to launch the Simple Chat example, run:
@@ -286,6 +296,8 @@ nodekit make-fetch-happen
 And hit _https://localhost_ to see the latest public timeline from Aral’s mastodon instance.
 
 > 💾 This example is available in _examples/make-fetch-happen_. You can also find a version that demonstrates importing a third-party module called [node-fetch](https://github.com/node-fetch/node-fetch) and using that instead in _examples/_third-party-import-in-nodescript-node-fetch_.
+
+> 💾 There’s also version of this example that implements a streaming timeline in _examples/streaming-fediverse-posts_.
 
 > 💡 Fetch is not a native part of Node.js yet but it will be soon. NodeKit currently includes [undici’s](https://github.com/nodejs/undici) [fetch implementation](https://github.com/nodejs/undici#undicifetchinput-init-promise). This is [in the process of being included in Node.js core.](https://github.com/nodejs/node/pull/41749). Once it is, NodeKit will simply remove the third-party library and replace the reference with the internal one and your apps should continue to work as before.
 >
