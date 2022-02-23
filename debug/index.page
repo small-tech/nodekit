@@ -1,0 +1,64 @@
+<data>
+  export default (request, response) => {
+    return {
+      routes: globalThis.app.routes,
+      options: {
+        domains: globalThis.app.options.domains,
+        settingsPath: globalThis.app.options.settingsPath
+      }
+    }
+  }
+</data>
+
+<script>
+  import Hello from './hello.component'
+
+  export let data
+</script>
+
+<Hello />
+
+<h2>Options</h2>
+
+<ul>
+  {#each Object.entries(data.options) as [key, value]}
+    <li>{key}: {value}</li>
+  {/each}
+</ul>
+
+<h2>Routes</h2>
+
+<ul>
+  {#each Object.entries(data.routes) as [route, details]}
+    <li>
+      {route}: {details.routeRelativePath}
+      <details open>        
+        <summary>Hydration Script</summary>
+        <pre><code>{details.hydrationScript}</code></pre>
+      </details>
+      <details open>        
+        <summary>Node Script</summary>
+        <pre><code>{details.nodeScript}</code></pre>
+      </details>
+    </li>
+  {/each}
+</ul>
+
+<style>
+  pre {
+    height: 15em;
+    overflow: scroll;
+    border: 1px solid black;
+    padding: 1em;
+    background-color: green;
+    color: white;
+  }
+
+  details {
+    margin-top: 1em;
+  }
+
+  summary {
+    font-size: 1.5em;
+  }
+</style>
