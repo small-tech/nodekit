@@ -117,14 +117,41 @@ export default class NodeKit extends EventTarget {
 
     this.broadcastChannel.onmessage = event => {
       console.verbose(`[Main process broadcast channel] Received contents of route`, event.data.route)
-      this.routes[event.data.route] = event.data.contents
 
-      // TODO: Ensure socket exists (it won’t if we’re not in development mode)
-      if (this.notifyChangeListeners) {
-        console.verbose('<<<<<<< NOTIFYING CHANGLE LISTENERS >>>>>>>')
-        this.socket.send(JSON.stringify({type: 'reload'}))
-        this.notifyChangeListeners = false
+      if (this.routes[event.data.route] !== undefined) {
+        // This route already exists so it’s changed somehow. Depending on whether
+        // just the CSS has changed, we’ll ask the development page to update
+        // accordingly.
+        const previousVersion = this.routes[event.data.route]
+        const currentVersion = event.data.contents
+
+        const jsIsTheSame = currentVersion.js === previousVersion.js
+        const cssIsTheSame = currentVersion.css === previousVersion.css
+        const onlyCssHasChanged = jsIsTheSame && !cssIsTheSame
+
+        if (onlyCssHasChanged) {
+          console.verbose('Requesting CSS injection.')
+          // The CSS class name/hash will have changed in the new CSS,
+          // replace it with the old one.
+          // TODO: Error check for non-existence (shouldn’t happen but still).
+          const classHashRegExp = /svelte-(.*?)\{/
+          const oldClassHash = classHashRegExp.exec(previousVersion.css)[1]
+          const newClassHash = classHashRegExp.exec(currentVersion.css)[1]
+          const newCssCode = currentVersion.css.replace(new RegExp(newClassHash, 'g'), oldClassHash)
+
+          event.data.contents.css = newCssCode
+
+          this.socket.send(JSON.stringify({
+            type: 'css',
+            code: newCssCode
+          }))
+        } else if (!jsIsTheSame) {
+          console.verbose('Requesting live reload.')
+          this.socket.send(JSON.stringify({type: 'reload'}))
+        }
       }
+
+      this.routes[event.data.route] = event.data.contents
     }
 
     // You can place your source files either in the project
@@ -304,13 +331,8 @@ export default class NodeKit extends EventTarget {
         if (filePath.endsWith('.page')) {
           const reloadListener = async event => {
             if (event.detail.path === filePath) {
-              self.removeEventListener('hotReload', reloadListener)
-              this.hotReloadListener = false
               // Reload the page.
               this._handler = await self.loadHttpRoute(routes, route, basePath, filePath, context)
-
-              // Flag that we must notify pages of that an update has occured.
-              self.notifyChangeListeners = true
             }
           }  
           self.addEventListener('hotReload', reloadListener)  

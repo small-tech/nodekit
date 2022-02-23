@@ -250,6 +250,7 @@ async function compileSource(filePath) {
   }
 
   // Layout (TODO) and hydration script support.
+  let routeDetails = null
   if (filePath.endsWith('.page')) {
     let script = scriptRegExp.exec(svelteSource)
     script = script ? script[0] : ''
@@ -270,7 +271,7 @@ async function compileSource(filePath) {
     const hydrationCode = await hydrationScriptCompiler(routeRelativePath, route)
     const hydrationScript = hydrationCode
 
-    const routeDetails = {
+    routeDetails = {
       route,
       contents: {
         routeRelativePath,
@@ -280,18 +281,34 @@ async function compileSource(filePath) {
     }
 
     // console.log('[LOADER] New route!', route)
-
-    // Update the route cache with the material for this route.
-    broadcastChannel.postMessage(routeDetails)
   }
 
   const compilerOptions = {
     generate: 'ssr',
     format: 'esm',
+    // css: false,  // This has no effect. See https://github.com/sveltejs/svelte/issues/3604
+    enableSourcemap: false,
     hydratable: true,
   }
 
+  if (!process.env.PRODUCTION) {
+    compilerOptions.dev = true
+  }
+
   const output = compile(svelteSource, compilerOptions)
+
+  if (routeDetails !== null) {
+    // Remove the generated CSS code so we can check if JS has changed
+    // between builds or not.
+    routeDetails.contents.js = output.js.code
+                                  .replace(/const css = \{.*?};/s, '')
+                                  .replace('$$result.css.add(css);', '')
+                                  .replace(/\$\{"svelte-.*?"\}/g, '')
+    routeDetails.contents.css = output.css.code
+
+    // Update the route cache with the material for this route.
+    broadcastChannel.postMessage(routeDetails)
+  }
 
   return output.js.code
 }
