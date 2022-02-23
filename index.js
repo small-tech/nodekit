@@ -233,7 +233,7 @@ export default class NodeKit extends EventTarget {
         }
       }
     } else {
-      console.warn('[handleFileChange]', itemPath, 'ignoring', 'not initialised')
+      console.verbose('[handleFileChange]', itemPath, 'ignoring', 'not initialised')
     }
   }
 
