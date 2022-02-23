@@ -17,6 +17,8 @@ import { fileURLToPath } from 'url'
 
 const { nodekitAppPath, svelteExports } = await loaderPaths()
 
+const svelteModulePath = path.join(nodekitAppPath, 'node_modules', 'svelte')
+
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 function truthyHashmapFromArray(array) {
@@ -58,6 +60,8 @@ const styleRegExp = /\<style\>.*?\<\/style\>/s
 // Capture everything after the last dot as a named group called extension.
 const fileUrlExtensionRegExp = /^.+(?<extension>\..*$)/
 
+// This is the broadcast channel our loader worker uses to
+// talk to the main thread.
 const broadcastChannel = new BroadcastChannel('loader-and-main-process')
 
 function extensionOf(_urlString) {
@@ -69,39 +73,47 @@ function extensionOf(_urlString) {
 }
 
 export async function resolve(_specifier, context, defaultResolve) {
-
   // Since we don’t want every NodeKit project to have to npm install Svelte
   // to work, we resolve Svelte URLs to the version of Svelte that we’ve
   // installed with NodeKit. This also ensures that both the hydration
   // script run by esbuild in the loader and the Svelte SSR compiler in the
   // main worker use the same version of Svelte so we don’t run into any
   // versioning issues either.
+  //
+  // We get the import paths from the exports object defined in Svelte’s
+  // package file (svelteExports).
 
   // Remove query string (testing, for now.)
   const specifier = _specifier.replace(/\?.*$/, '')
 
-  // TODO: Refactor to remove redundancy.
-  if (specifier === 'svelte') {
-    const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), svelteExports['.'].node.import)
-    const resolved = { url: `file://${importPath}` }
-    return resolved
-  } else if (specifier.startsWith('svelte/')) {
-    const svelteExport = specifier.replace('svelte', '.')
-    const pathToExport = svelteExports[svelteExport]
+  const isSvelteImport = specifier === 'svelte'
+  const isImportWithSveltePrefix = specifier.startsWith('svelte/')
+  const isRelativeInternalSvelteImport = context.parentURL != undefined && context.parentURL.includes('/node_modules/svelte/')
 
-    if (pathToExport === undefined) {
-      console.error('[LOADER] Could not resolve Svelte export', svelteExport)
-      process.exit(1)
-    }
-    const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), pathToExport.import)
-    const resolved = { url: `file://${importPath}` }
-    return resolved
-  } else if (context.parentURL != undefined && context.parentURL.includes('/node_modules/svelte/')) {
-    const importPath = path.resolve(path.join(nodekitAppPath, 'node_modules', 'svelte'), specifier.replace('..', '.'))
-    const resolved = { url: `file://${importPath}` }
-    return resolved
+  let svelteImportPath = null
+  switch (true) {
+    case isSvelteImport:
+      svelteImportPath = path.resolve(svelteModulePath, svelteExports['.'].node.import)
+      break
+
+    case isImportWithSveltePrefix:
+      const svelteExport = specifier.replace('svelte', '.')
+      const pathToExport = svelteExports[svelteExport]
+
+      if (pathToExport === undefined) {
+        console.error('[LOADER] Could not resolve Svelte export', svelteExport)
+        process.exit(1)
+      }
+      svelteImportPath = path.resolve(svelteModulePath, pathToExport.import)
+      break
+
+    case isRelativeInternalSvelteImport:
+      svelteImportPath = path.resolve(svelteModulePath, specifier.replace('..', '.'))
+      break
   }
-
+  if (svelteImportPath !== null) {
+    return { url: `file://${svelteImportPath}` }  
+  }
 
   // Handle NodeKit assets.
   const specifierExtension = path.extname(specifier)
