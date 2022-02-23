@@ -1,7 +1,8 @@
 <data>
+  // console.log(globalThis.app.routes)
   export default (request, response) => {
     return {
-      routes: globalThis.app.routes,
+      routes: [],
       options: {
         domains: globalThis.app.options.domains,
         settingsPath: globalThis.app.options.settingsPath
@@ -45,6 +46,10 @@
 </ul>
 
 <style>
+  h2 {
+    color: red;
+  }
+
   pre {
     height: 15em;
     overflow: scroll;
