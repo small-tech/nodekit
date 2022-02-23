@@ -303,7 +303,7 @@ async function compileSource(filePath) {
     routeDetails.contents.js = output.js.code
                                   .replace(/const css = \{.*?};/s, '')
                                   .replace('$$result.css.add(css);', '')
-                                  .replace(/\$\{"svelte-.*?"\}/g, '')
+                                  .replace(/svelte-.*?"\}/g, '')
     routeDetails.contents.css = output.css.code
 
     // Update the route cache with the material for this route.
