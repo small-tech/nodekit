@@ -39,7 +39,7 @@ import https from '@small-tech/https'
 import { tinyws } from 'tinyws'
 import WebSocketRoute from './lib/WebSocketRoute'
 
-import { classNameFromRoute, routeFromFilePath, HTTP_METHODS } from './lib/Utils'
+import { classNameFromRoute, routeFromFilePath, HTTP_METHODS, renderPage } from './lib/Utils'
 
 import { fileURLToPath, URL } from 'url'
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
@@ -90,7 +90,6 @@ export default class NodeKit extends EventTarget {
   static timeCounter = 0
 
   constructor (basePath = process.cwd()) {
-
     super()
 
     // Ensure database is ready
@@ -162,8 +161,6 @@ export default class NodeKit extends EventTarget {
 
   async initialise () {
     return new Promise((resolve, reject) => {
-      // console.profileTime(`Files ${++Files.profileTimeCounter}`)
-
       const watcherGlob = `${this.basePath}/**/*.@(page|socket|${HTTP_METHODS.join('|')})`
       const watcherOptions = {
         // Emit events when initially discovering files.
@@ -175,8 +172,6 @@ export default class NodeKit extends EventTarget {
       chokidar
         .watch(watcherGlob, watcherOptions)
         .on('ready', async () => {
-          // console.profileTimeEnd(`Files ${Files.profileTimeCounter}`)
-
           // For now.
           await this.createRoutes()
 
@@ -299,10 +294,6 @@ export default class NodeKit extends EventTarget {
     // what we really have is one meta-handler for every route that decides
     // what to load at runtime.
     const handler = (async function (request, response) {
-
-      console.verbose('[[[[[]]]]]] FILEPATH: ', filePath, this._handler, this)
-
-      // const handlerSelf = this
       if (!this.hotReloadListener) {
         if (filePath.endsWith('.page')) {
           const reloadListener = async event => {
@@ -360,7 +351,6 @@ export default class NodeKit extends EventTarget {
     const handlerRaw = (await import(filePath)).default
 
     let handler
-    const _routeFromFilePath = routeFromFilePath
 
     if (handlerRaw.render) {
       
@@ -456,58 +446,12 @@ export default class NodeKit extends EventTarget {
         console.profileTimeEnd('  ├─ Page render (html + css)')
 
         console.profileTime('  ├─ Final HTML render')
-        const finalHtml = `
-        <!DOCTYPE html>
-          <html lang='en'>
-          <head>
-            <meta charset='UTF-8'>
-            <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-            <link rel="icon" href="data:,">
-            <title>${route}</title>
-            <style>${css.code}</style>
-          </head>
-          <body>
-              <div id='application'>
-                ${html}
-              </div>
-              <script type='module'>
-              ${hydrationScript}
-
-              new ${className}({
-                target: document.getElementById('application'),
-                hydrate: true,
-                props: {
-                  data: ${JSON.stringify(data)}
-                }
-              })
-          </script>
-          ${
-            process.env.PRODUCTION ? '' : `
-            <script src='/js/morphdom.min.js'></script>
-            <script>
-              // Development socket connection.
-              const __devSocket = new WebSocket('wss://localhost/.well-known/dev')
-              __devSocket.addEventListener('message', event => {
-                console.log(event)
-                // const message = JSON.parse(event.data)
-                // if (message.type === 'reload') {
-                  // For now, just test a reload
-                  window.location.reload(true)
-                // }
-              })
-            </script>
-            `
-          }
-          </body>
-          </html>
-        `
+        const renderedHtml = renderPage(route, className, html, css.code, hydrationScript, data)
         console.profileTimeEnd('  ├─ Final HTML render')
 
         console.profileTime('  ├─ Response send')
-        response.end(finalHtml)
+        response.end(renderedHtml)
         console.profileTimeEnd('  ├─ Response send')
-
         console.profileTimeEnd('  ╰─ Total')
       }
     } else {
