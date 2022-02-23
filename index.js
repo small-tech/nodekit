@@ -288,7 +288,6 @@ export default class NodeKit extends EventTarget {
     console.verbose('[FILES] Creating route', route, extension)
 
     const handlerThisObject = {}
-    console.verbose('HANDLER THIS', handlerThisObject)
 
     // Handlers will lazy-load their content the first time they are hit so
     // what we really have is one meta-handler for every route that decides
