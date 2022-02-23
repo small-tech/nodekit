@@ -55,12 +55,15 @@ const scriptRegExp = /\<script\>.*?\<\/script\>/s
 const nodeScriptRegExp = /\<data\>(.*?)\<\/data\>/s
 const styleRegExp = /\<style\>.*?\<\/style\>/s
 
-const fileUrlExtensionRegExp = /.+?(?<extension>\..*?$)/
+// Capture everything after the last dot as a named group called extension.
+const fileUrlExtensionRegExp = /^.+(?<extension>\..*$)/
 
 const broadcastChannel = new BroadcastChannel('loader-and-main-process')
 
 function extensionOf(_urlString) {
+  // Remove query string, if any.
   const urlString = _urlString.replace(/\?.*$/, '')
+
   const result = urlString.match(fileUrlExtensionRegExp)
   return result ? result.groups.extension : null
 }
