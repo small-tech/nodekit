@@ -144,14 +144,6 @@ export default class NodeKit extends EventTarget {
     // Add the WebSocket server.
     this.app.use(tinyws())
 
-    // Serve morphdom during development.
-    const morphDom = fs.readFileSync(path.join(this.nodekitAppPath, 'node_modules', 'morphdom', 'dist', 'morphdom-umd.min.js'))
-    this.app.get('/js/morphdom.min.js', (request, response) => {
-      response
-        .setHeader('content-type', 'application/javascript')
-        .end(morphDom)
-    })
-
     // Create a separate context for each route but do this when the route
     // is being created so that any values set on the route survive future
     // calls to the route.
