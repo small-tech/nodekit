@@ -1,0 +1,14 @@
+<script>
+  export let firstOperand
+  export let secondOperand
+</script>
+
+<h2>Subtraction</h2>
+
+<p>{firstOperand} - {secondOperand} = {firstOperand - secondOperand}</p>
+
+<style>
+  h2 {
+    color: blue;
+  }
+</style>

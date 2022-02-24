@@ -1,0 +1,14 @@
+<script>
+  export let firstOperand
+  export let secondOperand
+</script>
+
+<h2>Addition</h2>
+
+<p>{firstOperand} + {secondOperand} = {Number(firstOperand) + Number(secondOperand)}</p>
+
+<style>
+  h2 {
+    color: green;
+  }
+</style>

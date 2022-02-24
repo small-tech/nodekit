@@ -1,0 +1,22 @@
+<h1>Components</h1>
+
+<script>
+  import Addition from './Addition.component'
+  import Subtraction from './Subtraction.component'
+</script>
+
+<Addition firstOperand=1 secondOperand=2/>
+<Addition firstOperand=2 secondOperand=2/>
+<Subtraction firstOperand=10 secondOperand=4/>
+
+<style>
+  * :global(body) {
+    width: 760px;
+  }
+
+  h1 {
+    background-color: blueviolet;
+    color: white;
+    padding: 0.5em;
+  }
+</style>
