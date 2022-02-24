@@ -12,6 +12,8 @@ import { compile } from 'svelte/compiler'
 import { hydrationScriptCompiler } from './lib/HydrationScriptCompiler.js'
 import { loaderPaths, routeFromFilePath } from './lib/Utils.js'
 
+import crypto from 'crypto'
+
 import { BroadcastChannel } from 'worker_threads'
 import { fileURLToPath } from 'url'
 
@@ -72,6 +74,11 @@ function extensionOf(_urlString) {
   return result ? result.groups.extension : null
 }
 
+// Return a resolved object from a path.
+function resolvedFromPath(importPath) {
+  return { url: `file://${importPath}` }
+}
+
 export async function resolve(_specifier, context, defaultResolve) {
   // Since we don’t want every NodeKit project to have to npm install Svelte
   // to work, we resolve Svelte URLs to the version of Svelte that we’ve
@@ -83,17 +90,29 @@ export async function resolve(_specifier, context, defaultResolve) {
   // We get the import paths from the exports object defined in Svelte’s
   // package file (svelteExports).
 
+  // console.log('(RESOLVING) ', context.parentURL, ' -> ', _specifier)
+
   // Remove query string (testing, for now.)
   const specifier = _specifier.replace(/\?.*$/, '')
+  const specifierExtension = path.extname(specifier)
+
+  let parent = {}
+  if (context.parentURL) {
+    parent.url = new URL(context.parentURL)
+    parent.path = path.dirname(parent.url.pathname)
+    parent.absolutePath = path.resolve(parent.path, specifier)
+  }
 
   const isSvelteImport = specifier === 'svelte'
   const isImportWithSveltePrefix = specifier.startsWith('svelte/')
   const isRelativeInternalSvelteImport = context.parentURL != undefined && context.parentURL.includes('/node_modules/svelte/')
+  const isNodeKitAsset = allAliases[specifierExtension]
 
-  let svelteImportPath = null
+  let resolved = null
+
   switch (true) {
     case isSvelteImport:
-      svelteImportPath = path.resolve(svelteModulePath, svelteExports['.'].node.import)
+      resolved = resolvedFromPath(path.resolve(svelteModulePath, svelteExports['.'].node.import))
       break
 
     case isImportWithSveltePrefix:
@@ -104,87 +123,51 @@ export async function resolve(_specifier, context, defaultResolve) {
         console.error('[LOADER] Could not resolve Svelte export', svelteExport)
         process.exit(1)
       }
-      svelteImportPath = path.resolve(svelteModulePath, pathToExport.import)
+      resolved = resolvedFromPath(path.resolve(svelteModulePath, pathToExport.import))
       break
 
     case isRelativeInternalSvelteImport:
-      svelteImportPath = path.resolve(svelteModulePath, specifier.replace('..', '.'))
+      resolved = resolvedFromPath(path.resolve(svelteModulePath, specifier.replace('..', '.')))
       break
-  }
-  if (svelteImportPath !== null) {
-    return { url: `file://${svelteImportPath}` }  
-  }
 
-  // Handle NodeKit assets.
-  const specifierExtension = path.extname(specifier)
-  if (allAliases[specifierExtension]) {
-    const parentURL = new URL(context.parentURL)
-    const parentPath = path.dirname(parentURL.pathname)
-    const absolutePath = path.resolve(parentPath, specifier)
+    case isNodeKitAsset:
+      // Add a unique cache-busting query string so we can live reload during development.
+      const cacheBusterDuringDevelopment = process.env.PRODUCTION ? '' : `?${Date.now()}${Math.random()}`
+      resolved = resolvedFromPath(`${parent.absolutePath}${cacheBusterDuringDevelopment}`)
+      break
 
-    // Add a unique cache-busting query string so we can live reload during development.
-    const cacheBusterDuringDevelopment = process.env.PRODUCTION ? '' : `?${Date.now()}${Math.random()}`
-    const resolved = { url: `file://${absolutePath}${cacheBusterDuringDevelopment}`}
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Update dependency map (Test)
-    ////////////////////////////////////////////////////////////////////////////
-    if (
-      !context.parentURL.includes('/nodekit/app/') 
-      && !context.parentURL.includes('/node_modules/')
-      && specifier.startsWith('.')
-    ) {
-      if (!dependencyMap.has(absolutePath)) {
-        dependencyMap.set(absolutePath, new Set())
+    default:
+      // For anything else, let Node do its own magic.
+      try {
+        resolved = defaultResolve(specifier, context, defaultResolve)
+      } catch (error) {
+        // The default resolver has failed. We cannot recover from this. Panic!
+        console.error('[LOADER] ERROR: Could not resolve', specifier, context)
+        console.trace()
+        process.exit(1)
       }
+  }
 
-      /** @type Set */
-      const dependency = dependencyMap.get(absolutePath)
-      dependency.add(parentPath)
-      
-      console.verbose('Dependency map', dependencyMap)
+  ////////////////////////////////////////////////////////////////////////////
+  // Update dependency map (Test)
+  ////////////////////////////////////////////////////////////////////////////
+  if (
+    context.parentURL && 
+    !context.parentURL.includes('/nodekit/app/') 
+    && !context.parentURL.includes('/node_modules/')
+    && specifier.startsWith('.')
+  ) {
+    if (!dependencyMap.has(absolutePath)) {
+      dependencyMap.set(absolutePath, new Set())
     }
-    ////////////////////////////////////////////////////////////////////////////
 
-
-    // console.log('[LOADER]', 'Loading:', specifier, `(NodeKit asset: ${resolved.url.replace('file://', '') === specifier ? 'OK': `NOT ok: ${resolved.url}`})`)
-
-    return resolved
+    /** @type Set */
+    const dependency = dependencyMap.get(absolutePath)
+    dependency.add(parentPath)
+    
+    console.verbose('Dependency map', dependencyMap)
   }
-
-  // Update dependency map for everything else.
-  if (context.parentURL !== undefined) {
-    if (
-      !context.parentURL.includes('/nodekit/app/') 
-      && !context.parentURL.includes('/node_modules/')
-      && specifier.startsWith('.')
-    ) {
-      console.verbose('[LOADER] Resolving', specifier, context)
-
-      const absolutePathOfDependency = path.resolve(specifier)
-      if (!dependencyMap.has(absolutePathOfDependency)) {
-        dependencyMap.set(absolutePathOfDependency, new Set())
-      }
-
-      /** @type Set */
-      const dependency = dependencyMap.get(absolutePathOfDependency)
-      dependency.add(context.parentURL)
-      
-      console.verbose('Dependency map', dependencyMap)
-    }  
-  }
-
-  // For anything else, let Node do its own magic.
-  let resolved
-  try {
-    resolved = defaultResolve(specifier, context, defaultResolve)
-  } catch (error) {
-    console.error('[LOADER] ERROR: Could not resolve', specifier, context)
-    console.trace()
-    process.exit(1)
-  }
-
-  // console.log('[LOADER]', 'Loading:', specifier.includes('.small-tech.org/nodekit/app/nodekit-bundle.js') ? 'NodeKit [main process]' : specifier, `(default resolve: ${resolved.url})`)
+  ////////////////////////////////////////////////////////////////////////////
 
   return resolved
 }
@@ -203,24 +186,36 @@ export async function resolve(_specifier, context, defaultResolve) {
 //       is present (TODO).
 
 export async function load(url /* string */, context, defaultLoad) {
+  // console.log(`[LOADING] ${url}`)
+  
   const _url = new URL(url)
+  const isFileProtocol = _url.protocol === 'file:'
+  const isSvelteRoute = svelteAliases[extensionOf(url)]
+  const isJavaScriptRoute = javaScriptAliases[extensionOf(url)]
+  
+  let result
+  switch (true) {
+    case isFileProtocol && isSvelteRoute:
+      result = { format: 'module', source: await compileSource(_url.pathname) }
+      break
 
-  // console.verbose(`[LOADER] Loading ${_url}`)
+    case isFileProtocol && isJavaScriptRoute:
+      result = { format: 'module', source: await fsPromises.readFile(_url.pathname) }
+      break
 
-  if (_url.protocol === 'file:') {
-    const format = 'module'
-    if (svelteAliases[extensionOf(url)]) {
-      // Svelte route.
-      const source = await compileSource(_url.pathname)
-      return { format, source }
-    } else if (javaScriptAliases[extensionOf(url)]) {
-      // JavaScript route.
-      const source = await fsPromises.readFile(_url.pathname)
-      return { format, source }
-    }
+    default:
+      result = await defaultLoad(url, context, defaultLoad)
   }
 
-  return defaultLoad(url, context, defaultLoad)
+  let resultHash = null
+  if (result.source) {
+    const hash = crypto.createHash('sha256')
+    hash.update(result.source)
+    resultHash = hash.digest('hex')
+  }
+
+  // console.log('[LOADED]', url, result.format, resultHash)
+  return result
 }
 
 // Compiles Svelte-related sources (including .pages, etc.)
@@ -305,9 +300,17 @@ async function compileSource(filePath) {
                                   .replace('$$result.css.add(css);', '')
                                   .replace(/svelte-.*?"\}/g, '')
     routeDetails.contents.css = output.css.code
+    routeDetails.dependencyMap = dependencyMap
 
     // Update the route cache with the material for this route.
     broadcastChannel.postMessage(routeDetails)
+  } else {
+    // For now fire a dependencyMap update on every route.
+    // This may be overwhelming. Reconsider once it’s working.
+    broadcastChannel.postMessage({
+      type: 'dependencyMap',
+      dependencyMap
+    }) 
   }
 
   return output.js.code

@@ -82,6 +82,7 @@ export default class NodeKit extends EventTarget {
   hostname
   options
   routes
+  dependencyMap
   initialised = false
   notifyChangeListeners = false
 
@@ -117,6 +118,16 @@ export default class NodeKit extends EventTarget {
 
     this.broadcastChannel.onmessage = event => {
       console.verbose(`[Main process broadcast channel] Received contents of route`, event.data.route)
+
+      // Store the dependencyMap.
+      // (Is sending it over like this efficient?)
+      if (event.data.type === 'dependencyMap') {
+        console.log('> Received dependency map', event.data.dependencyMap)
+        this.dependencyMap = event.data.dependencyMap
+        return
+      }
+
+      this.dependencyMap = event.data.dependencyMap
 
       if (this.routes[event.data.route] !== undefined) {
         // This route already exists so it’s changed somehow. Depending on whether
@@ -240,6 +251,9 @@ export default class NodeKit extends EventTarget {
   }
 
   async handleFileChange(itemType, eventType, itemPath) {
+
+    console.log('> Handle file change', this.dependencyMap)
+
     if (this.initialised) {
       if (process.env.PRODUCTION) {
         // In production, simply exit (systemd will handle the restart).
