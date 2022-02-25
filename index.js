@@ -157,14 +157,14 @@ export default class NodeKit extends EventTarget {
 
           event.data.contents.css = newCssCode
 
-          this.socket.send(JSON.stringify({
+          this.socket.all(JSON.stringify({
             type: 'css',
             code: newCssCode
           }))
         } else if (!jsIsTheSame || this.reloadDueToDependencyChange) {
           console.verbose('((((((((( Requesting live reload. )))))))))))')
           this.reloadDueToDependencyChange = false
-          this.socket.send(JSON.stringify({type: 'reload'}))
+          this.socket.all(JSON.stringify({type: 'reload'}))
         }
       } else {
         console.log(`!!! this.routes[${event.data.route}] is undefined.`)
