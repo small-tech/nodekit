@@ -181,7 +181,27 @@ export default class NodeKit extends EventTarget {
     this.ensurePrivilegedPortsAreDisabled()
 
     // Create the app.
-    this.app = polka()
+    const errorTemplate = `
+      <h1>{CODE}</h1>
+      <h2>{ERROR}</h2>
+      <pre>{STACK}</pre>
+      <style>
+        body { font-family: sans-serif; font-size: 1.5em; padding: 1em 2em; }
+        h1 { color: red; font-size: 3em; margin-bottom: 0; }
+        h2 { margin-top: 0; }
+        pre { background-color: #ccc; border-radius: 1em; padding: 1em; margin-left: -1em; margin-right: -1em; } 
+      </style>
+    `
+    this.app = polka({
+      onError: (error, request, response, next) => {
+        response.statusCode = error.code || 500
+        const errorPage = errorTemplate
+          .replace('{CODE}', response.statusCode)
+          .replace('{ERROR}', error.toString())
+          .replace('{STACK}', error.stack)
+        response.end(errorPage)
+      }
+    })  
 
     // Add the WebSocket server.
     this.app.use(tinyws())
