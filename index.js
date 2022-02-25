@@ -117,15 +117,20 @@ export default class NodeKit extends EventTarget {
     this.broadcastChannel = new BroadcastChannel('loader-and-main-process')
 
     this.broadcastChannel.onmessage = event => {
-      console.verbose(`[Main process broadcast channel] Received contents of route`, event.data.route)
 
       // Store the dependencyMap.
       // (Is sending it over like this efficient?)
       if (event.data.type === 'dependencyMap') {
-        console.log('> Received dependency map', event.data.dependencyMap)
+        console.log('[Main process broadcast channel] Received dependency map')
         this.dependencyMap = event.data.dependencyMap
         return
       }
+      
+      console.verbose(`[Main process broadcast channel] Received contents of route`, event.data.route)
+
+      console.log('Dependency map', event.data.dependencyMap)
+      console.log('event.data.route', event.data.route)
+      console.log('this.routes', this.routes)
 
       this.dependencyMap = event.data.dependencyMap
 
@@ -156,10 +161,13 @@ export default class NodeKit extends EventTarget {
             type: 'css',
             code: newCssCode
           }))
-        } else if (!jsIsTheSame) {
-          console.verbose('Requesting live reload.')
+        } else if (!jsIsTheSame || this.reloadDueToDependencyChange) {
+          console.verbose('((((((((( Requesting live reload. )))))))))))')
+          this.reloadDueToDependencyChange = false
           this.socket.send(JSON.stringify({type: 'reload'}))
         }
+      } else {
+        console.log(`!!! this.routes[${event.data.route}] is undefined.`)
       }
 
       this.routes[event.data.route] = event.data.contents
@@ -226,7 +234,7 @@ export default class NodeKit extends EventTarget {
 
   async initialise () {
     return new Promise((resolve, reject) => {
-      const watcherGlob = `${this.basePath}/**/*.@(page|socket|${HTTP_METHODS.join('|')})`
+      const watcherGlob = `${this.basePath}/**/*.@(page|component|socket|${HTTP_METHODS.join('|')})`
       const watcherOptions = {
         // Emit events when initially discovering files.
         ignoreInitial: false,
@@ -288,7 +296,7 @@ export default class NodeKit extends EventTarget {
         // TODO: Implement this using the dependency graph so that live reload fires
         // for pages whenever a dependency or the page itself changes or is deleted.
         if (itemType === 'file' && eventType === 'changed' && itemPath.endsWith('.page')) {
-          console.verbose("<<<< PAGE CHANGED >>>>")
+          console.log("<<<< PAGE CHANGED >>>>", itemPath)
           
           this.dispatchEvent(new CustomEvent('hotReload', {
             detail: {
@@ -296,6 +304,21 @@ export default class NodeKit extends EventTarget {
               path: itemPath  
             }
           }))
+        } else {
+          const dependencies = this.dependencyMap.get(itemPath)
+          console.log('.... change .....', itemPath, dependencies)
+
+          for (const dependentPage of dependencies) {
+            const dependentPageItemPath =  dependentPage.replace('file://', '').replace(/\?.*$/, '')
+            console.log('NOTIFYING DEPENDENT PAGE >>>>', dependentPage, dependentPageItemPath)
+            this.dispatchEvent(new CustomEvent('hotReload', {
+              detail: {
+                type: 'reload',
+                path: dependentPageItemPath,
+                dueToDependencyChange: true,
+              }
+            }))          
+          }
         }
       }
     } else {
@@ -364,8 +387,12 @@ export default class NodeKit extends EventTarget {
       if (!this.hotReloadListener) {
         if (filePath.endsWith('.page')) {
           const reloadListener = async event => {
+            console.log('[HOT RELOAD REQUEST]', event.detail.path, filePath)
             if (event.detail.path === filePath) {
               // Reload the page.
+              if (event.detail.dueToDependencyChange) {
+                self.reloadDueToDependencyChange = true
+              }
               this._handler = await self.loadHttpRoute(routes, route, basePath, filePath, context)
             }
           }  

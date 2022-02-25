@@ -153,19 +153,36 @@ export async function resolve(_specifier, context, defaultResolve) {
   ////////////////////////////////////////////////////////////////////////////
   if (
     context.parentURL && 
-    !context.parentURL.includes('/nodekit/app/') 
+    // We use /nodekit/app/ to check for NodeKit itself but we want to exclude
+    // the examples directory itself from this check as well as any root
+    // page in the project being served (that’s loaded by /nodekit/app/index.js )
+    (!context.parentURL.includes('/nodekit/app/') 
+    || (specifier.endsWith('.page') && context.parentURL.endsWith('/nodekit/app/index.js'))
+    || context.parentURL.includes('/nodekit/app/examples/')
+    )
     && !context.parentURL.includes('/node_modules/')
-    && specifier.startsWith('.')
+    && (specifier.startsWith('.') || specifier.startsWith('/'))
   ) {
-    if (!dependencyMap.has(parent.absolutePath)) {
-      dependencyMap.set(parent.absolutePath, new Set())
+    const specifierAbsolutePath = path.resolve(parent.path, specifier)
+    if (!dependencyMap.has(specifierAbsolutePath)) {
+      dependencyMap.set(specifierAbsolutePath, new Set())
     }
 
     /** @type Set */
-    const dependency = dependencyMap.get(parent.absolutePath)
-    dependency.add(parent.path)
+    const dependency = dependencyMap.get(specifierAbsolutePath)
+    dependency.add(context.parentURL)
     
-    console.verbose('Dependency map', dependencyMap)
+    console.log('Dependency map', dependencyMap)
+
+    // For now fire a dependencyMap update on every route.
+    // This may be overwhelming. Reconsider once it’s working.
+    broadcastChannel.postMessage({
+      type: 'dependencyMap',
+      dependencyMap
+    }) 
+  } else {
+    console.log('> Skipping dependency map for', specifier, 'parent: ', context.parentURL)
+    console.log('=== ', specifier.endsWith('.page'), context.parentURL ? context.parentURL.endsWith('/nodekit/app/index.js') : 'x')
   }
   ////////////////////////////////////////////////////////////////////////////
 
@@ -304,13 +321,6 @@ async function compileSource(filePath) {
 
     // Update the route cache with the material for this route.
     broadcastChannel.postMessage(routeDetails)
-  } else {
-    // For now fire a dependencyMap update on every route.
-    // This may be overwhelming. Reconsider once it’s working.
-    broadcastChannel.postMessage({
-      type: 'dependencyMap',
-      dependencyMap
-    }) 
   }
 
   return output.js.code

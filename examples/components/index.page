@@ -1,4 +1,6 @@
-<h1>Components</h1>
+<h1>Component
+
+</h1>
 
 <script>
   import Addition from './Addition.component'
@@ -7,6 +9,8 @@
 
 <Addition firstOperand=1 secondOperand=2/>
 <Addition firstOperand=2 secondOperand=2/>
+<Addition firstOperand=12 secondOperand=2/>
+
 <Subtraction firstOperand=10 secondOperand=4/>
 
 <style>

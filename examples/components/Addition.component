@@ -1,9 +1,13 @@
 <script>
+  import SubSubComponent from './SubSub.component'
+
   export let firstOperand
   export let secondOperand
 </script>
 
 <h2>Addition</h2>
+
+<SubSubComponent />
 
 <p>{firstOperand} + {secondOperand} = {Number(firstOperand) + Number(secondOperand)}</p>
 
