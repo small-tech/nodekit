@@ -157,13 +157,13 @@ export async function resolve(_specifier, context, defaultResolve) {
     && !context.parentURL.includes('/node_modules/')
     && specifier.startsWith('.')
   ) {
-    if (!dependencyMap.has(absolutePath)) {
-      dependencyMap.set(absolutePath, new Set())
+    if (!dependencyMap.has(parent.absolutePath)) {
+      dependencyMap.set(parent.absolutePath, new Set())
     }
 
     /** @type Set */
-    const dependency = dependencyMap.get(absolutePath)
-    dependency.add(parentPath)
+    const dependency = dependencyMap.get(parent.absolutePath)
+    dependency.add(parent.path)
     
     console.verbose('Dependency map', dependencyMap)
   }
