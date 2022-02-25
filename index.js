@@ -309,12 +309,11 @@ export default class NodeKit extends EventTarget {
           console.log('.... change .....', itemPath, dependencies)
 
           for (const dependentPage of dependencies) {
-            const dependentPageItemPath =  dependentPage.replace('file://', '').replace(/\?.*$/, '')
-            console.log('NOTIFYING DEPENDENT PAGE >>>>', dependentPage, dependentPageItemPath)
+            console.log('NOTIFYING DEPENDENT PAGE >>>>', dependentPage, dependentPage)
             this.dispatchEvent(new CustomEvent('hotReload', {
               detail: {
                 type: 'reload',
-                path: dependentPageItemPath,
+                path: dependentPage,
                 dueToDependencyChange: true,
               }
             }))          

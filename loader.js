@@ -170,7 +170,7 @@ export async function resolve(_specifier, context, defaultResolve) {
 
     /** @type Set */
     const dependency = dependencyMap.get(specifierAbsolutePath)
-    dependency.add(context.parentURL)
+    dependency.add(context.parentURL.replace('file://', '').replace(/\?.*$/, ''))
     
     console.log('Dependency map', dependencyMap)
 
