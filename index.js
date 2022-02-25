@@ -278,6 +278,32 @@ export default class NodeKit extends EventTarget {
     })
   }
 
+
+  notifyAllAffectedPagesOfChangeIn (itemPath) {
+    // Dependencies can be N levels deep. We follow dependencies
+    // up until we find a page and then notify it that it should reload itself.
+    const dependencies = this.dependencyMap.get(itemPath)
+
+    for (const dependency of dependencies) {
+      if (!dependency.endsWith('.page')) {
+        // Recurse until we hit a page.
+        console.log(`! ${dependency} is not a page, recursing…`)
+        this.notifyAllAffectedPagesOfChangeIn(dependency)
+      } else {
+        // Notify page.
+        console.log('<<< NOTIFYING DEPENDENT PAGE >>>', dependency)
+        this.dispatchEvent(new CustomEvent('hotReload', {
+          detail: {
+            type: 'reload',
+            path: dependency,
+            dueToDependencyChange: true,
+          }
+        }))  
+      }
+    }
+  }
+
+
   async handleFileChange(itemType, eventType, itemPath) {
 
     console.log('> Handle file change', this.dependencyMap)
@@ -305,19 +331,8 @@ export default class NodeKit extends EventTarget {
             }
           }))
         } else {
-          const dependencies = this.dependencyMap.get(itemPath)
-          console.log('.... change .....', itemPath, dependencies)
-
-          for (const dependentPage of dependencies) {
-            console.log('NOTIFYING DEPENDENT PAGE >>>>', dependentPage, dependentPage)
-            this.dispatchEvent(new CustomEvent('hotReload', {
-              detail: {
-                type: 'reload',
-                path: dependentPage,
-                dueToDependencyChange: true,
-              }
-            }))          
-          }
+          console.log('.... change .....', itemPath)
+          this.notifyAllAffectedPagesOfChangeIn(itemPath)
         }
       }
     } else {
