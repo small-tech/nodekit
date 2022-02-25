@@ -1,6 +1,4 @@
-<h1>Component
-
-</h1>
+<h1>Components</h1>
 
 <script>
   import Addition from './Addition.component'
