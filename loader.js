@@ -181,8 +181,8 @@ export async function resolve(_specifier, context, defaultResolve) {
       dependencyMap
     }) 
   } else {
-    console.log('> Skipping dependency map for', specifier, 'parent: ', context.parentURL)
-    console.log('=== ', specifier.endsWith('.page'), context.parentURL ? context.parentURL.endsWith('/nodekit/app/index.js') : 'x')
+    // console.log('> Skipping dependency map for', specifier, 'parent: ', context.parentURL)
+    // console.log('=== ', specifier.endsWith('.page'), context.parentURL ? context.parentURL.endsWith('/nodekit/app/index.js') : 'x')
   }
   ////////////////////////////////////////////////////////////////////////////
 

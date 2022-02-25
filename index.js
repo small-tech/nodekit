@@ -307,7 +307,7 @@ export default class NodeKit extends EventTarget {
 
   async handleFileChange(itemType, eventType, itemPath) {
 
-    console.log('> Handle file change', this.dependencyMap)
+    // console.log('> Handle file change', this.dependencyMap)
 
     if (this.initialised) {
       if (process.env.PRODUCTION) {

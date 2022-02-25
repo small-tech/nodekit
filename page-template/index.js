@@ -1,10 +1,8 @@
 import fs from 'fs'
 import path from 'path'
+import { nodekitAppPath } from "../lib/Utils"
 
-import { fileURLToPath, URL } from 'url'
-const __dirname = fileURLToPath(new URL('.', import.meta.url))
-
-const developmentSocketScript = fs.readFileSync(path.join(__dirname, 'development-socket.js'))
+const developmentSocketScript = fs.readFileSync(path.join(nodekitAppPath, 'page-template', 'development-socket.js'))
 
 export function renderPage(route, className, html, css, hydrationScript, data) {
   return `

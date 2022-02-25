@@ -17,7 +17,7 @@ const connect = () => {
     if (message.type === 'reload') {
       // Live reload.
       carryingOutLiveReload = true
-      __devSocket.close()
+      // __devSocket.close()
       window.location.reload(true)
     } else if (message.type === 'css') {
       // Inject CSS.
@@ -41,6 +41,7 @@ const connect = () => {
     console.log('Development server is closed.', event)
   
     if (!carryingOutLiveReload) {
+      carryingOutLiveReload = false
       errorTitle.innerText = 'Disconnected'
       errorMessage.innerText = 'The connection with the NodeKit development server has been lost.'
       errorDetails.innerText = 'Please restart the server or reconnect to continue.'

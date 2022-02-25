@@ -35,6 +35,10 @@ cp -R node_modules/esbuild-linux-64 dist/node_modules
 echo '  ├─── Copying svelte.'
 cp -R node_modules/svelte dist/node_modules
 
+echo '  ├─── Copying app page template (runtime).'
+cp -R page-template dist/page-template
+
+
 # Remove the redundant esbuild binary in the main esbuild package (if it exists)
 # as it will copy the binary over from the esbuild-linux-64 package into itself.
 # This saves us from including the esbuild binary twice in the distribution package.
