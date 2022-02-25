@@ -6,7 +6,7 @@ const errorMessage = document.getElementById('errorMessage')
 const errorDetails = document.getElementById('errorDetails')
 
 let retryConnectionIntervalId = null
-
+let carryingOutLiveReload = false
 let __devSocket 
 
 const connect = () => {
@@ -16,6 +16,8 @@ const connect = () => {
     const message = JSON.parse(event.data)
     if (message.type === 'reload') {
       // Live reload.
+      carryingOutLiveReload = true
+      __devSocket.close()
       window.location.reload(true)
     } else if (message.type === 'css') {
       // Inject CSS.
@@ -38,12 +40,14 @@ const connect = () => {
   __devSocket.addEventListener('close', event => {
     console.log('Development server is closed.', event)
   
-    errorTitle.innerText = 'Disconnected'
-    errorMessage.innerText = 'The connection with the NodeKit development server has been lost.'
-    errorDetails.innerText = 'Please restart the server or reconnect to continue.'
-    errorOverlay.classList.add('showOverlay')
-  
-    retryConnectionIntervalId = setInterval(connect, 1000)
+    if (!carryingOutLiveReload) {
+      errorTitle.innerText = 'Disconnected'
+      errorMessage.innerText = 'The connection with the NodeKit development server has been lost.'
+      errorDetails.innerText = 'Please restart the server or reconnect to continue.'
+      errorOverlay.classList.add('showOverlay')
+    
+      retryConnectionIntervalId = setInterval(connect, 1000)
+    }
   })
   
   __devSocket.addEventListener('error', event => {

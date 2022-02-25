@@ -22,7 +22,7 @@ export function renderPage(route, className, html, css, hydrationScript, data) {
           position: absolute;
           left: 0; right: 0; top: 0; bottom: 0;
           background: rgba(0, 0, 0, 0.75);
-          transition: opacity 200ms;
+          transition: opacity 333ms;
         }
         #overlayBody {
           position: absolute;
