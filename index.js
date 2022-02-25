@@ -39,7 +39,8 @@ import https from '@small-tech/https'
 import { tinyws } from 'tinyws'
 import WebSocketRoute from './lib/WebSocketRoute'
 
-import { classNameFromRoute, routeFromFilePath, HTTP_METHODS, renderPage } from './lib/Utils'
+import { classNameFromRoute, routeFromFilePath, HTTP_METHODS } from './lib/Utils'
+import { renderPage } from './page-template'
 
 import { fileURLToPath, URL } from 'url'
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
