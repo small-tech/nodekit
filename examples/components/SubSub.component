@@ -1,8 +1,10 @@
-<h3>I’m a sub-sub component</h3>
+<h3>I’m a sub-sub component.</h3>
 
 <style>
   h3 {
     color: orangered;
-    border: 1px solid orangered;
+    padding: 0.25em;
+    border: 3px solid orangered;
+    /* background-color: yellow; */
   }
 </style>
