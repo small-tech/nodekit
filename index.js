@@ -192,12 +192,12 @@ export default class NodeKit extends EventTarget {
     const errorTemplate = `
       <h1>{CODE}</h1>
       <h2>{ERROR}</h2>
-      <pre>{STACK}</pre>
+      <pre><code>{STACK}</code></pre>
       <style>
         body { font-family: sans-serif; font-size: 1.5em; padding: 1em 2em; }
         h1 { color: red; font-size: 3em; margin-bottom: 0; }
         h2 { margin-top: 0; }
-        pre { background-color: #ccc; border-radius: 1em; padding: 1em; margin-left: -1em; margin-right: -1em; } 
+        pre { background-color: #ccc; border-radius: 1em; padding: 1em; margin-left: -1em; margin-right: -1em; overflow: auto;} 
       </style>
     `
     this.app = polka({
@@ -205,7 +205,7 @@ export default class NodeKit extends EventTarget {
         response.statusCode = error.code || 500
         const errorPage = errorTemplate
           .replace('{CODE}', response.statusCode)
-          .replace('{ERROR}', error.toString())
+          .replace('{ERROR}', error.message.toString())
           .replace('{STACK}', error.stack)
         response.end(errorPage)
       }
