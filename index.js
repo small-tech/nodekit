@@ -389,6 +389,14 @@ export default class NodeKit extends EventTarget {
     })
 
     this.app.get('/.well-known/dev', devSocket.handler.bind(devSocket))
+
+    // Because of Firefox’s ridiculous automatic fallback/retry on WebSocket 
+    // connection failures, we can’t simply manually retry failed connections.
+    // Instead, implement an HTTP ping route that we can fall separately to
+    // test if the server is up and use that.
+    this.app.get('/.well-known/ping', (request, response) => {
+      response.end()
+    })
   }
 
   async createRoute (filePath) {
