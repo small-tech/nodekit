@@ -202,14 +202,25 @@ export default class NodeKit extends EventTarget {
     `
     this.app = polka({
       onError: (error, request, response, next) => {
+
+        if (error.status === 404) {
+          const errorPage = errorTemplate
+          .replace('{CODE}', error.status)
+          .replace('{ERROR}', 'Page not found.')
+          .replace('{STACK}', 'Sorry, that page does not exist.')
+          response.end(errorPage)
+          return
+        }
+
         response.statusCode = error.code || 500
+
         const errorPage = errorTemplate
           .replace('{CODE}', response.statusCode)
-          .replace('{ERROR}', error.message.toString())
+          .replace('{ERROR}', error.toString())
           .replace('{STACK}', error.stack)
         response.end(errorPage)
       }
-    })  
+    })
 
     // Add the WebSocket server.
     this.app.use(tinyws())
