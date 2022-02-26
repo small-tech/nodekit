@@ -42,8 +42,7 @@ import WebSocketRoute from './lib/WebSocketRoute'
 import { classNameFromRoute, routeFromFilePath, HTTP_METHODS } from './lib/Utils'
 import { renderPage } from './page-template'
 
-import { fileURLToPath, URL } from 'url'
-const __dirname = fileURLToPath(new URL('.', import.meta.url))
+import { URL } from 'url'
 
 import JSDB from '@small-tech/jsdb'
 
