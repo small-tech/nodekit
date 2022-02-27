@@ -280,11 +280,9 @@ export default class NodeKit extends EventTarget {
     for (const dependency of dependencies) {
       if (!dependency.endsWith('.page')) {
         // Recurse until we hit a page.
-        console.log(`! ${dependency} is not a page, recursing…`)
         this.notifyAllAffectedPagesOfChangeIn(dependency)
       } else {
         // Notify page.
-        console.log('<<< NOTIFYING DEPENDENT PAGE >>>', dependency)
         this.dispatchEvent(new CustomEvent('hotReload', {
           detail: {
             type: 'reload',
@@ -315,7 +313,7 @@ export default class NodeKit extends EventTarget {
         // TODO: Implement this using the dependency graph so that live reload fires
         // for pages whenever a dependency or the page itself changes or is deleted.
         if (itemType === 'file' && eventType === 'changed' && itemPath.endsWith('.page')) {
-          console.log("<<<< PAGE CHANGED >>>>", itemPath)
+          // console.log("<<<< PAGE CHANGED >>>>", itemPath)
           
           this.dispatchEvent(new CustomEvent('hotReload', {
             detail: {
@@ -324,7 +322,7 @@ export default class NodeKit extends EventTarget {
             }
           }))
         } else {
-          console.log('.... change .....', itemPath)
+          // console.log('.... change .....', itemPath)
           this.notifyAllAffectedPagesOfChangeIn(itemPath)
         }
       }
@@ -401,12 +399,12 @@ export default class NodeKit extends EventTarget {
     // what to load at runtime.
     const handler = (async function (request, response) {
 
-      console.log('Handler called', request.url)
+      // console.log('Handler called', request.url)
 
       if (!this.hotReloadListener) {
         if (filePath.endsWith('.page')) {
           const reloadListener = async event => {
-            console.log('[HOT RELOAD REQUEST]', event.detail.path, filePath)
+            // console.log('[HOT RELOAD REQUEST]', event.detail.path, filePath)
             if (event.detail.path === filePath) {
               // Reload the page.
               if (event.detail.dueToDependencyChange) {
@@ -426,16 +424,15 @@ export default class NodeKit extends EventTarget {
               if (previousVersion !== undefined) {
                 const currentVersion = routes[route]
       
-                console.log('previous css', previousVersion.css)
-                console.log('current css', currentVersion.css)
+                // console.log('previous css', previousVersion.css)
+                // console.log('current css', currentVersion.css)
                 
-
                 const jsIsTheSame = currentVersion.js === previousVersion.js
                 const cssIsTheSame = currentVersion.css === previousVersion.css
                 const onlyCssHasChanged = jsIsTheSame && !cssIsTheSame
         
                 if (onlyCssHasChanged) {
-                  console.log('Requesting CSS injection.')
+                  console.verbose('((( Requesting CSS injection. )))')
                   // The CSS class name/hash will have changed in the new CSS,
                   // replace it with the old one.
                   // TODO: Error check for non-existence (shouldn’t happen but still).
@@ -453,7 +450,7 @@ export default class NodeKit extends EventTarget {
                     code: newCssCode
                   }))
                 } else if (!jsIsTheSame || self.reloadDueToDependencyChange) {
-                  console.log('((((((((( Requesting live reload. )))))))))))')
+                  console.verbose('<<< Requesting live reload. >>>')
                   self.reloadDueToDependencyChange = false
                   self.socket.all(JSON.stringify({type: 'reload'}))
                 }  
@@ -612,7 +609,6 @@ export default class NodeKit extends EventTarget {
       // itself so we can just use it as the route handler.
       handler = handlerRaw
     }
-    console.log('===== new http route is loaded =====')
     return handler
   }
 
