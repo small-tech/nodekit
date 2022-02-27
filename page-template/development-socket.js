@@ -28,6 +28,9 @@ const messageHandler = async event => {
       carryingOutLiveReload = false
       errorTitle.innerText = error.status
       errorMessage.innerText = error.message
+
+      // TODO: Remove this logic to server-side and do proper line-number massaging
+      // based on the sourcemap.
       errorDetails.innerText = error.stack.replace(error.message + '\n', '').replace(/    /g, '').replace(/\?.*?:/g, ':') // last one replaces the cache-buster query strings
       errorOverlay.classList.add('showOverlay')  
       return
