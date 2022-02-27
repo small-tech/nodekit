@@ -32,7 +32,6 @@ export function renderPage(route, className, html, css, hydrationScript, data) {
           border-radius: 1em;
           background-color: rgba(255, 255, 255, 0.9);
           font-family: sans-serif;
-          font-size: 1.5em;
           padding: 0 2em;
           margin-left: 2em;
           margin-right: 2em;
@@ -55,6 +54,10 @@ export function renderPage(route, className, html, css, hydrationScript, data) {
           margin-right: -1em;
           margin-bottom: 2em;
           flex-grow: 1;
+        }
+        #overlayBody code {
+          display: block;
+          overflow: auto;
         }
         .hideOverlay {
           visibility: hidden;

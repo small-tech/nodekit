@@ -17,17 +17,19 @@ const messageHandler = async event => {
 
     // Initially try and get the page via XHR so we can catch and display any errors.
     const response = await fetch(window.location.href+ '?' + Math.random())
-    console.log('Attempting to get', window.location.href + '?' + Math.random())
-    const body = await response.text()
 
-    console.log(response, body)
     if (response.status !== 200) {
+
+      // We should have received a JSON response with the error information;
+      // display it in the error modal.
+
+      const error = await response.json()
+
       carryingOutLiveReload = false
-      errorTitle.innerText = response.status
-      errorMessage.innerText = 'Error'
-      errorDetails.innerText = 'Oops'
-      errorOverlay.classList.add('showOverlay')
-  
+      errorTitle.innerText = error.status
+      errorMessage.innerText = error.message
+      errorDetails.innerText = error.stack.replace(error.message + '\n', '').replace(/    /g, '').replace(/\?.*?:/g, ':') // last one replaces the cache-buster query strings
+      errorOverlay.classList.add('showOverlay')  
       return
     }
     errorOverlay.classList.remove('showOverlay')

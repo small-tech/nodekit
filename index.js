@@ -168,6 +168,21 @@ export default class NodeKit extends EventTarget {
     this.app = polka({
       onError: (error, request, response, next) => {
 
+        // console.log('Polka onError', error)
+
+        if (this.socket) {
+          // A development socket exists so the client should be able to handle
+          // a json response and display it in an error modal.
+          response.statusCode = error.code || error.status || 500
+          response.setHeader('content-type', 'application/json')
+          response.end(JSON.stringify({
+            status: response.statusCode,
+            message: error.toString(),
+            stack: error.stack
+          }))
+          return
+        }
+
         if (error.status === 404) {
           const errorPage = errorTemplate
           .replace('{CODE}', error.status)
@@ -177,7 +192,9 @@ export default class NodeKit extends EventTarget {
           return
         }
 
-        response.statusCode = error.code || 500
+        // If we’re here, the error occured while page was initially loading
+        // so display the basic error template.
+        response.statusCode = error.code || error.status || 500
 
         const errorPage = errorTemplate
           .replace('{CODE}', response.statusCode)
@@ -396,6 +413,11 @@ export default class NodeKit extends EventTarget {
                 self.reloadDueToDependencyChange = true
               }
               this._handler = await self.loadHttpRoute(routes, route, basePath, filePath, context)
+
+              // If we don’t have a development socket, then there’s no one to notify yet.
+              if (!self.socket) {
+                return
+              }  
 
               // Now that we know the new handler exists, let’s notify the
               // necessary pages.

@@ -3,8 +3,6 @@
 <script>
   import Addition from './Addition.component'
   import Subtraction from './Subtraction.component'
-
-  // abcdefdsdssssssss
 </script>
 
 <Addition firstOperand=1 secondOperand=2/>
