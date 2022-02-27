@@ -102,6 +102,7 @@ export default class NodeKit extends EventTarget {
     globalThis.app = this
 
     this.routes = {}
+    this.previousVersionsOfRoutes = {}
     this.filesByExtension = {}
 
     this.hostname = os.hostname()
@@ -121,55 +122,19 @@ export default class NodeKit extends EventTarget {
       // Store the dependencyMap.
       // (Is sending it over like this efficient?)
       if (event.data.type === 'dependencyMap') {
-        console.log('[Main process broadcast channel] Received dependency map')
+        // console.log('[Main process broadcast channel] Received dependency map')
         this.dependencyMap = event.data.dependencyMap
         return
       }
       
-      console.verbose(`[Main process broadcast channel] Received contents of route`, event.data.route)
+      // console.verbose(`[Main process broadcast channel] Received contents of route`, event.data.route)
 
-      console.log('Dependency map', event.data.dependencyMap)
-      console.log('event.data.route', event.data.route)
-      console.log('this.routes', this.routes)
+      // console.log('Dependency map', event.data.dependencyMap)
+      // console.log('event.data.route', event.data.route)
+      // console.log('this.routes', this.routes)
 
       this.dependencyMap = event.data.dependencyMap
-
-      if (this.routes[event.data.route] !== undefined) {
-        // This route already exists so it’s changed somehow. Depending on whether
-        // just the CSS has changed, we’ll ask the development page to update
-        // accordingly.
-        const previousVersion = this.routes[event.data.route]
-        const currentVersion = event.data.contents
-
-        const jsIsTheSame = currentVersion.js === previousVersion.js
-        const cssIsTheSame = currentVersion.css === previousVersion.css
-        const onlyCssHasChanged = jsIsTheSame && !cssIsTheSame
-
-        if (onlyCssHasChanged) {
-          console.verbose('Requesting CSS injection.')
-          // The CSS class name/hash will have changed in the new CSS,
-          // replace it with the old one.
-          // TODO: Error check for non-existence (shouldn’t happen but still).
-          const classHashRegExp = /svelte-(.*?)\{/
-          const oldClassHash = classHashRegExp.exec(previousVersion.css)[1]
-          const newClassHash = classHashRegExp.exec(currentVersion.css)[1]
-          const newCssCode = currentVersion.css.replace(new RegExp(newClassHash, 'g'), oldClassHash)
-
-          event.data.contents.css = newCssCode
-
-          this.socket.all(JSON.stringify({
-            type: 'css',
-            code: newCssCode
-          }))
-        } else if (!jsIsTheSame || this.reloadDueToDependencyChange) {
-          console.verbose('((((((((( Requesting live reload. )))))))))))')
-          this.reloadDueToDependencyChange = false
-          this.socket.all(JSON.stringify({type: 'reload'}))
-        }
-      } else {
-        console.log(`!!! this.routes[${event.data.route}] is undefined.`)
-      }
-
+      this.previousVersionsOfRoutes[event.data.route] = this.routes[event.data.route]
       this.routes[event.data.route] = event.data.contents
     }
 
@@ -402,6 +367,7 @@ export default class NodeKit extends EventTarget {
   async createRoute (filePath) {
     const self = this
     const routes = this.routes
+    const previousVersionsOfRoutes = this.previousVersionsOfRoutes
     const basePath = this.basePath
     const context = this.context
 
@@ -417,6 +383,9 @@ export default class NodeKit extends EventTarget {
     // what we really have is one meta-handler for every route that decides
     // what to load at runtime.
     const handler = (async function (request, response) {
+
+      console.log('Handler called', request.url)
+
       if (!this.hotReloadListener) {
         if (filePath.endsWith('.page')) {
           const reloadListener = async event => {
@@ -427,6 +396,46 @@ export default class NodeKit extends EventTarget {
                 self.reloadDueToDependencyChange = true
               }
               this._handler = await self.loadHttpRoute(routes, route, basePath, filePath, context)
+
+              // Now that we know the new handler exists, let’s notify the
+              // necessary pages.
+
+              const previousVersion = previousVersionsOfRoutes[route]
+              if (previousVersion !== undefined) {
+                const currentVersion = routes[route]
+      
+                console.log('previous css', previousVersion.css)
+                console.log('current css', currentVersion.css)
+                
+
+                const jsIsTheSame = currentVersion.js === previousVersion.js
+                const cssIsTheSame = currentVersion.css === previousVersion.css
+                const onlyCssHasChanged = jsIsTheSame && !cssIsTheSame
+        
+                if (onlyCssHasChanged) {
+                  console.log('Requesting CSS injection.')
+                  // The CSS class name/hash will have changed in the new CSS,
+                  // replace it with the old one.
+                  // TODO: Error check for non-existence (shouldn’t happen but still).
+                  const classHashRegExp = /svelte-(.*?)[\s\{]/
+                  const oldClassHash = classHashRegExp.exec(previousVersion.css)[1]
+                  const newClassHash = classHashRegExp.exec(currentVersion.css)[1]
+                  const newCssCode = currentVersion.css.replace(new RegExp(newClassHash, 'g'), oldClassHash)
+
+                  console.log('newCssCode', newCssCode)
+        
+                  currentVersion.css = newCssCode
+        
+                  self.socket.all(JSON.stringify({
+                    type: 'css',
+                    code: newCssCode
+                  }))
+                } else if (!jsIsTheSame || self.reloadDueToDependencyChange) {
+                  console.log('((((((((( Requesting live reload. )))))))))))')
+                  self.reloadDueToDependencyChange = false
+                  self.socket.all(JSON.stringify({type: 'reload'}))
+                }  
+              }
             }
           }  
           self.addEventListener('hotReload', reloadListener)  
@@ -581,6 +590,7 @@ export default class NodeKit extends EventTarget {
       // itself so we can just use it as the route handler.
       handler = handlerRaw
     }
+    console.log('===== new http route is loaded =====')
     return handler
   }
 

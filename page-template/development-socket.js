@@ -9,11 +9,28 @@ let pingServerIntervalId = null
 let carryingOutLiveReload = false
 let socket 
 
-const messageHandler = event => {
+const messageHandler = async event => {
   const message = JSON.parse(event.data)
   if (message.type === 'reload') {
     // Live reload.
     carryingOutLiveReload = true
+
+    // Initially try and get the page via XHR so we can catch and display any errors.
+    const response = await fetch(window.location.href+ '?' + Math.random())
+    console.log('Attempting to get', window.location.href + '?' + Math.random())
+    const body = await response.text()
+
+    console.log(response, body)
+    if (response.status !== 200) {
+      carryingOutLiveReload = false
+      errorTitle.innerText = response.status
+      errorMessage.innerText = 'Error'
+      errorDetails.innerText = 'Oops'
+      errorOverlay.classList.add('showOverlay')
+  
+      return
+    }
+    errorOverlay.classList.remove('showOverlay')
     window.location.reload()
   } else if (message.type === 'css') {
     // Inject CSS.

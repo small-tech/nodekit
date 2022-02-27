@@ -172,7 +172,7 @@ export async function resolve(_specifier, context, defaultResolve) {
     const dependency = dependencyMap.get(specifierAbsolutePath)
     dependency.add(context.parentURL.replace('file://', '').replace(/\?.*$/, ''))
     
-    console.log('Dependency map', dependencyMap)
+    // console.log('Dependency map', dependencyMap)
 
     // For now fire a dependencyMap update on every route.
     // This may be overwhelming. Reconsider once it’s working.
