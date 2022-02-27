@@ -21,17 +21,21 @@ export function renderPage(route, className, html, css, hydrationScript, data) {
           left: 0; right: 0; top: 0; bottom: 0;
           background: rgba(0, 0, 0, 0.75);
           transition: opacity 333ms;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         #overlayBody {
-          position: absolute;
+          max-width: 760px;
           display: flex;
           flex-direction: column;
           border-radius: 1em;
-          left: 3em; right: 3em; top: 3em; bottom: 3em;
           background-color: rgba(255, 255, 255, 0.9);
           font-family: sans-serif;
           font-size: 1.5em;
           padding: 0 2em;
+          margin-left: 2em;
+          margin-right: 2em;
         }
         #overlayBody h1 { 
           color: red;
