@@ -2,17 +2,13 @@ console.verbose = process.env.VERBOSE ? function () { console.log(...arguments) 
 console.profileTime = process.env.PROFILE ? function () { console.time(...arguments) } : () => {}
 console.profileTimeEnd = process.env.PROFILE ? function () { console.timeEnd(...arguments) } : () => {}
 
-console.verbose('================== LOADER PROCESS START =====================')
-
-// console.time('Loader initialisation')
-
 import path from 'path'
 import fsPromises from 'fs/promises'
 import { compile } from 'svelte/compiler'
 import { hydrationScriptCompiler } from './lib/HydrationScriptCompiler.js'
 import { loaderPaths, routeFromFilePath } from './lib/Utils.js'
 
-import crypto from 'crypto'
+// import crypto from 'crypto'
 
 import { BroadcastChannel } from 'worker_threads'
 import { fileURLToPath } from 'url'
@@ -90,8 +86,6 @@ export async function resolve(_specifier, context, defaultResolve) {
   // We get the import paths from the exports object defined in Svelte’s
   // package file (svelteExports).
 
-  // console.log('(RESOLVING) ', context.parentURL, ' -> ', _specifier)
-
   // Remove query string (testing, for now.)
   const specifier = _specifier.replace(/\?.*$/, '')
   const specifierExtension = path.extname(specifier)
@@ -148,9 +142,7 @@ export async function resolve(_specifier, context, defaultResolve) {
       }
   }
 
-  ////////////////////////////////////////////////////////////////////////////
-  // Update dependency map (Test)
-  ////////////////////////////////////////////////////////////////////////////
+  // Update dependency map
   if (
     context.parentURL && 
     // We use /nodekit/app/ to check for NodeKit itself but we want to exclude
@@ -172,19 +164,13 @@ export async function resolve(_specifier, context, defaultResolve) {
     const dependency = dependencyMap.get(specifierAbsolutePath)
     dependency.add(context.parentURL.replace('file://', '').replace(/\?.*$/, ''))
     
-    // console.log('Dependency map', dependencyMap)
-
     // For now fire a dependencyMap update on every route.
     // This may be overwhelming. Reconsider once it’s working.
     broadcastChannel.postMessage({
       type: 'dependencyMap',
       dependencyMap
     }) 
-  } else {
-    // console.log('> Skipping dependency map for', specifier, 'parent: ', context.parentURL)
-    // console.log('=== ', specifier.endsWith('.page'), context.parentURL ? context.parentURL.endsWith('/nodekit/app/index.js') : 'x')
   }
-  ////////////////////////////////////////////////////////////////////////////
 
   return resolved
 }
@@ -203,8 +189,6 @@ export async function resolve(_specifier, context, defaultResolve) {
 //       is present (TODO).
 
 export async function load(url /* string */, context, defaultLoad) {
-  // console.log(`[LOADING] ${url}`)
-  
   const _url = new URL(url)
   const isFileProtocol = _url.protocol === 'file:'
   const isSvelteRoute = svelteAliases[extensionOf(url)]
@@ -224,14 +208,14 @@ export async function load(url /* string */, context, defaultLoad) {
       result = await defaultLoad(url, context, defaultLoad)
   }
 
-  let resultHash = null
-  if (result.source) {
-    const hash = crypto.createHash('sha256')
-    hash.update(result.source)
-    resultHash = hash.digest('hex')
-  }
-
+  // let resultHash = null
+  // if (result.source) {
+  //   const hash = crypto.createHash('sha256')
+  //   hash.update(result.source)
+  //   resultHash = hash.digest('hex')
+  // }
   // console.log('[LOADED]', url, result.format, resultHash)
+
   return result
 }
 
@@ -291,14 +275,12 @@ async function compileSource(filePath) {
         hydrationScript
       }
     }
-
-    // console.log('[LOADER] New route!', route)
   }
 
   const compilerOptions = {
     generate: 'ssr',
     format: 'esm',
-    // css: false,  // This has no effect. See https://github.com/sveltejs/svelte/issues/3604
+    // css: false,  // This has no effect. Don’t use. See https://github.com/sveltejs/svelte/issues/3604
     enableSourcemap: false,
     hydratable: true,
   }
@@ -325,5 +307,3 @@ async function compileSource(filePath) {
 
   return output.js.code
 }
-
-// console.timeEnd('Loader initialisation')
