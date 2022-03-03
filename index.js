@@ -14,7 +14,7 @@ console.verbose = process.env.VERBOSE ? function () { console.log(...arguments) 
 console.profileTime = process.env.PROFILE ? function () { console.time(...arguments) } : () => {}
 console.profileTimeEnd = process.env.PROFILE ? function () { console.timeEnd(...arguments) } : () => {}
 
-console.verbose('------------------- MAIN PROCESS START ----------------------')
+console.verbose('--- MAIN PROCESS START ---')
 
 import os from 'os'
 import vm from 'vm'
@@ -56,7 +56,6 @@ import { BroadcastChannel } from 'worker_threads'
 //   async function ready () {
 //     if (!_beingLoaded) return true
 //     return new Promise((resolve, reject) => {
-//       // LEFT OFF HERE.
 //       // Need a way to wait on multiple accesses to a route
 //       // If it is being loaded/rendered.
 //     })
@@ -127,12 +126,6 @@ export default class NodeKit extends EventTarget {
         return
       }
       
-      // console.verbose(`[Main process broadcast channel] Received contents of route`, event.data.route)
-
-      // console.log('Dependency map', event.data.dependencyMap)
-      // console.log('event.data.route', event.data.route)
-      // console.log('this.routes', this.routes)
-
       this.dependencyMap = event.data.dependencyMap
       this.previousVersionsOfRoutes[event.data.route] = this.routes[event.data.route]
       this.routes[event.data.route] = event.data.contents
@@ -296,9 +289,6 @@ export default class NodeKit extends EventTarget {
 
 
   async handleFileChange(itemType, eventType, itemPath) {
-
-    // console.log('> Handle file change', this.dependencyMap)
-
     if (this.initialised) {
       if (process.env.PRODUCTION) {
         // In production, simply exit (systemd will handle the restart).
@@ -313,8 +303,6 @@ export default class NodeKit extends EventTarget {
         // TODO: Implement this using the dependency graph so that live reload fires
         // for pages whenever a dependency or the page itself changes or is deleted.
         if (itemType === 'file' && eventType === 'changed' && itemPath.endsWith('.page')) {
-          // console.log("<<<< PAGE CHANGED >>>>", itemPath)
-          
           this.dispatchEvent(new CustomEvent('hotReload', {
             detail: {
               type: 'reload',
@@ -322,7 +310,6 @@ export default class NodeKit extends EventTarget {
             }
           }))
         } else {
-          // console.log('.... change .....', itemPath)
           this.notifyAllAffectedPagesOfChangeIn(itemPath)
         }
       }
@@ -398,13 +385,9 @@ export default class NodeKit extends EventTarget {
     // what we really have is one meta-handler for every route that decides
     // what to load at runtime.
     const handler = (async function (request, response) {
-
-      // console.log('Handler called', request.url)
-
       if (!this.hotReloadListener) {
         if (filePath.endsWith('.page')) {
           const reloadListener = async event => {
-            // console.log('[HOT RELOAD REQUEST]', event.detail.path, filePath)
             if (event.detail.path === filePath) {
               // Reload the page.
               if (event.detail.dueToDependencyChange) {
@@ -423,9 +406,6 @@ export default class NodeKit extends EventTarget {
               const previousVersion = previousVersionsOfRoutes[route]
               if (previousVersion !== undefined) {
                 const currentVersion = routes[route]
-      
-                // console.log('previous css', previousVersion.css)
-                // console.log('current css', currentVersion.css)
                 
                 const jsIsTheSame = currentVersion.js === previousVersion.js
                 const cssIsTheSame = currentVersion.css === previousVersion.css
@@ -441,8 +421,6 @@ export default class NodeKit extends EventTarget {
                   const newClassHash = classHashRegExp.exec(currentVersion.css)[1]
                   const newCssCode = currentVersion.css.replace(new RegExp(newClassHash, 'g'), oldClassHash)
 
-                  console.log('newCssCode', newCssCode)
-        
                   currentVersion.css = newCssCode
         
                   self.socket.all(JSON.stringify({
@@ -480,12 +458,10 @@ export default class NodeKit extends EventTarget {
         if (this._handler === undefined) {
           this._handler = await self.loadHttpRoute(routes, route, basePath, filePath, context)
         }
-        // Called the cached handler.
+        // Call the cached handler.
         return await this._handler(request,response)
       }
     }).bind(handlerThisObject)
-
-    // Add the route
 
     console.verbose('[FILES] Adding route', httpMethod, route, filePath, handler)
 
@@ -510,7 +486,6 @@ export default class NodeKit extends EventTarget {
       
       handler = async (request, response) => {
         // This is a NodeKit page. Create a custom route to serve it.
-        // console.log('[Handler] Attempting to get route cache for route', route)
         const routeCache = routes[route]
         const hydrationScript = routeCache.hydrationScript
 
@@ -546,13 +521,9 @@ export default class NodeKit extends EventTarget {
               response.end(error.stack.toString())
             }
             const bundle = buildResult.outputFiles[0].text
-
-            // TODO: Implement cache using sourceTextModule.createCachedData()
             const module = new vm.SourceTextModule(bundle, { context })
 
             await module.link(async (specifier, referencingModule) => {
-              // throw new Error(`[LINKER] Bundle should not have any imports but received ${specifier} from ${referencingModule}`)
-
               return new Promise(async (resolve, reject) => {
                 console.verbose('Linking: ', specifier)
 
