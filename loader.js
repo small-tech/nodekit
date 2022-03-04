@@ -5,7 +5,7 @@ console.profileTimeEnd = process.env.PROFILE ? function () { console.timeEnd(...
 import path from 'path'
 import fsPromises from 'fs/promises'
 import { compile } from 'svelte/compiler'
-import { hydrationScriptCompiler } from './lib/HydrationScriptCompiler.js'
+import { createHydrationScriptBundle } from './lib/HydrationScriptBundler.js'
 import { loaderPaths, routeFromFilePath, classNameFromRoute } from './lib/Utils.js'
 
 // import crypto from 'crypto'
@@ -272,8 +272,8 @@ async function compileSource(filePath) {
     let hydrationScript
     if (process.env.PRODUCTION) {
       // Production.
-      const hydrationCode = await hydrationScriptCompiler(routeRelativePath, route)
-      hydrationScript = hydrationCode
+      const hydrationScriptBundle = await createHydrationScriptBundle(routeRelativePath, route)
+      hydrationScript = hydrationScriptBundle
     } else {
       // Development.
       const hydrationScriptCompilerOptions = {
@@ -289,9 +289,7 @@ async function compileSource(filePath) {
   
       console.log(hydrationOutput)
   
-      const hydrationScript = hydrationOutput.js.code + `//# sourceMappingURL=` + hydrationOutput.js.map.toUrl()
-  
-      console.log(hydrationOutput.warnings)
+      hydrationScript = hydrationOutput.js.code + `//# sourceMappingURL=` + hydrationOutput.js.map.toUrl()  
     }
 
     routeDetails = {
