@@ -6,7 +6,7 @@ import path from 'path'
 import fsPromises from 'fs/promises'
 import { compile } from 'svelte/compiler'
 import { hydrationScriptCompiler } from './lib/HydrationScriptCompiler.js'
-import { loaderPaths, routeFromFilePath } from './lib/Utils.js'
+import { loaderPaths, routeFromFilePath, classNameFromRoute } from './lib/Utils.js'
 
 // import crypto from 'crypto'
 
@@ -264,22 +264,49 @@ async function compileSource(filePath) {
     svelteSource = svelteSource.replace(script, scriptWithLayoutImport).replace(markup, markupWithLayout)
 
     // Client-side hydration script.
-    const hydrationCode = await hydrationScriptCompiler(routeRelativePath, route)
-    const hydrationScript = hydrationCode
+    //
+    // In production, we use the Production Time Hydration Script Compiler to
+    // bundle a self-contained script using esbuild. 
+    //
+    // In development, we use the Svelte compiler and serve all modules separately.
+    let hydrationScript
+    if (process.env.PRODUCTION) {
+      // Production.
+      const hydrationCode = await hydrationScriptCompiler(routeRelativePath, route)
+      hydrationScript = hydrationCode
+    } else {
+      // Development.
+      const hydrationScriptCompilerOptions = {
+        generate: 'dom', // (this is the default)
+        format: 'esm',  // (This is the default.)
+        hydratable: true,
+        name: classNameFromRoute(route),
+        css: false,
+        enableSourcemap: true
+      }
+  
+      const hydrationOutput = compile(svelteSource, hydrationScriptCompilerOptions)
+  
+      console.log(hydrationOutput)
+  
+      const hydrationScript = hydrationOutput.js.code + `//# sourceMappingURL=` + hydrationOutput.js.map.toUrl()
+  
+      console.log(hydrationOutput.warnings)
+    }
 
     routeDetails = {
       route,
       contents: {
         routeRelativePath,
         nodeScript,
-        hydrationScript
+        hydrationScript 
       }
     }
   }
 
   const compilerOptions = {
     generate: 'ssr',
-    format: 'esm',
+    format: 'esm',  // (This is the default.)
     // css: false,  // This has no effect. Don’t use. See https://github.com/sveltejs/svelte/issues/3604
     enableSourcemap: false,
     hydratable: true,
