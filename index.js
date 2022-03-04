@@ -199,9 +199,7 @@ export default class NodeKit extends EventTarget {
     // Add the WebSocket server.
     this.app.use(tinyws())
 
-    // Create a separate context for each route but do this when the route
-    // is being created so that any values set on the route survive future
-    // calls to the route.
+    // Create context to be used by the route handler when running NodeScript.
     this.context = vm.createContext({
       // NodeKit globals.
       db: globalThis.db,
