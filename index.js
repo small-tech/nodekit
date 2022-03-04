@@ -22,7 +22,6 @@ import esbuild from 'esbuild'
 import { _findPath } from 'module'
 import fs from 'fs'
 import path from 'path'
-import childProcess from 'child_process'
 
 import chokidar from 'chokidar'
 import polka from 'polka'
@@ -39,7 +38,7 @@ import https from '@small-tech/https'
 import { tinyws } from 'tinyws'
 import WebSocketRoute from './lib/WebSocketRoute'
 
-import { classNameFromRoute, routeFromFilePath, HTTP_METHODS } from './lib/Utils'
+import { ensurePrivilegedPortsAreDisabled, classNameFromRoute, routeFromFilePath, HTTP_METHODS } from './lib/Utils'
 import { renderPage } from './page-template'
 
 import { URL } from 'url'
@@ -144,7 +143,7 @@ export default class NodeKit extends EventTarget {
 
     // Disable privileged ports on Linux (because we don’t need security
     // theatre to trip us up.)
-    this.ensurePrivilegedPortsAreDisabled()
+    ensurePrivilegedPortsAreDisabled()
 
     // Create the app.
     const errorTemplate = `
@@ -322,29 +321,6 @@ export default class NodeKit extends EventTarget {
     await this.watcher.close()
   }
 
-  // Linux has an archaic security restriction dating from the mainframe/dumb-terminal era where
-  // ports < 1024 are “privileged” and can only be connected to by the root process. This has no
-  // practical security advantage today (and actually can lead to security issues). Instead of
-  // bending over backwards and adding more complexity to accommodate this, we use a feature that’s
-  // been in the Linux kernel since version 4.11 to disable privileged ports.
-  //
-  // As this change is not persisted between reboots and takes a trivial amount of time to
-  // execute, we carry it out every time.
-  //
-  // For more details, see: https://source.small-tech.org/site.js/app/-/issues/169
-  ensurePrivilegedPortsAreDisabled () {
-    if (os.platform() === 'linux') {
-      try {
-        console.verbose(' 😇 ❨NodeKit❩ Linux: about to disable privileged ports so we can bind to ports < 1024.')
-        console.verbose('    ❨NodeKit❩ For details, see: https://source.small-tech.org/site.js/app/-/issues/169')
-
-        childProcess.execSync('sudo sysctl -w net.ipv4.ip_unprivileged_port_start=0', {env: process.env})
-      } catch (error) {
-        console.error(`\n ❌ ❨NodeKit❩ Error: Could not disable privileged ports. Cannot bind to port 80 and 443. Exiting.`, error)
-        process.exit(1)
-      }
-    }
-  }
 
   // Creates a WebSocket at /.well-known/dev used for hot module reloading, etc., during
   // development time.
