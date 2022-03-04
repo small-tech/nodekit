@@ -292,13 +292,10 @@ export default class NodeKit extends EventTarget {
         console.verbose(`${itemType.charAt(0).toUpperCase()+itemType.slice(1)} ${eventType} (${itemPath}), asking for restart in production.`)
         process.exit(1)
       } else {
-        // In development, we implement hot replacement for CSS (TODO)
+        // In development, we implement hot replacement for CSS
         // and live reload for everything else. 
         console.verbose('[handleFileChange]', itemPath, eventType, itemPath)
 
-        // This is just a simplistic implementation that fires for page changes.
-        // TODO: Implement this using the dependency graph so that live reload fires
-        // for pages whenever a dependency or the page itself changes or is deleted.
         if (itemType === 'file' && eventType === 'changed' && itemPath.endsWith('.page')) {
           this.dispatchEvent(new CustomEvent('hotReload', {
             detail: {
