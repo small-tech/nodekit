@@ -219,10 +219,10 @@ async function compileSource(filePath) {
 
   console.verbose(`[LOADER] Compiling ${route}`)
 
-  const { normalised, nodeScript } = parseSource(source)
+  const { normalisedSource, nodeScript } = parseSource(source)
 
   console.log('======================================================================')
-  console.log(normalised)
+  console.log(normalisedSource)
   console.log('======================================================================')
 
   // Hydration script support.
@@ -253,7 +253,7 @@ async function compileSource(filePath) {
     compilerOptions.dev = true
   }
 
-  const output = compile(normalised, compilerOptions)
+  const output = compile(normalisedSource, compilerOptions)
 
   if (routeDetails !== null) {
     // Remove the generated CSS code so we can check if JS has changed
