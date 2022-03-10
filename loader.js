@@ -49,10 +49,6 @@ const svelteAliases = truthyHashmapFromArray(_svelteAliases)
 const javaScriptAliases = truthyHashmapFromArray(_javaScriptAliases)
 const allAliases = truthyHashmapFromArray(_allAliases)
 
-const scriptRegExp = /\<script\>(.*?)\<\/script\>/s
-const nodeScriptRegExp = /\<data\>(.*?)\<\/data\>/s
-const styleRegExp = /\<style\>(.*?)\<\/style\>/s
-
 // Capture everything after the last dot as a named group called extension.
 const fileUrlExtensionRegExp = /^.+(?<extension>\..*$)/
 
@@ -254,6 +250,8 @@ async function compileSource(filePath) {
   }
 
   const output = compile(normalisedSource, compilerOptions)
+
+  console.log(output.ast.html)
 
   if (routeDetails !== null) {
     // Remove the generated CSS code so we can check if JS has changed
