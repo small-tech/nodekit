@@ -217,10 +217,6 @@ async function compileSource(filePath) {
 
   const { normalisedSource, nodeScript } = parseSource(source)
 
-  console.log('======================================================================')
-  console.log(normalisedSource)
-  console.log('======================================================================')
-
   // Hydration script support.
   let routeDetails = null
   if (filePath.endsWith('.page')) {
@@ -250,8 +246,6 @@ async function compileSource(filePath) {
   }
 
   const output = compile(normalisedSource, compilerOptions)
-
-  console.log(output.ast.html)
 
   if (routeDetails !== null) {
     // Remove the generated CSS code so we can check if JS has changed
