@@ -5,10 +5,8 @@ console.profileTimeEnd = process.env.PROFILE ? function () { console.timeEnd(...
 import path from 'path'
 import fsPromises from 'fs/promises'
 import { compile } from 'svelte/compiler'
-import { hydrationScriptCompiler } from './lib/HydrationScriptCompiler.js'
-import { loaderPaths, routeFromFilePath } from './lib/Utils.js'
-
-// import crypto from 'crypto'
+import { createHydrationScriptBundle } from './lib/HydrationScriptBundler.js'
+import { loaderPaths, routeFromFilePath, parseSource } from './lib/Utils.js'
 
 import { BroadcastChannel } from 'worker_threads'
 import { fileURLToPath } from 'url'
@@ -50,10 +48,6 @@ const _allAliases = _svelteAliases.concat(_javaScriptAliases)
 const svelteAliases = truthyHashmapFromArray(_svelteAliases)
 const javaScriptAliases = truthyHashmapFromArray(_javaScriptAliases)
 const allAliases = truthyHashmapFromArray(_allAliases)
-
-const scriptRegExp = /\<script\>.*?\<\/script\>/s
-const nodeScriptRegExp = /\<data\>(.*?)\<\/data\>/s
-const styleRegExp = /\<style\>.*?\<\/style\>/s
 
 // Capture everything after the last dot as a named group called extension.
 const fileUrlExtensionRegExp = /^.+(?<extension>\..*$)/
@@ -208,14 +202,6 @@ export async function load(url /* string */, context, defaultLoad) {
       result = await defaultLoad(url, context, defaultLoad)
   }
 
-  // let resultHash = null
-  // if (result.source) {
-  //   const hash = crypto.createHash('sha256')
-  //   hash.update(result.source)
-  //   resultHash = hash.digest('hex')
-  // }
-  // console.log('[LOADED]', url, result.format, resultHash)
-
   return result
 }
 
@@ -229,57 +215,27 @@ async function compileSource(filePath) {
 
   console.verbose(`[LOADER] Compiling ${route}`)
 
-  let svelteSource = source
-  let nodeScript
+  const { normalisedSource, nodeScript } = parseSource(source)
 
-  const nodeScriptResult = nodeScriptRegExp.exec(source)
-  if (nodeScriptResult) {
-    console.verbose('  • Route has NodeScript.')
-    // Contains a Node script. Svelte knows nothing about this, so we
-    // strip it out and persist it for use during server-side rendering.
-    svelteSource = source.replace(nodeScriptResult[0], '')
-
-    // Wrap the  request into the script so its available
-    // to the script without making people wrap their script
-    // in an async function.
-    nodeScript = nodeScriptResult[1]
-  }
-
-  // Layout (TODO) and hydration script support.
+  // Hydration script support.
   let routeDetails = null
   if (filePath.endsWith('.page')) {
-    let script = scriptRegExp.exec(svelteSource)
-    script = script ? script[0] : ''
-    const markup = svelteSource.replace(scriptRegExp, '').replace(styleRegExp, '').trim()
-
-        // TODO: Implement layout support properly based on the list of layout
-        // ===== pages that have already been compiled (the commented-out code is
-        //       from the hardcoded spike).
-        const scriptWithLayoutImport = script
-        const markupWithLayout = markup
-
-        // const scriptWithLayoutImport = script.replace('<script>', "<script>\n  import PageLayout from './Page.layout'\n")
-        // const markupWithLayout = `<PageLayout>\n${markup}\n</PageLayout>`
-
-    svelteSource = svelteSource.replace(script, scriptWithLayoutImport).replace(markup, markupWithLayout)
-
-    // Client-side hydration script.
-    const hydrationCode = await hydrationScriptCompiler(routeRelativePath, route)
-    const hydrationScript = hydrationCode
+    // Compile client-side hydration script.
+    const hydrationScript = await createHydrationScriptBundle(routeRelativePath, route)
 
     routeDetails = {
       route,
       contents: {
         routeRelativePath,
         nodeScript,
-        hydrationScript
+        hydrationScript 
       }
     }
   }
 
   const compilerOptions = {
     generate: 'ssr',
-    format: 'esm',
+    format: 'esm',  // (This is the default.)
     // css: false,  // This has no effect. Don’t use. See https://github.com/sveltejs/svelte/issues/3604
     enableSourcemap: false,
     hydratable: true,
@@ -289,7 +245,7 @@ async function compileSource(filePath) {
     compilerOptions.dev = true
   }
 
-  const output = compile(svelteSource, compilerOptions)
+  const output = compile(normalisedSource, compilerOptions)
 
   if (routeDetails !== null) {
     // Remove the generated CSS code so we can check if JS has changed

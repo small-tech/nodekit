@@ -22,7 +22,6 @@ import esbuild from 'esbuild'
 import { _findPath } from 'module'
 import fs from 'fs'
 import path from 'path'
-import childProcess from 'child_process'
 
 import chokidar from 'chokidar'
 import polka from 'polka'
@@ -39,7 +38,7 @@ import https from '@small-tech/https'
 import { tinyws } from 'tinyws'
 import WebSocketRoute from './lib/WebSocketRoute'
 
-import { classNameFromRoute, routeFromFilePath, HTTP_METHODS } from './lib/Utils'
+import { ensurePrivilegedPortsAreDisabled, classNameFromRoute, routeFromFilePath, HTTP_METHODS } from './lib/Utils'
 import { renderPage } from './page-template'
 
 import { URL } from 'url'
@@ -144,7 +143,7 @@ export default class NodeKit extends EventTarget {
 
     // Disable privileged ports on Linux (because we don’t need security
     // theatre to trip us up.)
-    this.ensurePrivilegedPortsAreDisabled()
+    ensurePrivilegedPortsAreDisabled()
 
     // Create the app.
     const errorTemplate = `
@@ -200,9 +199,7 @@ export default class NodeKit extends EventTarget {
     // Add the WebSocket server.
     this.app.use(tinyws())
 
-    // Create a separate context for each route but do this when the route
-    // is being created so that any values set on the route survive future
-    // calls to the route.
+    // Create context to be used by the route handler when running NodeScript.
     this.context = vm.createContext({
       // NodeKit globals.
       db: globalThis.db,
@@ -295,13 +292,10 @@ export default class NodeKit extends EventTarget {
         console.verbose(`${itemType.charAt(0).toUpperCase()+itemType.slice(1)} ${eventType} (${itemPath}), asking for restart in production.`)
         process.exit(1)
       } else {
-        // In development, we implement hot replacement for CSS (TODO)
+        // In development, we implement hot replacement for CSS
         // and live reload for everything else. 
         console.verbose('[handleFileChange]', itemPath, eventType, itemPath)
 
-        // This is just a simplistic implementation that fires for page changes.
-        // TODO: Implement this using the dependency graph so that live reload fires
-        // for pages whenever a dependency or the page itself changes or is deleted.
         if (itemType === 'file' && eventType === 'changed' && itemPath.endsWith('.page')) {
           this.dispatchEvent(new CustomEvent('hotReload', {
             detail: {
@@ -322,29 +316,6 @@ export default class NodeKit extends EventTarget {
     await this.watcher.close()
   }
 
-  // Linux has an archaic security restriction dating from the mainframe/dumb-terminal era where
-  // ports < 1024 are “privileged” and can only be connected to by the root process. This has no
-  // practical security advantage today (and actually can lead to security issues). Instead of
-  // bending over backwards and adding more complexity to accommodate this, we use a feature that’s
-  // been in the Linux kernel since version 4.11 to disable privileged ports.
-  //
-  // As this change is not persisted between reboots and takes a trivial amount of time to
-  // execute, we carry it out every time.
-  //
-  // For more details, see: https://source.small-tech.org/site.js/app/-/issues/169
-  ensurePrivilegedPortsAreDisabled () {
-    if (os.platform() === 'linux') {
-      try {
-        console.verbose(' 😇 ❨NodeKit❩ Linux: about to disable privileged ports so we can bind to ports < 1024.')
-        console.verbose('    ❨NodeKit❩ For details, see: https://source.small-tech.org/site.js/app/-/issues/169')
-
-        childProcess.execSync('sudo sysctl -w net.ipv4.ip_unprivileged_port_start=0', {env: process.env})
-      } catch (error) {
-        console.error(`\n ❌ ❨NodeKit❩ Error: Could not disable privileged ports. Cannot bind to port 80 and 443. Exiting.`, error)
-        process.exit(1)
-      }
-    }
-  }
 
   // Creates a WebSocket at /.well-known/dev used for hot module reloading, etc., during
   // development time.
