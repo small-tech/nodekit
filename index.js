@@ -354,7 +354,7 @@ export default class NodeKit extends EventTarget {
 
     const handlerThisObject = {}
 
-    // Handlers will lazy-load their content the first time they are hit so
+    // Handlers lazy-load their content the first time they are hit so
     // what we really have is one meta-handler for every route that decides
     // what to load at runtime.
     const handler = (async function (request, response) {
