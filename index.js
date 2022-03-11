@@ -117,16 +117,19 @@ export default class NodeKit extends EventTarget {
 
     this.broadcastChannel.onmessage = event => {
 
-      // Store the dependencyMap.
-      // (Is sending it over like this efficient?)
-      if (event.data.type === 'dependencyMap') {
-        // console.log('[Main process broadcast channel] Received dependency map')
+      if (!process.env.PRODUCTION) {
+        // Store the dependencyMap.
+        // (Is sending it over like this efficient?)
+        if (event.data.type === 'dependencyMap') {
+          // console.log('[Main process broadcast channel] Received dependency map')
+          this.dependencyMap = event.data.dependencyMap
+          return
+        }
+        
         this.dependencyMap = event.data.dependencyMap
-        return
+        this.previousVersionsOfRoutes[event.data.route] = this.routes[event.data.route]
       }
-      
-      this.dependencyMap = event.data.dependencyMap
-      this.previousVersionsOfRoutes[event.data.route] = this.routes[event.data.route]
+
       this.routes[event.data.route] = event.data.contents
     }
 

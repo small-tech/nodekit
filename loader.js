@@ -136,34 +136,36 @@ export async function resolve(_specifier, context, defaultResolve) {
       }
   }
 
-  // Update dependency map
-  if (
-    context.parentURL && 
-    // We use /nodekit/app/ to check for NodeKit itself but we want to exclude
-    // the examples directory itself from this check as well as any root
-    // page in the project being served (that’s loaded by /nodekit/app/index.js )
-    (!context.parentURL.includes('/nodekit/app/') 
-    || (specifier.endsWith('.page') && context.parentURL.endsWith('/nodekit/app/index.js'))
-    || context.parentURL.includes('/nodekit/app/examples/')
-    )
-    && !context.parentURL.includes('/node_modules/')
-    && (specifier.startsWith('.') || specifier.startsWith('/'))
-  ) {
-    const specifierAbsolutePath = path.resolve(parent.path, specifier)
-    if (!dependencyMap.has(specifierAbsolutePath)) {
-      dependencyMap.set(specifierAbsolutePath, new Set())
-    }
+  if (!process.env.PRODUCTION) {
+    // Update dependency map
+    if (
+      context.parentURL && 
+      // We use /nodekit/app/ to check for NodeKit itself but we want to exclude
+      // the examples directory itself from this check as well as any root
+      // page in the project being served (that’s loaded by /nodekit/app/index.js )
+      (!context.parentURL.includes('/nodekit/app/') 
+      || (specifier.endsWith('.page') && context.parentURL.endsWith('/nodekit/app/index.js'))
+      || context.parentURL.includes('/nodekit/app/examples/')
+      )
+      && !context.parentURL.includes('/node_modules/')
+      && (specifier.startsWith('.') || specifier.startsWith('/'))
+    ) {
+      const specifierAbsolutePath = path.resolve(parent.path, specifier)
+      if (!dependencyMap.has(specifierAbsolutePath)) {
+        dependencyMap.set(specifierAbsolutePath, new Set())
+      }
 
-    /** @type Set */
-    const dependency = dependencyMap.get(specifierAbsolutePath)
-    dependency.add(context.parentURL.replace('file://', '').replace(/\?.*$/, ''))
-    
-    // For now fire a dependencyMap update on every route.
-    // This may be overwhelming. Reconsider once it’s working.
-    broadcastChannel.postMessage({
-      type: 'dependencyMap',
-      dependencyMap
-    }) 
+      /** @type Set */
+      const dependency = dependencyMap.get(specifierAbsolutePath)
+      dependency.add(context.parentURL.replace('file://', '').replace(/\?.*$/, ''))
+      
+      // For now fire a dependencyMap update on every route.
+      // This may be overwhelming. Reconsider once it’s working.
+      broadcastChannel.postMessage({
+        type: 'dependencyMap',
+        dependencyMap
+      }) 
+    }
   }
 
   return resolved
@@ -247,17 +249,21 @@ async function compileSource(filePath) {
 
   const output = compile(normalisedSource, compilerOptions)
 
-  if (routeDetails !== null) {
-    // Remove the generated CSS code so we can check if JS has changed
-    // between builds or not.
-    routeDetails.contents.js = output.js.code
-                                  .replace(/const css = \{.*?};/s, '')
-                                  .replace('$$result.css.add(css);', '')
-                                  .replace(/svelte-.*?"\}/g, '')
-    routeDetails.contents.css = output.css.code
-    routeDetails.dependencyMap = dependencyMap
+  if (!process.env.PRODUCTION) {
+    if (routeDetails !== null) {
+      // Remove the generated CSS code so we can check if JS has changed
+      // between builds or not.
+      routeDetails.contents.js = output.js.code
+                                    .replace(/const css = \{.*?};/s, '')
+                                    .replace('$$result.css.add(css);', '')
+                                    .replace(/svelte-.*?"\}/g, '')
+      routeDetails.contents.css = output.css.code
+      routeDetails.dependencyMap = dependencyMap
+    }
+  }
 
-    // Update the route cache with the material for this route.
+  // Update the route cache with the material for this route.
+  if (routeDetails !== null) {
     broadcastChannel.postMessage(routeDetails)
   }
 
