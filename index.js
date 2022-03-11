@@ -47,20 +47,6 @@ import JSDB from '@small-tech/jsdb'
 
 import { BroadcastChannel } from 'worker_threads'
 
-// class Handler {
-//   _handler
-//   _ready
-//   _beingLoaded
-
-//   async function ready () {
-//     if (!_beingLoaded) return true
-//     return new Promise((resolve, reject) => {
-//       // Need a way to wait on multiple accesses to a route
-//       // If it is being loaded/rendered.
-//     })
-//   }
-// }
-
 class CustomEvent extends Event {
   detail
 
