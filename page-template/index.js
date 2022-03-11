@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { nodekitAppPath } from "../lib/Utils"
 
-const developmentSocketScript = fs.readFileSync(path.join(nodekitAppPath, 'page-template', 'development-socket.js'))
+const developmentSocketScript = process.env.PRODUCTION ? undefined : fs.readFileSync(path.join(nodekitAppPath, 'page-template', 'development-socket.js'))
 
 export function renderPage(route, className, html, css, hydrationScript, data) {
   return `
@@ -13,8 +13,9 @@ export function renderPage(route, className, html, css, hydrationScript, data) {
       <meta http-equiv='X-UA-Compatible' content='IE=edge'>
       <meta name='viewport' content='width=device-width, initial-scale=1.0'>
       <link rel="icon" href="data:,">
-      <title>${route}</title>
+      <title></title>
       <style id='__style__'>${css}</style>
+      ${process.env.PRODUCTION ? '' : `
       <style>
         #overlay {
           position: absolute;
@@ -68,8 +69,10 @@ export function renderPage(route, className, html, css, hydrationScript, data) {
           opacity: 1;
         }
       </style>
+      `}
     </head>
     <body>
+        ${process.env.PRODUCTION ? '' : `
         <div id='overlay' class='hideOverlay'>
           <div id='overlayBody'>
             <h1 id='errorTitle'>Error title</h1>
@@ -77,6 +80,7 @@ export function renderPage(route, className, html, css, hydrationScript, data) {
             <pre><code id='errorDetails'>Error details (e.g., stack trace, etc.)</code></pre>
           </div>
         </div>
+        `}
         <div id='application'>
           ${html}
         </div>

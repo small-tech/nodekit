@@ -232,7 +232,9 @@ export default class NodeKit extends EventTarget {
           await this.createRoutes()
 
           // Create development socket.
-          this.createDevelopmentSocket()
+          if (!process.env.PRODUCTION) {
+            this.createDevelopmentSocket()
+          }
 
           this.initialised = true
 
@@ -289,7 +291,7 @@ export default class NodeKit extends EventTarget {
     if (this.initialised) {
       if (process.env.PRODUCTION) {
         // In production, simply exit (systemd will handle the restart).
-        console.verbose(`${itemType.charAt(0).toUpperCase()+itemType.slice(1)} ${eventType} (${itemPath}), asking for restart in production.`)
+        console.log(`${itemType.charAt(0).toUpperCase()+itemType.slice(1)} ${eventType} (${itemPath}), exiting to trigger auto-restart in production.`)
         process.exit(1)
       } else {
         // In development, we implement hot replacement for CSS
@@ -356,59 +358,63 @@ export default class NodeKit extends EventTarget {
     // what we really have is one meta-handler for every route that decides
     // what to load at runtime.
     const handler = (async function (request, response) {
-      if (!this.hotReloadListener) {
-        if (filePath.endsWith('.page')) {
-          const reloadListener = async event => {
-            if (event.detail.path === filePath) {
-              // Reload the page.
-              if (event.detail.dueToDependencyChange) {
-                self.reloadDueToDependencyChange = true
-              }
-              this._handler = await self.loadHttpRoute(routes, route, basePath, filePath, context)
 
-              // If we don’t have a development socket, then there’s no one to notify yet.
-              if (!self.socket) {
-                return
-              }  
-
-              // Now that we know the new handler exists, let’s notify the
-              // necessary pages.
-
-              const previousVersion = previousVersionsOfRoutes[route]
-              if (previousVersion !== undefined) {
-                const currentVersion = routes[route]
-                
-                const jsIsTheSame = currentVersion.js === previousVersion.js
-                const cssIsTheSame = currentVersion.css === previousVersion.css
-                const onlyCssHasChanged = jsIsTheSame && !cssIsTheSame
-        
-                if (onlyCssHasChanged) {
-                  console.verbose('((( Requesting CSS injection. )))')
-                  // The CSS class name/hash will have changed in the new CSS,
-                  // replace it with the old one.
-                  // TODO: Error check for non-existence (shouldn’t happen but still).
-                  const classHashRegExp = /svelte-(.*?)[\s\{]/
-                  const oldClassHash = classHashRegExp.exec(previousVersion.css)[1]
-                  const newClassHash = classHashRegExp.exec(currentVersion.css)[1]
-                  const newCssCode = currentVersion.css.replace(new RegExp(newClassHash, 'g'), oldClassHash)
-
-                  currentVersion.css = newCssCode
-        
-                  self.socket.all(JSON.stringify({
-                    type: 'css',
-                    code: newCssCode
-                  }))
-                } else if (!jsIsTheSame || self.reloadDueToDependencyChange) {
-                  console.verbose('<<< Requesting live reload. >>>')
-                  self.reloadDueToDependencyChange = false
-                  self.socket.all(JSON.stringify({type: 'reload'}))
+      // Development-time live reload listener.
+      if (!process.env.PRODUCTION) {
+        if (!this.hotReloadListener) {
+          if (filePath.endsWith('.page')) {
+            const reloadListener = async event => {
+              if (event.detail.path === filePath) {
+                // Reload the page.
+                if (event.detail.dueToDependencyChange) {
+                  self.reloadDueToDependencyChange = true
+                }
+                this._handler = await self.loadHttpRoute(routes, route, basePath, filePath, context)
+  
+                // If we don’t have a development socket, then there’s no one to notify yet.
+                if (!self.socket) {
+                  return
                 }  
+  
+                // Now that we know the new handler exists, let’s notify the
+                // necessary pages.
+  
+                const previousVersion = previousVersionsOfRoutes[route]
+                if (previousVersion !== undefined) {
+                  const currentVersion = routes[route]
+                  
+                  const jsIsTheSame = currentVersion.js === previousVersion.js
+                  const cssIsTheSame = currentVersion.css === previousVersion.css
+                  const onlyCssHasChanged = jsIsTheSame && !cssIsTheSame
+          
+                  if (onlyCssHasChanged) {
+                    console.verbose('((( Requesting CSS injection. )))')
+                    // The CSS class name/hash will have changed in the new CSS,
+                    // replace it with the old one.
+                    // TODO: Error check for non-existence (shouldn’t happen but still).
+                    const classHashRegExp = /svelte-(.*?)[\s\{]/
+                    const oldClassHash = classHashRegExp.exec(previousVersion.css)[1]
+                    const newClassHash = classHashRegExp.exec(currentVersion.css)[1]
+                    const newCssCode = currentVersion.css.replace(new RegExp(newClassHash, 'g'), oldClassHash)
+  
+                    currentVersion.css = newCssCode
+          
+                    self.socket.all(JSON.stringify({
+                      type: 'css',
+                      code: newCssCode
+                    }))
+                  } else if (!jsIsTheSame || self.reloadDueToDependencyChange) {
+                    console.verbose('<<< Requesting live reload. >>>')
+                    self.reloadDueToDependencyChange = false
+                    self.socket.all(JSON.stringify({type: 'reload'}))
+                  }  
+                }
               }
-            }
-          }  
-          self.addEventListener('hotReload', reloadListener)  
+            }  
+            self.addEventListener('hotReload', reloadListener)  
+          }
+          this.hotReloadListener = true
         }
-        this.hotReloadListener = true
       }
 
       if (extension === 'socket') {
