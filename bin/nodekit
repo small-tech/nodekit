@@ -2,4 +2,4 @@
 
 set -e
 
-QUIET=true NODE_OPTIONS='--require=./suppress-experimental.cjs' node --enable-source-maps --experimental-modules --experimental-specifier-resolution=node --experimental-vm-modules --experimental-loader processes/loader.js processes/main.js "$@"
+QUIET=true NODE_OPTIONS='--require=./suppress-experimental.cjs' node --enable-source-maps --experimental-modules --experimental-specifier-resolution=node --experimental-vm-modules --experimental-loader ./lib/processes/loader.js ./lib/processes/main.js "$@"

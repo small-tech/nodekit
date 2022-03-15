@@ -8,7 +8,6 @@ import { standardOutput } from './utils'
 
 import packageInfo from '../package.json'
 
-
 const test = suite('CLI')
 
 let commands = (new CLI()).commands
