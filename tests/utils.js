@@ -99,4 +99,30 @@ test ('parseSource', () => {
   assert.equal(withoutWhitespace(extracted), withoutWhitespace(nodeScript))
 })
 
+test ('routeFromFilePath', () => {
+  const basePath = utils.calculateBasePath()
+
+  const supportedExtensions = ['get', 'head', 'patch', 'options', 'connect', 'delete', 'trace', 'post', 'put', 'page', 'socket']
+
+  // Some manual tests of actual routes in the Domain app (https://github.com/small-tech/domain).
+  const expectations = [
+    [path.join(basePath, 'index_[property1]_and_[property2].page'), '/:property1/and/:property2'],
+    [path.join(basePath, 'index_with_[property1]_and_[property2].page'), '/with/:property1/and/:property2'],
+    [path.join(basePath, 'admin/index_[password].socket'), '/admin/:password'],
+    [path.join(basePath, 'domain/available_[domain].get'), '/domain/available/:domain'],
+    [path.join(basePath, 'private_[token]_[domain].get'), '/private/:token/:domain']
+  ]
+
+  for (const supportedExtension of supportedExtensions) {
+    expectations.push([
+      path.join(basePath, 'a', 'route-with', `this_[property].${supportedExtension}`),
+      `/a/route-with/this/:property`
+    ])
+  }
+
+  for (const expectation of expectations) {
+    assert.equal(utils.routeFromFilePath(expectation[0]), expectation[1], expectation[0])
+  }
+})
+
 test.run()
