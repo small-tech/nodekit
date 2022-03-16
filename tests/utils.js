@@ -9,6 +9,37 @@ import http from 'http'
 
 const nodeScriptRegExp = /\<data\>(.*?)\<\/data\>/s
 
+const nodeScript = `
+export default function (request, response) {
+  return { title: 'Hello, world!' }
+}
+`
+
+const nodeScriptIncludingDataTags = `
+<data>
+  ${nodeScript}
+</data>
+`
+
+const topOfPage = `
+<!-- Test -->
+`
+
+const restOfPage = `
+</data>
+
+<script>
+  export let data
+</script>
+
+<h1>{data.title}</h1>
+`
+const source = `
+${topOfPage}
+${nodeScriptIncludingDataTags}    
+${restOfPage}
+`
+
 const test = suite('Utils')
 
 test('basepath', () => {
@@ -55,38 +86,14 @@ test ('class name from route', () => {
 })
 
 test ('extract', () => {
-  const nodeScript = `
-    export default function (request, response) {
-      return { title: 'Hello, world!' }
-    }
-  `
-
-  const nodeScriptIncludingDataTags = `
-    <data>
-      ${nodeScript}
-    </data>
-  `
-
-  const topOfPage = `
-    <!-- Test -->
-  `
-
-  const restOfPage = `
-    </data>
-
-    <script>
-      export let data
-    </script>
-
-    <h1>{data.title}</h1>
-  `
-  const source = `
-    ${topOfPage}
-    ${nodeScriptIncludingDataTags}    
-    ${restOfPage}
-  `
-
   const { normalisedSource, extracted } = utils.extract(source, nodeScriptRegExp)
+
+  assert.equal(withoutWhitespace(normalisedSource), withoutWhitespace(topOfPage + restOfPage))
+  assert.equal(withoutWhitespace(extracted), withoutWhitespace(nodeScript))
+})
+
+test ('parseSource', () => {
+  const { normalisedSource, nodeScript: extracted } = utils.parseSource(source, nodeScriptRegExp)
 
   assert.equal(withoutWhitespace(normalisedSource), withoutWhitespace(topOfPage + restOfPage))
   assert.equal(withoutWhitespace(extracted), withoutWhitespace(nodeScript))
