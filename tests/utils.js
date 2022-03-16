@@ -125,4 +125,71 @@ test ('routeFromFilePath', () => {
   }
 })
 
+test ('nodeKitAppPath', () => {
+  // Note: this doesn’t test the app path when run from the nodekit bundle or 
+  // the nodekit launch script from source. It only tests it when run from this
+  // file in the unit tests.
+  assert.equal(utils.nodekitAppPath, path.resolve('.') + '/')
+})
+
+test ('loaderPaths', async () => {
+  const { nodekitAppPath, svelteExports } = await utils.loaderPaths()
+
+  assert.ok(nodekitAppPath)
+  
+  const expectedSvelteExports = JSON.stringify({
+    './package.json': './package.json',
+    '.': {
+      types: './types/runtime/index.d.ts',
+      browser: { import: './index.mjs', require: './index.js' },
+      node: { import: './ssr.mjs', require: './ssr.js' },
+      import: './index.mjs',
+      require: './index.js'
+    },
+    './compiler': {
+      types: './types/compiler/index.d.ts',
+      import: './compiler.mjs',
+      require: './compiler.js'
+    },
+    './animate': {
+      types: './types/runtime/animate/index.d.ts',
+      import: './animate/index.mjs',
+      require: './animate/index.js'
+    },
+    './easing': {
+      types: './types/runtime/easing/index.d.ts',
+      import: './easing/index.mjs',
+      require: './easing/index.js'
+    },
+    './internal': {
+      types: './types/runtime/internal/index.d.ts',
+      import: './internal/index.mjs',
+      require: './internal/index.js'
+    },
+    './motion': {
+      types: './types/runtime/motion/index.d.ts',
+      import: './motion/index.mjs',
+      require: './motion/index.js'
+    },
+    './register': { require: './register.js' },
+    './store': {
+      types: './types/runtime/store/index.d.ts',
+      import: './store/index.mjs',
+      require: './store/index.js'
+    },
+    './transition': {
+      types: './types/runtime/transition/index.d.ts',
+      import: './transition/index.mjs',
+      require: './transition/index.js'
+    },
+    './ssr': {
+      types: './types/runtime/index.d.ts',
+      import: './ssr.mjs',
+      require: './ssr.js'
+    }
+  })
+  
+  assert.equal(JSON.stringify(svelteExports), expectedSvelteExports)
+})
+
 test.run()
