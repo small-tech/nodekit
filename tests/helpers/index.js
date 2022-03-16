@@ -33,3 +33,10 @@ class StandardOutput {
 }
 
 export const standardOutput = new StandardOutput()
+
+// Remove all whitespace from a string (used in string comparisons
+// where whitespace is not important).
+
+export function withoutWhitespace (string) {
+  return string.replace(/\s/g, '')
+}

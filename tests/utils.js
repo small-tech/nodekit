@@ -1,10 +1,13 @@
 import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
+import { withoutWhitespace } from './helpers'
 
 import path from 'path'
 import * as utils from '../lib/Utils'
 
 import http from 'http'
+
+const nodeScriptRegExp = /\<data\>(.*?)\<\/data\>/s
 
 const test = suite('Utils')
 
@@ -49,6 +52,44 @@ test ('class name from route', () => {
     utils.classNameFromRoute('/some_route/with/underscores-and-hyphens:and-a-parameter/or:two'), 'SomeRouteWithUnderscoresAndHyphensAndAParameterOrTwoPage'
   )
   assert.equal(utils.classNameFromRoute('/'), 'IndexPage')
+})
+
+test ('extract', () => {
+  const nodeScript = `
+    export default function (request, response) {
+      return { title: 'Hello, world!' }
+    }
+  `
+
+  const nodeScriptIncludingDataTags = `
+    <data>
+      ${nodeScript}
+    </data>
+  `
+
+  const topOfPage = `
+    <!-- Test -->
+  `
+
+  const restOfPage = `
+    </data>
+
+    <script>
+      export let data
+    </script>
+
+    <h1>{data.title}</h1>
+  `
+  const source = `
+    ${topOfPage}
+    ${nodeScriptIncludingDataTags}    
+    ${restOfPage}
+  `
+
+  const { normalisedSource, extracted } = utils.extract(source, nodeScriptRegExp)
+
+  assert.equal(withoutWhitespace(normalisedSource), withoutWhitespace(topOfPage + restOfPage))
+  assert.equal(withoutWhitespace(extracted), withoutWhitespace(nodeScript))
 })
 
 test.run()
