@@ -44,4 +44,11 @@ test ('privileged ports', async () => {
   port80Server.close()
 })
 
+test ('class name from route', () => {
+  assert.equal(
+    utils.classNameFromRoute('/some_route/with/underscores-and-hyphens:and-a-parameter/or:two'), 'SomeRouteWithUnderscoresAndHyphensAndAParameterOrTwoPage'
+  )
+  assert.equal(utils.classNameFromRoute('/'), 'IndexPage')
+})
+
 test.run()
