@@ -4,7 +4,7 @@ import CLI from '../lib/cli/index.js'
 import serveCommand from '../lib/cli/commands/serve.js'
 import enableCommand from '../lib/cli/commands/enable.js'
 
-import { standardOutput } from './utils'
+import { standardOutput } from './helpers'
 
 import packageInfo from '../package.json'
 
