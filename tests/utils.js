@@ -1,5 +1,8 @@
-import { suite } from 'uvu'
-import * as assert from 'uvu/assert'
+import tape from 'tape'
+import tapeWithPromises from 'tape-promise'
+
+const test = tapeWithPromises.default(tape)
+
 import { withoutWhitespace } from './helpers'
 
 import path from 'path'
@@ -40,9 +43,7 @@ ${nodeScriptIncludingDataTags}
 ${restOfPage}
 `
 
-const test = suite('Utils')
-
-test('basepath', () => {
+test('basepath', t => {
   const initialPath = path.resolve('tests/fixtures/emptyProject')
   const initialPathWithSrcFolder = path.resolve('tests/fixtures/emptyProjectWithSrcFolder')
   const nonExistentPath = 'this-path-does-not-exist'
@@ -50,12 +51,14 @@ test('basepath', () => {
   const basePath = utils.calculateBasePath(initialPath)
   const basePathWithSourceFolder = utils.calculateBasePath(initialPathWithSrcFolder)
 
-  assert.equal(basePath, initialPath)
-  assert.equal(basePathWithSourceFolder, path.join(initialPathWithSrcFolder, 'src'))
-  assert.throws(() => utils.calculateBasePath(nonExistentPath), error => { return error.message === `Basepath ${nonExistentPath} does not exist`}, 'Non existent paths throw.')
+  t.equal(basePath, initialPath)
+  t.equal(basePathWithSourceFolder, path.join(initialPathWithSrcFolder, 'src'))
+  t.throws(() => utils.calculateBasePath(nonExistentPath), error => { return error.message === `Basepath ${nonExistentPath} does not exist`}, 'Non existent paths throw.')
+
+  t.end()
 })
 
-test ('privileged ports', async () => {
+test ('privileged ports', async t => {
   utils.ensurePrivilegedPortsAreDisabled()
 
   // We only need to test the port 80 server since, if that can be created
@@ -63,43 +66,49 @@ test ('privileged ports', async () => {
   // the lowest privileged port is set to < 80).
   const port80Server = http.createServer(() => {})
 
-  try {
+  await t.doesNotReject(async () => {
     await new Promise ((resolve, reject) => { 
-      setTimeout(() => reject('timeout'), 500)
+      const timeoutInterval = setTimeout(() => reject('timeout'), 500)
       port80Server.on('error', error => {
         reject(error)
       })  
-      port80Server.listen(80, () => { resolve() }) 
+      port80Server.listen(80, () => {
+        clearInterval(timeoutInterval) 
+        resolve() 
+      }) 
     })
-  } catch (error) {
-    assert.unreachable(`Port 80 server should not throw (${error.message})`)
-  }
+  })
 
   port80Server.close()
+
+  t.end()
 })
 
-test ('class name from route', () => {
-  assert.equal(
+test ('class name from route', t => {
+  t.equal(
     utils.classNameFromRoute('/some_route/with/underscores-and-hyphens:and-a-parameter/or:two'), 'SomeRouteWithUnderscoresAndHyphensAndAParameterOrTwoPage'
   )
-  assert.equal(utils.classNameFromRoute('/'), 'IndexPage')
+  t.equal(utils.classNameFromRoute('/'), 'IndexPage')
+  t.end()
 })
 
-test ('extract', () => {
+test ('extract', t => {
   const { normalisedSource, extracted } = utils.extract(source, nodeScriptRegExp)
 
-  assert.equal(withoutWhitespace(normalisedSource), withoutWhitespace(topOfPage + restOfPage))
-  assert.equal(withoutWhitespace(extracted), withoutWhitespace(nodeScript))
+  t.equal(withoutWhitespace(normalisedSource), withoutWhitespace(topOfPage + restOfPage))
+  t.equal(withoutWhitespace(extracted), withoutWhitespace(nodeScript))
+  t.end()
 })
 
-test ('parseSource', () => {
+test ('parseSource', t => {
   const { normalisedSource, nodeScript: extracted } = utils.parseSource(source, nodeScriptRegExp)
 
-  assert.equal(withoutWhitespace(normalisedSource), withoutWhitespace(topOfPage + restOfPage))
-  assert.equal(withoutWhitespace(extracted), withoutWhitespace(nodeScript))
+  t.equal(withoutWhitespace(normalisedSource), withoutWhitespace(topOfPage + restOfPage))
+  t.equal(withoutWhitespace(extracted), withoutWhitespace(nodeScript))
+  t.end()
 })
 
-test ('routeFromFilePath', () => {
+test ('routeFromFilePath', t => {
   const basePath = utils.calculateBasePath()
 
   const supportedExtensions = ['get', 'head', 'patch', 'options', 'connect', 'delete', 'trace', 'post', 'put', 'page', 'socket']
@@ -121,21 +130,24 @@ test ('routeFromFilePath', () => {
   }
 
   for (const expectation of expectations) {
-    assert.equal(utils.routeFromFilePath(expectation[0]), expectation[1], expectation[0])
+    t.equal(utils.routeFromFilePath(expectation[0]), expectation[1], expectation[0])
   }
+
+  t.end()
 })
 
-test ('nodeKitAppPath', () => {
+test ('nodeKitAppPath', t => {
   // Note: this doesn’t test the app path when run from the nodekit bundle or 
   // the nodekit launch script from source. It only tests it when run from this
   // file in the unit tests.
-  assert.equal(utils.nodekitAppPath, path.resolve('.') + '/')
+  t.equal(utils.nodekitAppPath, path.resolve('.') + '/')
+  t.end()
 })
 
-test ('loaderPaths', async () => {
+test ('loaderPaths', async t => {
   const { nodekitAppPath, svelteExports } = await utils.loaderPaths()
 
-  assert.ok(nodekitAppPath)
+  t.ok(nodekitAppPath)
   
   const expectedSvelteExports = JSON.stringify({
     './package.json': './package.json',
@@ -189,7 +201,6 @@ test ('loaderPaths', async () => {
     }
   })
   
-  assert.equal(JSON.stringify(svelteExports), expectedSvelteExports)
+  t.equal(JSON.stringify(svelteExports), expectedSvelteExports)
+  t.end()
 })
-
-test.run()
