@@ -40,6 +40,11 @@ ${nodeScriptIncludingDataTags}
 ${restOfPage}
 `
 
+test.onFinish(() => {
+  // We must exit manually as we are using a custom ES Module Loader.
+  process.exit()
+})
+
 test('basepath', t => {
   const initialPath = path.resolve('tests/fixtures/emptyProject')
   const initialPathWithSrcFolder = path.resolve('tests/fixtures/emptyProjectWithSrcFolder')
