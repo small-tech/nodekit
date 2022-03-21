@@ -1,7 +1,4 @@
-import tape from 'tape'
-import tapeWithPromises from 'tape-promise'
-
-const test = tapeWithPromises.default(tape)
+import test from '@small-tech/tape-with-promises'
 
 import { withoutWhitespace } from './helpers'
 
