@@ -630,6 +630,22 @@ bin/nodekit-inspect [path to serve]
 > &nbsp;
 > &nbsp;
 
+## Testing
+
+Tests are written in [tape-with-promises](https://github.com/small-tech/tape-with-promises). Coverage is provided by [c8](https://github.com/bcoe/c8).
+
+Run tests:
+
+```shell
+npm -s test
+```
+
+Run coverage:
+
+```shell
+npm run -s coverage
+```
+
 # How things will be
 
 > ## __⚠️ This section is aspirational. Please treat it as a _design document_.__ More than likely _nothing in this section will work as stated._ Please _DO NOT_ file any bugs about anything in this section.
