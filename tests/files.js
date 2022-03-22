@@ -60,7 +60,8 @@ test('initialisation', async t => {
   files.close()
 })
 
-// test('chokidar error handling', async context => {
-//   const files = new Files('/')
-//   await assert.rejects(async () => files.initialise(), /EACCES/, 'attempting to watch root should throw EACCES')
-// })
+test('chokidar error handling', async t => {
+  const files = new Files('/')
+  await t.rejects(async () => await files.initialise(), /EACCES/, 'attempting to watch root should throw EACCES')
+  files.close()
+})
