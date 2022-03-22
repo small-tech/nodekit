@@ -8,41 +8,41 @@ const fixturesPath = path.join(__dirname, 'fixtures')
 import Files from '../lib/Files.js'
 
 test('initialisation', async t => {
-  const domainProjectPath = path.join(fixturesPath, 'domain')
+  const domainProjectPath = path.join(fixturesPath, 'files')
   const files = new Files(domainProjectPath)
 
   const filesByExtension = await files.initialise()
 
   const expectedFilesByExtension = {
     page: [
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/index.page',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/manage_[domain].page',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/index.page'
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/index.page',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/manage_[domain].page',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/index.page'
     ],
     socket: [
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/index.socket',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/manage_[token]_[domain].socket',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/index_[password].socket'
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/index.socket',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/manage_[token]_[domain].socket',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/index_[password].socket'
     ],
     get: [
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/private_[token]_[domain].get',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/domain/available_[domain].get',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/domain/ready_[domain].get'
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/private_[token]_[domain].get',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/domain/available_[domain].get',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/domain/ready_[domain].get'
     ],
     component: [
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/places/Index.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/Apps.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/DNS.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/Index.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/Organisation.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/PSL.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/StatusMessage.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/VPS.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/payment/Index.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/payment/None.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/payment/Tokens.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/payment/Stripe/Index.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/payment/Stripe/Mode.component'
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/places/Index.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/Apps.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/DNS.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/Index.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/Organisation.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/PSL.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/StatusMessage.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/VPS.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/payment/Index.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/payment/None.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/payment/Tokens.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/payment/Stripe/Index.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/payment/Stripe/Mode.component'
     ]
   }
 
