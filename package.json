@@ -34,7 +34,7 @@
   },
   "contributors": [],
   "scripts": {
-    "test": "esm-tape-runner 'tests/(bin|utils|cli).js' NODE_OPTIONS='--require=./suppress-experimental.cjs' --enable-source-maps --experimental-modules --experimental-specifier-resolution=node --experimental-vm-modules --experimental-loader ./lib/processes/loader.js | tap-monkey",
+    "test": "esm-tape-runner 'tests/(bin|utils|cli|files).js' NODE_OPTIONS='--require=./suppress-experimental.cjs' --enable-source-maps --experimental-modules --experimental-specifier-resolution=node --experimental-vm-modules --experimental-loader ./lib/processes/loader.js | tap-monkey",
     "coverage": "c8 npm test"
   },
   "dependencies": {

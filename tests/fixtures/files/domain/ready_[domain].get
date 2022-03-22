@@ -1,0 +1,14 @@
+import fetch from 'node-fetch'
+
+export default async (request, response) => {
+
+  const domain = request.params.domain
+
+  try {
+    await fetch(`https://${domain}.small-web.org`)
+  } catch (error) {
+    response.json(false)
+  }
+
+  response.json(true)
+}

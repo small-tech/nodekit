@@ -1,0 +1,49 @@
+import stripeWithSecretKey from 'stripe'
+import Remote from '@small-tech/remote'
+
+const STRIPE = 2
+
+export default function (socket, request) {
+  console.log(`   👩‍💻️    ❨Domain❩ New connection to index.`)
+
+  const remote = new Remote(socket)
+
+  remote.create.checkout.session.request.handler = async message => {
+    console.log('>>> Create checkout session called with', message)
+
+    const baseUrl = message.baseUrl === 'localhost:3000' ? `http://${message.baseUrl}` : `https://${message.baseUrl}`
+
+    console.log('baseUrl', baseUrl)
+
+    if (db.settings.payment.provider !== STRIPE) {
+      return remote.create.checkout.session.request.respond(message, {error: 'Payment provider is not Stripe.'})
+    }
+
+    const stripeSettings = db.settings.payment.providers[STRIPE]
+    const mode = stripeSettings.mode
+    const modeDetails = stripeSettings.modeDetails[mode === 'live' ? 1 : 0]
+    const priceId = modeDetails.priceId
+
+    const stripe = stripeWithSecretKey(modeDetails.secretKey, {
+      apiVersion: '2020-08-27'
+    })
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1
+        }
+      ],
+      // TODO: Instead of using the domain, pass the domain from the client here
+      // ===== so that it also works when testing from localhost, etc.
+      // TODO: Implement these endpoints.
+      success_url: `${baseUrl}/?from=stripe&action=subscribe&domain=${message.domain}&app=${message.app}?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/?from=stripe&action=back&domain=${message.domain}&app=${message.app}&session_id={CHECKOUT_SESSION_ID}`
+    })
+
+    remote.create.checkout.session.request.respond(message, { url: session.url })
+  }
+}

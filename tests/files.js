@@ -1,5 +1,4 @@
-import { suite } from 'uvu'
-import * as assert from 'uvu/assert'
+import { test } from './helpers'
 
 import path from 'path'
 import { fileURLToPath, URL } from 'url'
@@ -8,27 +7,11 @@ const fixturesPath = path.join(__dirname, 'fixtures')
 
 import Files from '../lib/Files.js'
 
-const test = suite('Files')
-
-// After each test, close the Files instance if it exists
-// so our test process can exit properly regardless of
-// whether there is an error. (Because uvu works with thrown
-// errors, if a long-running process is created in a test
-// method, it is not cleaned up if a test fails as the clean-up
-// code is unreachable.)
-test.after.each(async context => {
-  if (context.files) {
-    await context.files.close()
-  }
-})
-
-test('initialisation', async context => {
+test('initialisation', async t => {
   const domainProjectPath = path.join(fixturesPath, 'domain')
-  context.files = new Files(domainProjectPath)
+  const files = new Files(domainProjectPath)
 
-  const filesByExtension = await context.files.initialise()
-
-  console.log(filesByExtension)
+  const filesByExtension = await files.initialise()
 
   const expectedFilesByExtension = {
     page: [
@@ -45,6 +28,21 @@ test('initialisation', async context => {
       '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/private_[token]_[domain].get',
       '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/domain/available_[domain].get',
       '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/domain/ready_[domain].get'
+    ],
+    component: [
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/places/Index.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/Apps.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/DNS.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/Index.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/Organisation.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/PSL.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/StatusMessage.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/VPS.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/payment/Index.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/payment/None.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/payment/Tokens.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/payment/Stripe/Index.component',
+      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/domain/admin/setup/payment/Stripe/Mode.component'
     ]
   }
 
@@ -57,12 +55,12 @@ test('initialisation', async context => {
     filesByExtension[extension].sort()
   })
 
-  assert.equal(filesByExtension, expectedFilesByExtension, 'files grouped by extension as expected')
+  t.equals(JSON.stringify(filesByExtension), JSON.stringify(expectedFilesByExtension), 'files grouped by extension as expected')
+
+  files.close()
 })
 
 // test('chokidar error handling', async context => {
-//   context.files = new Files('/')
-//   await assert.rejects(async () => context.files.initialise(), /EACCES/, 'attempting to watch root should throw EACCES')
+//   const files = new Files('/')
+//   await assert.rejects(async () => files.initialise(), /EACCES/, 'attempting to watch root should throw EACCES')
 // })
-
-test.run()
