@@ -1,6 +1,4 @@
-import test from '@small-tech/tape-with-promises'
-
-import { withoutWhitespace } from './helpers'
+import { test, withoutWhitespace } from './helpers'
 
 import path from 'path'
 import * as utils from '../lib/Utils'
@@ -39,11 +37,6 @@ ${topOfPage}
 ${nodeScriptIncludingDataTags}    
 ${restOfPage}
 `
-
-test.onFinish(() => {
-  // We must exit manually as we are using a custom ES Module Loader.
-  process.exit()
-})
 
 test('basepath', t => {
   const initialPath = path.resolve('tests/fixtures/emptyProject')

@@ -1,3 +1,11 @@
+// Add an onFinish handler to tape that exits the process since we’re using
+// a custom ES Module Loader with a broadcast channel in the app that will
+// otherwise keep the process alive even after the tests are complete.
+
+import _test from '@small-tech/tape-with-promises'
+_test.onFinish(() => process.exit())
+export const test = _test
+
 // Monkey patch sdtout.write() to capture output for tests.
 // Thanks to https://gajus.medium.com/capturing-stdout-stderr-in-node-js-using-domain-module-3c86f5b1536d
 
