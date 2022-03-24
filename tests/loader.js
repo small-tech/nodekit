@@ -9,6 +9,7 @@ import { context, resolve } from '../lib/processes/loader'
 const conditions = [ 'node', 'import', 'node-addons' ]
 
 // Paths/URLs used in the tests.
+// Gathered from a run of Domain (https://github.com/small-tech/domain).
 const nodeKitBaseUrl = 'file:///home/aral/.small-tech.org/nodekit/app'
 const appBaseUrl = 'file:///home/aral/Projects/small-web/domain'
 const nodeKitBundleUrl = `${nodeKitBaseUrl}/nodekit-bundle.js`
