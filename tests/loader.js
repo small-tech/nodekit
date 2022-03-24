@@ -21,7 +21,7 @@ const paymentBaseFileUrl = 'file:///home/aral/Projects/small-web/domain/admin/se
 
 const defaultResolve = 'expect-default-resolve'
 
-const resolutionsFromNodeKitInstallationDirectory = [
+const resolutions = [
   // The NodeKit bundle itself.
   {
     specifier: nodeKitBundleUrl,
@@ -114,19 +114,19 @@ const resolutionsFromNodeKitInstallationDirectory = [
   }
 ]
 
+// Set the context so that the resolve function thinks it’s being run from the requested NodeKit app path.
+const nodekitAppPath = nodeKitBaseUrl.replace('file://', '')
+const svelteModulePath = path.join(nodekitAppPath, 'node_modules', 'svelte')
+const svelteExports = (await import(`${nodekitAppPath}/node_modules/svelte/package.json`)).default.exports
+
+context.svelteModulePath = svelteModulePath
+context.svelteExports = svelteExports
+
+
 test('resolve', async t => {
-  // Set the context so that the resolve function thinks it’s being
-  // run from an installed NodeKit instance.
-  const nodekitAppPath = `${os.homedir()}/.small-tech.org/nodekit/app`
-  const svelteModulePath = path.join(nodekitAppPath, 'node_modules', 'svelte')
-  const svelteExports = (await import(`${nodekitAppPath}/node_modules/svelte/package.json`)).default.exports
+  t.plan(resolutions.length)
 
-  context.svelteModulePath = svelteModulePath
-  context.svelteExports = svelteExports
-
-  t.plan(resolutionsFromNodeKitInstallationDirectory.length)
-
-  for (const resolution of resolutionsFromNodeKitInstallationDirectory) {
+  for (const resolution of resolutions) {
     let defaultResolveFunction
     if (resolution.resolvesTo === defaultResolve) {
       defaultResolveFunction = () => {
