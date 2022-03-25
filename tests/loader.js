@@ -1,9 +1,8 @@
-import os from 'os'
 import path from 'path'
 
 import { test } from './helpers'
 
-import { context, resolve } from '../lib/processes/loader'
+import { context, resolve, load } from '../lib/processes/loader'
 
 // The context conditions passed during resolution.
 const conditions = [ 'node', 'import', 'node-addons' ]
@@ -147,7 +146,112 @@ test('resolve', async t => {
     )
 
     if (resolution.resolvesTo !== defaultResolve) {
-      t.ok(resolved.url.startsWith(resolution.resolvesTo), `Custom resolutoin as expected for specifier ${resolution.specifier}`)
+      t.ok(resolved.url.startsWith(resolution.resolvesTo), `Custom resolution as expected for specifier ${resolution.specifier}`)
     }
+  }
+})
+
+test('load', async t => {
+  const defaultLoad = 'default load'
+  const javaScriptLoad = 'javascript load'
+  const svelteLoad = 'svelte load'
+  
+  // Expectations.
+  const expectations = [
+    // Add some manual expectations of URLs from actual projects.
+    {
+      url: 'file:///home/aral/Projects/small-web/nodekit/app/bin/nodekit.js',
+      expectLoadType: defaultLoad
+    },
+    {
+      url: 'file:///home/aral/Projects/small-web/domain/admin/setup/Index.component?16481489621020.8945935403486827',
+      expectLoadType: svelteLoad
+    },
+    {
+      url: 'file:///home/aral/Projects/small-web/domain/library/TabbedInterface/TabbedInterface.svelte?16481489621070.7993410753465431',
+      expectLoadType: svelteLoad
+    },
+    {
+      url: 'file:///home/aral/Projects/small-web/nodekit/app-main/examples/simple-chat/chat.socket?16481493446160.5662604717606914',
+      expectLoadType: javaScriptLoad
+    }
+  ]
+
+  // And then, for completeness, ensure that we’re checking all the extensions.
+  const _svelteAliases = [
+    '.page',
+    '.data',
+    '.component',
+    '.svelte'
+  ]
+  
+  const _javaScriptAliases = [
+    '.get',
+    '.head',
+    '.patch',
+    '.options',
+    '.connect',
+    '.delete',
+    '.trace',
+    '.post',
+    '.put',
+    '.socket'
+  ]
+
+  const fictitiousProjectBaseUrl = 'file:///home/aral/Projects/fictitious-project/src'
+
+  for (const svelteAlias of _svelteAliases) {
+    expectations.push({
+      url: `${fictitiousProjectBaseUrl}/fictitious${svelteAlias}`,
+      expectLoadType: svelteLoad
+    })
+  }
+
+  for (const javaScriptAlias of _javaScriptAliases) {
+    expectations.push({
+      url: `${fictitiousProjectBaseUrl}/fictituous${javaScriptAlias}`,
+      expectLoadType: javaScriptLoad
+    })
+  }
+
+  const numberOfExpectations = expectations.length
+
+  t.plan(numberOfExpectations)
+
+  let defaultLoadFunction
+
+  for await (const expectation of expectations) {
+    // Mock the various functions in the ES Module Loader’s load function context
+    // depending on which we expect to get called for the current load url. 
+    switch (expectation.expectLoadType) {
+      case defaultLoad:
+        console.log('Setting default load expectations')
+        defaultLoadFunction = async () => t.pass(`Default load triggered as expected for ${expectation.url}`)
+        context.compileSource = async () => t.fail(`Svelte alias load triggered when default load was expected for ${expectation.url}`)
+        context.fsPromises = {
+          readFile: async () => t.fail(`JavaScript alias laod triggered when default load was expected for ${expectation.url}`)
+        }
+      break
+
+      case svelteLoad:
+        console.log('Setting svelte load expectations')
+        defaultLoadFunction = async () => t.fail(`Default load called when Svelte alias load was expected for ${expectation.url}`)
+        context.compileSource = async () => t.pass(`Svelte alias load triggered as expected for ${expectation.url}`)
+        context.fsPromises = {
+          readFile: async () => t.fail(`JavaScript alias load triggered when Svetle alias load was expected for ${expectation.url}`)
+        }
+      break
+
+      case javaScriptLoad:
+        console.log('Setting javascript load expectations')
+        defaultLoadFunction = async () => t.fail(`Default load called when JavaScript alias load was expected for ${expectation.url}`)
+        context.compileSource = async () => t.fail(`Svelte alias load was triggered when JavaScript alias load was expected for ${expectation.url}`)
+        context.fsPromises = {
+          readFile: async () => t.pass(`JavaScript alias load was triggered as expected for ${expectation.url}`)
+        }
+      break
+    }
+
+    await load(expectation.url, { format: undefined }, defaultLoadFunction)
   }
 })
