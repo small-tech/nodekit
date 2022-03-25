@@ -225,7 +225,6 @@ test('load', async t => {
     // depending on which we expect to get called for the current load url. 
     switch (expectation.expectLoadType) {
       case defaultLoad:
-        console.log('Setting default load expectations')
         defaultLoadFunction = async () => t.pass(`Default load triggered as expected for ${expectation.url}`)
         context.compileSource = async () => t.fail(`Svelte alias load triggered when default load was expected for ${expectation.url}`)
         context.fsPromises = {
@@ -234,7 +233,6 @@ test('load', async t => {
       break
 
       case svelteLoad:
-        console.log('Setting svelte load expectations')
         defaultLoadFunction = async () => t.fail(`Default load called when Svelte alias load was expected for ${expectation.url}`)
         context.compileSource = async () => t.pass(`Svelte alias load triggered as expected for ${expectation.url}`)
         context.fsPromises = {
@@ -243,7 +241,6 @@ test('load', async t => {
       break
 
       case javaScriptLoad:
-        console.log('Setting javascript load expectations')
         defaultLoadFunction = async () => t.fail(`Default load called when JavaScript alias load was expected for ${expectation.url}`)
         context.compileSource = async () => t.fail(`Svelte alias load was triggered when JavaScript alias load was expected for ${expectation.url}`)
         context.fsPromises = {
