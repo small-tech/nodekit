@@ -13,8 +13,8 @@ test('nodekit binary', t => {
   t.end()
 })
 
-test('nodekit binary (inspect mode)', t => {
-  const output = execFileSync(path.resolve('bin/nodekit-inspect'), ['--version'], {timeout: 1000})
-  t.equals(output.toString().trim(), `NodeKit version ${packageInfo.version}`)
-  t.end()
-})
+// test('nodekit binary (inspect mode)', t => {
+//   const output = execFileSync(path.resolve('bin/nodekit-inspect'), ['--version'], {timeout: 1000})
+//   t.equals(output.toString().trim(), `NodeKit version ${packageInfo.version}`)
+//   t.end()
+// })
