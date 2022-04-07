@@ -8,37 +8,18 @@
 
 NodeKit is a web server with an integrated application framework that makes web development _even easier_ than it was in the early days.
 
-Enjoy buildl-free web development with a modern stack built on top of [Node.js](https://nodejs.org/en/), [experimental ESM loaders](https://nodejs.org/docs/latest-v16.x/api/esm.html#loaders), [NodeScript](#nodescript) (a superset of [Svelte](https://svelte.dev)), and [esbuild](https://esbuild.github.io/).
+Enjoy build-free web development with a modern stack built on top of [Node.js](https://nodejs.org/en/), [experimental ESM loaders](https://nodejs.org/docs/latest-v16.x/api/esm.html#loaders), [NodeScript](#nodescript) (a superset of [Svelte](https://svelte.dev)), and [esbuild](https://esbuild.github.io/).
 
 _Because creating a modern web site should be simple if your aim isn’t to do something nasty to people._
-
-## Contents
-
- This readme is split into two parts:
-
-   - [How things are](#how-things-are)
-   - [How things will be](#how-things-will-be)
-
- The first describes the current state of the project and what you can do with it now. The second, which you can think of as a design document, describes where I want to take it.
-
-> &nbsp;
-> &nbsp;
-> ## 🤓👍 You are now entering the present…
-> &nbsp;
-> &nbsp;
-
-# How things are
-
-> __Status:__ not feature complete and rapidly evolving.
-
-## This section describes the current state of the project and the codebase.
-
-__Instructions and examples in this section should work.__ If you’re having a play and notice something doesn’t work as described here, please open an issue if you can.
 
 ## System requirements
 
   - Node 16.x+ LTS.
   - Linux
+
+### For deployment:
+
+  - systemd
 
 ## Install
 
@@ -102,8 +83,6 @@ e.g., to launch the Simple Chat example, run:
 ```shell
 nodekit examples/simple-chat
 ```
-
-> Early bird warning: NodeKit doesn’t currently watch for changes to the source and automatically reload your routes when you update them. For the time being, you will have to manually restart the server any time you make a change. (Yes, this is going to change quite radically in the coming days and weeks.) 😉
 
 ## Tutorials
 
@@ -623,12 +602,6 @@ bin/nodekit-inspect [path to serve]
 ```
 
 > 💡 If you use VSCodium, you can add breakpoints in your code and attach to the process using the Attach command in the Run and Debug panel.
-
-> &nbsp;
-> &nbsp;
-> ## 🤓✋ You are now leaving the present and entering the future…
-> &nbsp;
-> &nbsp;
 
 ## Testing
 
