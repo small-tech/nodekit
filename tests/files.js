@@ -10,6 +10,7 @@ import Files from '../lib/Files.js'
 function sortResults(filesByExtension, expectedFilesByExtension) {
   // Chokidar’s file system scan does not always return the files in the same order.
   // So we perform a sort on the actual and expected files before comparing them.
+  console.log(filesByExtension)
   Object.keys(filesByExtension).forEach(extension => {
     filesByExtension[extension].sort()
   })
