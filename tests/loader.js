@@ -3,9 +3,11 @@ import { test } from './helpers'
 import { context, resolve, load } from '../lib/processes/loader'
 import fsPromises from 'fs/promises'
 import fs from 'fs'
+import os from 'os'
 
 const originalCompileSource = context.compileSource
 const originalDirName = context.__dirname
+const homeDirectory = os.homedir()
 
 test('Svelte source compiler (compileSource)', async t => {
   // Ensure the aspects of the context we’re testing are in place.
@@ -29,14 +31,14 @@ test('resolve', async t => {
 
   // Paths/URLs used in the tests.
   // Gathered from a run of Domain (https://github.com/small-tech/domain).
-  const nodeKitBaseUrl = 'file:///home/aral/.small-tech.org/nodekit/app'
-  const appBaseUrl = 'file:///home/aral/Projects/small-web/domain'
+  const nodeKitBaseUrl = `file://${homeDirectory}/.small-tech.org/nodekit/app`
+  const appBaseUrl = `file://${homeDirectory}/Projects/small-web/domain`
   const nodeKitBundleUrl = `${nodeKitBaseUrl}/nodekit-bundle.js`
-  const adminIndexPagePath = '/home/aral/Projects/small-web/domain/admin/index.page'
+  const adminIndexPagePath = `${homeDirectory}/Projects/small-web/domain/admin/index.page`
   const adminIndexPageFileUrlWithCacheBusterQueryString = `file://${adminIndexPagePath}?16480312632870.029349449465893684`
   const placesComponentFileUrl = `${appBaseUrl}/admin/places/Index.component?16480312651970.2189263663664751`
   const domainCheckerComponentFileUrl = `${appBaseUrl}/library/DomainChecker.svelte`
-  const paymentBaseFileUrl = 'file:///home/aral/Projects/small-web/domain/admin/setup/payment'
+  const paymentBaseFileUrl = `file://${homeDirectory}/Projects/small-web/domain/admin/setup/payment`
 
   const defaultResolve = 'expect-default-resolve'
 
@@ -178,19 +180,19 @@ test('load', async t => {
   const expectations = [
     // Add some manual expectations of URLs from actual projects.
     {
-      url: 'file:///home/aral/Projects/small-web/nodekit/app/bin/nodekit.js',
+      url: `file://${homeDirectory}/Projects/small-web/nodekit/app/bin/nodekit.js`,
       expectLoadType: defaultLoad
     },
     {
-      url: 'file:///home/aral/Projects/small-web/domain/admin/setup/Index.component?16481489621020.8945935403486827',
+      url: `file://${homeDirectory}/Projects/small-web/domain/admin/setup/Index.component?16481489621020.8945935403486827`,
       expectLoadType: svelteLoad
     },
     {
-      url: 'file:///home/aral/Projects/small-web/domain/library/TabbedInterface/TabbedInterface.svelte?16481489621070.7993410753465431',
+      url: `file://${homeDirectory}/Projects/small-web/domain/library/TabbedInterface/TabbedInterface.svelte?16481489621070.7993410753465431`,
       expectLoadType: svelteLoad
     },
     {
-      url: 'file:///home/aral/Projects/small-web/nodekit/app-main/examples/simple-chat/chat.socket?16481493446160.5662604717606914',
+      url: `file://${homeDirectory}/Projects/small-web/nodekit/app-main/examples/simple-chat/chat.socket?16481493446160.5662604717606914`,
       expectLoadType: javaScriptLoad
     }
   ]
@@ -216,7 +218,7 @@ test('load', async t => {
     '.socket'
   ]
 
-  const fictitiousProjectBaseUrl = 'file:///home/aral/Projects/fictitious-project/src'
+  const fictitiousProjectBaseUrl = `file://${homeDirectory}/Projects/fictitious-project/src`
 
   for (const svelteAlias of _svelteAliases) {
     expectations.push({

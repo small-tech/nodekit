@@ -2,8 +2,12 @@ import { test } from './helpers'
 
 import path from 'path'
 import { fileURLToPath, URL } from 'url'
+import process from 'process'
+
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const fixturesPath = path.join(__dirname, 'fixtures')
+
+const testFixturesDirectory = path.join(process.cwd(), 'tests', 'fixtures')
 
 import Files from '../lib/Files.js'
 
@@ -30,19 +34,19 @@ test('production', async t => {
   // During production, we only care about the files that we serve.
   const unsortedExpectedFilesByExtension = {
     page: [
-      "/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/index.page",
-      "/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/index.page",
-      "/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/manage_[domain].page"
+      `${testFixturesDirectory}/files/admin/index.page`,
+      `${testFixturesDirectory}/files/index.page`,
+      `${testFixturesDirectory}/files/manage_[domain].page`
     ],
     socket: [
-      "/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/index_[password].socket",
-      "/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/index.socket",
-      "/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/manage_[token]_[domain].socket"
+      `${testFixturesDirectory}/files/admin/index_[password].socket`,
+      `${testFixturesDirectory}/files/index.socket`,
+      `${testFixturesDirectory}/files/manage_[token]_[domain].socket`
     ],
     get: [
-      "/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/domain/available_[domain].get",
-      "/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/domain/ready_[domain].get",
-      "/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/private_[token]_[domain].get"
+      `${testFixturesDirectory}/files/domain/available_[domain].get`,
+      `${testFixturesDirectory}/files/domain/ready_[domain].get`,
+      `${testFixturesDirectory}/files/private_[token]_[domain].get`
     ]
   }
 
@@ -63,34 +67,34 @@ test('development', async t => {
   // implement live reload and CSS injection.
   let unsortedExpectedFilesByExtension = {
     page: [
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/index.page',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/manage_[domain].page',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/index.page'
+      `${testFixturesDirectory}/files/index.page`,
+      `${testFixturesDirectory}/files/manage_[domain].page`,
+      `${testFixturesDirectory}/files/admin/index.page`
     ],
     socket: [
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/index.socket',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/manage_[token]_[domain].socket',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/index_[password].socket'
+      `${testFixturesDirectory}/files/index.socket`,
+      `${testFixturesDirectory}/files/manage_[token]_[domain].socket`,
+      `${testFixturesDirectory}/files/admin/index_[password].socket`
     ],
     get: [
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/private_[token]_[domain].get',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/domain/available_[domain].get',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/domain/ready_[domain].get'
+      `${testFixturesDirectory}/files/private_[token]_[domain].get`,
+      `${testFixturesDirectory}/files/domain/available_[domain].get`,
+      `${testFixturesDirectory}/files/domain/ready_[domain].get`
     ],
     component: [
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/places/Index.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/Apps.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/DNS.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/Index.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/Organisation.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/PSL.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/StatusMessage.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/VPS.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/payment/Index.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/payment/None.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/payment/Tokens.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/payment/Stripe/Index.component',
-      '/home/aral/Projects/small-web/nodekit/app/tests/fixtures/files/admin/setup/payment/Stripe/Mode.component'
+      `${testFixturesDirectory}/files/admin/places/Index.component`,
+      `${testFixturesDirectory}/files/admin/setup/Apps.component`,
+      `${testFixturesDirectory}/files/admin/setup/DNS.component`,
+      `${testFixturesDirectory}/files/admin/setup/Index.component`,
+      `${testFixturesDirectory}/files/admin/setup/Organisation.component`,
+      `${testFixturesDirectory}/files/admin/setup/PSL.component`,
+      `${testFixturesDirectory}/files/admin/setup/StatusMessage.component`,
+      `${testFixturesDirectory}/files/admin/setup/VPS.component`,
+      `${testFixturesDirectory}/files/admin/setup/payment/Index.component`,
+      `${testFixturesDirectory}/files/admin/setup/payment/None.component`,
+      `${testFixturesDirectory}/files/admin/setup/payment/Tokens.component`,
+      `${testFixturesDirectory}/files/admin/setup/payment/Stripe/Index.component`,
+      `${testFixturesDirectory}/files/admin/setup/payment/Stripe/Mode.component`
     ]
   }
 
