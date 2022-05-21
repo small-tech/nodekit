@@ -1,5 +1,6 @@
 import { test, withoutWhitespace } from './helpers'
 
+import fs from 'fs'
 import path from 'path'
 import * as utils from '../lib/Utils'
 
@@ -41,6 +42,18 @@ ${restOfPage}
 test('basepath', t => {
   const initialPath = path.resolve('tests/fixtures/emptyProject')
   const initialPathWithSrcFolder = path.resolve('tests/fixtures/emptyProjectWithSrcFolder')
+  
+  // Since these are empty folders, they will not be held in the 
+  // git repository. So we ensure they exist and create them if they do not
+  // our test doesn’t fail erroneously.
+  if (!fs.existsSync(initialPath)) {
+    fs.mkdirSync(initialPath)
+  }
+  
+  if (!fs.existsSync(initialPathWithSrcFolder)) {
+    fs.mkdirSync(path.join(initialPathWithSrcFolder, 'src'), {recursive: true})
+  }
+  
   const nonExistentPath = 'this-path-does-not-exist'
 
   const basePath = utils.calculateBasePath(initialPath)
