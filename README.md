@@ -4,6 +4,8 @@
 >
 > You can have a play but proceed at your own risk. ___Here be dragons, etc.___
 
+Work is currently on the _major-refactor_ branch.
+
 ## A [Small Web](https://small-tech.org/research-and-development) server.
 
 NodeKit is a web server with an integrated application framework that makes web development _even easier_ than it was in the early days.
@@ -37,7 +39,7 @@ __Instructions and examples in this section should work.__ If you’re having a 
 
 ## System requirements
 
-  - Node 16.x+ LTS.
+  - Node 16.5+ (will not work on earlier dot releases of v16 due to import assertions being backported to Node 16.5, even though they’re a semver breaking change.)
   - Linux
 
 ## Install

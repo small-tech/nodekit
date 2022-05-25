@@ -4,7 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import NodeKit from '../index.js'
 
-import packageInfo from '../package.json'
+import packageInfo from '../package.json' assert { type: 'json' }
 
 const app = sade('nodekit')
 
