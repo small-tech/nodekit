@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@small-tech/esm-tape-runner": "^2.0.0",
-    "@small-tech/tap-monkey": "^1.3.0",
+    "@small-tech/tap-monkey": "^1.4.0",
     "@small-tech/tape-with-promises": "^1.0.1",
     "c8": "^7.11.0"
   }
