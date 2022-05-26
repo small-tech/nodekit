@@ -5,21 +5,36 @@
 // Requires Node to be started with:
 // NODE_OPTIONS='--require=./suppress-experimental.cjs'
 //
-// Courtesy of Corey Farrell
-// https://github.com/nodejs/node/issues/30810#issue-533506790
+// Original method by Corey Farrell worked up to Node 16.x.
+// (https://github.com/nodejs/node/issues/30810#issue-533506790)
+//
+// Current method based on the method used in Yarn.
+// (https://github.com/yarnpkg/berry/blob/2cf0a8fe3e4d4bd7d4d344245d24a85a45d4c5c9/packages/yarnpkg-pnp/sources/loader/applyPatch.ts#L414-L435)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-const {emitWarning} = process;
+// When using the ESM loader Node.js prints either of the following warnings
+//
+// - ExperimentalWarning: --experimental-loader is an experimental feature. This feature could change at any time
+// - ExperimentalWarning: Custom ESM Loaders is an experimental feature. This feature could change at any time
+//
+// Having this warning show up once is "fine" but it's also printed
+// for each Worker that is created so it ends up spamming stderr.
+// Since that doesn't provide any value we suppress the warning.
+const originalEmit = process.emit;
 
-process.emitWarning = (warning, ...args) => {
-	if (args[0] === 'ExperimentalWarning') {
-		return
-	}
+process.emit = function (name, data, ...args) {
+  if (
+    name === 'warning' &&
+    typeof data === 'object' &&
+    data.name === 'ExperimentalWarning' &&
+    (data.message.includes('--experimental-loader') ||
+      data.message.includes('Custom ESM Loaders is an experimental feature') ||
+			data.message.includes('The Node.js specifier resolution flag is experimental') ||
+			data.message.includes('Importing JSON modules is an experimental feature'))
+  )
+    return false
 
-	if (args[0] && typeof args[0] === 'object' && args[0].type === 'ExperimentalWarning') {
-		return
-	}
-
-	return emitWarning(warning, ...args)
+  return originalEmit.apply(process, arguments)
 }
+
