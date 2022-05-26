@@ -138,7 +138,7 @@ test('resolve', async t => {
   // Set the context so that the resolve function thinks it’s being run from the requested NodeKit app path.
   const nodekitAppPath = nodeKitBaseUrl.replace('file://', '')
   const svelteModulePath = path.join(nodekitAppPath, 'node_modules', 'svelte')
-  const svelteExports = (await import(`${nodekitAppPath}/node_modules/svelte/package.json`)).default.exports
+  const svelteExports = (await import(`${nodekitAppPath}/node_modules/svelte/package.json`, {assert: {type: 'json'}})).default.exports
 
   context.svelteModulePath = svelteModulePath
   context.svelteExports = svelteExports
