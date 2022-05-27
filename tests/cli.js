@@ -4,7 +4,7 @@ import CLI from '../lib/cli/index.js'
 import serveCommand from '../lib/cli/commands/serve.js'
 import enableCommand from '../lib/cli/commands/enable.js'
 
-import packageInfo from '../package.json'
+import packageInfo from '../package.json' assert {type: 'json'}
 
 let commands = (new CLI()).commands
 

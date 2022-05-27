@@ -5,7 +5,7 @@ import { test } from './helpers/index.js'
 import path from 'path'
 import { execFileSync } from 'child_process'
 
-import packageInfo from '../package.json'
+import packageInfo from '../package.json' assert {type: 'json'}
 
 test('nodekit binary', t => {
   const output = execFileSync(path.resolve('bin/nodekit'), ['--version'], {timeout: 1000})
