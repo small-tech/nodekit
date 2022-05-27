@@ -114,7 +114,7 @@ test('production', async t => {
   t.equals(JSON.stringify(sort(allFileCollections.all)), JSON.stringify(expectedAllRouteFilesByExtension), 'all route files as expected')
   t.equals(JSON.stringify(sort(allFileCollections.backend)), JSON.stringify(expectedBackendRouteFilesByExtension), 'backend route files as expected')
   t.equals(JSON.stringify(sort(allFileCollections.frontend)), JSON.stringify(expectedFrontendRouteFilesByExtension), 'frontend route files as expected')
-  t.equals(JSON.stringify(sort(allFileCollections.dependencies)), JSON.stringify(expectedDependencyFilesByExtension), 'all dependency files as expected')
+  t.equals(JSON.stringify(sort(allFileCollections.dependency)), JSON.stringify(expectedDependencyFilesByExtension), 'all dependency files as expected')
 
   delete(process.env.PRODUCTION)
 })
@@ -212,7 +212,7 @@ test('development', async t => {
   t.equals(JSON.stringify(sort(allFileCollections.all)), JSON.stringify(expectedAllRouteFilesByExtension), 'all route files as expected')
   t.equals(JSON.stringify(sort(allFileCollections.backend)), JSON.stringify(expectedBackendRouteFilesByExtension), 'backend route files as expected')
   t.equals(JSON.stringify(sort(allFileCollections.frontend)), JSON.stringify(expectedFrontendRouteFilesByExtension), 'frontend route files as expected')
-  t.equals(JSON.stringify(sort(allFileCollections.dependencies)), JSON.stringify(expectedDependencyFilesByExtension), 'all dependency files as expected')
+  t.equals(JSON.stringify(sort(allFileCollections.dependency)), JSON.stringify(expectedDependencyFilesByExtension), 'all dependency files as expected')
 
   files.close()
 })
