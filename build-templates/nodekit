@@ -5,13 +5,13 @@ set -e
 # Save the base path so we can pass it to NodeKit so it can calculate the
 # absolute path of the path to serve even if a relative path is given from
 # the current working directory.
-basePath=`pwd`
+workingDirectory=`pwd`
 
 # Run NodeKit from NodeKit distribution folder not folder nodekit command
 # was run from.
 pushd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" > /dev/null
 
-until (QUIET=true NODE_OPTIONS='--require=./suppress-experimental.cjs' node --enable-source-maps --experimental-modules --experimental-specifier-resolution=node --experimental-vm-modules --experimental-loader ./loader-bundle.js ./nodekit-bundle.js --base-path="${basePath}" "$@"); do
+until (QUIET=true NODE_OPTIONS='--require=./suppress-experimental.cjs' node --enable-source-maps --experimental-modules --experimental-specifier-resolution=node --experimental-vm-modules --experimental-loader ./loader-bundle.js ./nodekit-bundle.js --working-directory="${workingDirectory}" "$@"); do
   echo 'Restarting…'
   sleep 1
 done
