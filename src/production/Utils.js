@@ -77,14 +77,6 @@ export function classNameFromRoute (route) {
 // Source code parsing.
 //
 
-/**
- * Extract the string matched by the regex and return both the resulting string
- * and the matched string.
- *  
- * @param {string} source 
- * @param {RegExp} regExp 
- * @returns 
- */
 export function extract(source, regExp) {
   const result = regExp.exec(source)
   return result ? {
@@ -93,17 +85,8 @@ export function extract(source, regExp) {
   } : { normalisedSource: source, extracted: '' }
 }
 
-/**
- * Matches NodeScript data blocks.
- */
 const nodeScriptRegExp = /\<data\>(.*?)\<\/data\>/s
 
-/**
- * Parses the source and returns the normalised source and the NodeScript.
- * 
- * @param {string} source 
- * @returns {{normalisedSource: string, nodeScript: string}}
- */
 export function parseSource(source) {
   // Currently, all we do is extract the node script block and return it separately.
   const { normalisedSource, extracted: nodeScript } = extract(source, nodeScriptRegExp)
@@ -138,7 +121,7 @@ export function extensionOfFilePath (filePath) {
   return path.extname(filePath).replace('.', '')
 }
 
-export function routeFromFilePath (filePath) {
+export function routePatternFromFilePath (filePath) {
   const basePath = process.env.basePath
 
   return filePath
@@ -155,12 +138,13 @@ export function routeFromFilePath (filePath) {
 // from the bundled distribution or via bin/nodekit from source.
 
 export const nodekitAppPath = process.argv[1]
-  .replace('nodekit-bundle.js', '')          // When running from installed NodeKit.
-  // .replace('bin/nodekit.js', '')             // When running from source.
-  .replace('lib/processes/main.js', '')      // When running from source.
-  .replace(/tests\/.*?$/, '')                // Ditto (when running from tests).
+  .replace('nodekit-bundle.js', '')                 // When running from installed NodeKit.
+  .replace('src/production/processes/main.js', '')  // When running from source (production)
+  .replace('src/development/processes/main.js', '') // When running from source (development)
+  .replace(/tests\/.*?$/, '')                       // Ditto (when running from tests).
 
 export async function loaderPaths () {
   const svelteExports = (await import(`${nodekitAppPath}/node_modules/svelte/package.json`, {assert: {type: 'json'}})).default.exports
   return { nodekitAppPath, svelteExports }
 }
+

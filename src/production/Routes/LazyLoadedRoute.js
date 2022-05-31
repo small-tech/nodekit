@@ -1,7 +1,7 @@
 /**
  * Lazily loads handler for RouteType.
  */
-export default class LazyLoadedRoute {
+export default class LazilyLoadedRoute {
   /**
    * @param {class<HttpRoute>} RouteType 
    * @param {string} filePath 
@@ -10,7 +10,12 @@ export default class LazyLoadedRoute {
     this.route = new RouteType(filePath)
   }
 
-  async handler (request, response) {
+  // Get a bound reference to the handler.
+  get handler () {
+    return this._handler.bind(this)
+  }
+  
+  async _handler (request, response) {
     try {
       if (this.route.handlerNotLoaded) {
         this.route.loadHandler()

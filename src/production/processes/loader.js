@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url'
 import { compile } from 'svelte/compiler'
 
 import { createHydrationScriptBundle } from '../esbuild/HydrationScriptBundler.js'
-import { loaderPaths, routeFromFilePath, parseSource } from '../Utils.js'
+import { loaderPaths, routePatternFromFilePath, parseSource } from '../Utils.js'
 import LoaderAndMainProcessBroadcastChannel from '../LoaderAndMainProcessBroadcastChannel.js'
 
 const { nodekitAppPath, svelteExports } = await loaderPaths()
@@ -131,9 +131,7 @@ export const resolve = (async function (_specifier, context, defaultResolve) {
       break
 
     case isNodeKitAsset:
-      // Add a unique cache-busting query string so we can live reload during development.
-      const cacheBusterDuringDevelopment = process.env.PRODUCTION ? '' : `?${Date.now()}${Math.random()}`
-      resolved = resolvedFromPath(`${parent.absolutePath}${cacheBusterDuringDevelopment}`)
+      resolved = resolvedFromPath(parent.absolutePath)
       break
 
     default:
@@ -146,38 +144,6 @@ export const resolve = (async function (_specifier, context, defaultResolve) {
         console.trace()
         process.exit(1)
       }
-  }
-
-  if (!process.env.PRODUCTION) {
-    // Update dependency map
-    if (
-      context.parentURL && 
-      // We use /nodekit/app/ to check for NodeKit itself but we want to exclude
-      // the examples directory itself from this check as well as any root
-      // page in the project being served (that’s loaded by /nodekit/app/index.js )
-      (!context.parentURL.includes('/nodekit/app/') 
-      || (specifier.endsWith('.page') && context.parentURL.endsWith('/nodekit/app/index.js'))
-      || context.parentURL.includes('/nodekit/app/examples/')
-      )
-      && !context.parentURL.includes('/node_modules/')
-      && (specifier.startsWith('.') || specifier.startsWith('/'))
-    ) {
-      const specifierAbsolutePath = path.resolve(parent.path, specifier)
-      if (!dependencyMap.has(specifierAbsolutePath)) {
-        dependencyMap.set(specifierAbsolutePath, new Set())
-      }
-
-      /** @type Set */
-      const dependency = dependencyMap.get(specifierAbsolutePath)
-      dependency.add(context.parentURL.replace('file://', '').replace(/\?.*$/, ''))
-      
-      // For now fire a dependencyMap update on every route.
-      // This may be overwhelming. Reconsider once it’s working.
-      broadcastChannel.postMessage({
-        type: 'dependencyMap',
-        dependencyMap
-      }) 
-    }
   }
 
   return resolved
@@ -225,7 +191,7 @@ async function compileSource(filePath) {
   const routeRelativePath = path.relative(this.__dirname, filePath)
 
   // Transform an absolute file system path to a web server route.
-  const route = routeFromFilePath(filePath)
+  const route = routePatternFromFilePath(filePath)
 
   console.verbose(`[LOADER] Compiling ${route}`)
 
@@ -255,24 +221,7 @@ async function compileSource(filePath) {
     hydratable: true,
   }
 
-  if (!process.env.PRODUCTION) {
-    compilerOptions.dev = true
-  }
-
   const output = compile(normalisedSource, compilerOptions)
-
-  if (!process.env.PRODUCTION) {
-    if (routeDetails !== null) {
-      // Remove the generated CSS code so we can check if JS has changed
-      // between builds or not.
-      routeDetails.contents.js = output.js.code
-                                    .replace(/const css = \{.*?};/s, '')
-                                    .replace('$$result.css.add(css);', '')
-                                    .replace(/svelte-.*?"\}/g, '')
-      routeDetails.contents.css = output.css.code
-      routeDetails.dependencyMap = dependencyMap
-    }
-  }
 
   // Update the route cache with the material for this route.
   if (routeDetails !== null) {
@@ -281,3 +230,4 @@ async function compileSource(filePath) {
 
   return output.js.code
 }
+

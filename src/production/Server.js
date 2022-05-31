@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////
 //
-// BaseServer
+// Server (Production Mode)
 //
 // Copyright ⓒ 2021-present, Aral Balkan
 // Small Technology Foundation
@@ -15,26 +15,16 @@ console.verbose = process.env.VERBOSE ? function () { console.log(...arguments) 
 import os from 'os'
 import { _findPath } from 'module'
 import polka from 'polka'
+import Routes from './Routes'
 
 // Temporarily using my own fork where sirv only responds to GET requests that
 // are not WebSocket requests (so as not to mask POST, WebSocket, etc., requests
 // that may be on the same path).
 import { tinyws } from 'tinyws'
 
-class CustomEvent extends Event {
-  detail
-
-  constructor (type, eventInitDict) {
-    super (type, eventInitDict)
-    this.detail = eventInitDict.detail
-  }
-}
-
 export default class Server extends EventTarget {
-  constructor (basePath) {
+  constructor () {
     super()
-
-    this.basePath = basePath
 
     this.hostname = os.hostname()
 
@@ -57,23 +47,7 @@ export default class Server extends EventTarget {
       </style>
     `
     this.app = polka({
-      onError: (error, request, response, next) => {
-
-        // console.log('Polka onError', error)
-
-        if (this.socket) {
-          // A development socket exists so the client should be able to handle
-          // a json response and display it in an error modal.
-          response.statusCode = error.code || error.status || 500
-          response.setHeader('content-type', 'application/json')
-          response.end(JSON.stringify({
-            status: response.statusCode,
-            message: error.toString(),
-            stack: error.stack
-          }))
-          return
-        }
-
+      onError: (error, _request, response, _next) => {
         if (error.status === 404) {
           const errorPage = errorTemplate
           .replace('{CODE}', error.status)
@@ -99,7 +73,29 @@ export default class Server extends EventTarget {
     this.app.use(tinyws())
   }
 
-  initialise () {
-    throw new Error('Initialise method must be implemented in subclasses of BaseServer.')
+  async initialise () {
+    this.routes = new Routes()
+    await this.routes.initialise()
+
+    // Add dynamic routes to server.
+    for (const route of this.routes) {
+      this.app[route.method](route.pattern, route.handler)
+    }
+    
+    // Add static routes to server.
+    const staticFolder = path.join(this.basePath, '#static')
+    if (fs.existsSync(staticFolder)) {
+      this.app.use('/', serveStaticMiddleware(staticFolder))
+
+      // Get the handler from the Polka instance and create a secure site using it.
+      // (Certificates are automatically managed by @small-tech/https).
+      const { handler } = this.app
+
+      this.server = https.createServer(this.options, handler)
+      this.server.listen(443, () => {
+        console.info(`⬢ NodeKit\n\n  💾 ${process.env.basePath}\n  🌍 https://${this.hostname}\n`)
+      })
+    }
   }
 }
+

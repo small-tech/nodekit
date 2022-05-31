@@ -1,9 +1,10 @@
 ////////////////////////////////////////////////////////////
 //
 // Files: handles the files in the project.
+// (Production Mode)
 //
-// Copyright ⓒ 2021-present, Aral Balkan
-// Small Technology Foundation
+// Copyright ⓒ 2021-present, Aral Balkan (mail@ar.al)
+// Small Technology Foundation (https://small-tech.org)
 //
 // License: AGPL version 3.0.
 //
@@ -15,7 +16,6 @@ import fs from 'fs'
 console.verbose = process.env.VERBOSE ? function () { console.log(...arguments) } : () => {}
 
 import { _findPath } from 'module'
-import path from 'path'
 import chokidar from 'chokidar'
 
 import { extensionCategories, extensionOfFilePath } from './Utils'
@@ -35,15 +35,15 @@ export default class Files extends EventTarget {
   filesByExtensionCategoryType  
   initialised = false
 
-  constructor (pathToWatch) {
+  constructor () {
     super()
-    this.pathToWatch = pathToWatch
+    this.pathToWatch = process.env.basePath
     
     this.filesByExtensionCategoryType = {
-      backend: {},
-      frontend: {},
-      dependency: {},
-      all: {}
+      backendRoutes: {},
+      frontendRoutes: {},
+      dependencies: {},
+      allRoutes: {}
     }
   }
 
@@ -72,7 +72,7 @@ export default class Files extends EventTarget {
           this.initialised = true
           resolve(this.filesByExtensionCategoryType)
         })
-        .on('add', (filePath, stats) => {
+        .on('add', (filePath, _stats) => {
           console.verbose('Chokidar add:', filePath)
 
           // A file added event fires regardles of whether this file is a
@@ -146,3 +146,4 @@ export default class Files extends EventTarget {
     await this.watcher.close()
   }
 }
+

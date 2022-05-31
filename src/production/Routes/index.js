@@ -20,21 +20,12 @@ import path from 'path'
 import Files from '../Files.js'
 import LoaderAndMainProcessBroadcastChannel from '../LoaderAndMainProcessBroadcastChannel.js'
 
-import { routeFromFilePath, HTTP_METHODS } from '../Utils'
+import { routePatternFromFilePath, HTTP_METHODS } from '../Utils'
 
 import HttpRoute from './HttpRoute'
 import PageRoute from './PageRoute'
 import SocketRoute from './WebSocketRoute'
-import LazyLoadedRoute from './LazyLoadedRoute'
-
-class CustomEvent extends Event {
-  detail
-
-  constructor (type, eventInitDict) {
-    super (type, eventInitDict)
-    this.detail = eventInitDict.detail
-  }
-}
+import LazilyLoadedRoute from './LazyLoadedRoute'
 
 export default class Routes extends EventTarget {
   initialised = false
@@ -42,32 +33,31 @@ export default class Routes extends EventTarget {
   dependencyMap
   broadcastChannel
 
-  constructor (basePath) {
+  constructor () {
     super()
 
-    this.basePath = basePath
-
     this.routes = {}
-    this.previousVersionsOfRoutes = {}
 
     // We use a regular broadcast channel to communicate with the ESM Loader,
     // which is really just another worker process.
     this.broadcastChannel = new LoaderAndMainProcessBroadcastChannel()
     this.broadcastChannel.onmessage = event => {
-      this.routes[event.data.route] = event.data.contents
+      this.routes[event.data.route].contents = event.data.contents
     }
   }
 
   async initialise () {
-    this.files = new Files(this.basePath)
+    this.files = new Files()
     // Start listening for file events after initialisation for
     // performance reasons (since we ignore events prior to initialisation anyway).
     this.filesByExtensionCategoryType = await this.files.initialise()
     this.files.addEventListener('file', this.handleFileChange)
 
-    this.createRoutes()
+    await this.createRoutes()
 
     this.initialised = true
+    
+    return this.routes
   }
 
   async handleFileChange(itemType, eventType, itemPath) {
@@ -82,14 +72,9 @@ export default class Routes extends EventTarget {
   }
 
   async createRoute (filePath) {
-    const self = this
-    const routes = this.routes
-    const basePath = this.basePath
-    const context = this.context
-
-    const route = routeFromFilePath(filePath)
+    const pattern = routePatternFromFilePath(filePath)
     const extension = path.extname(filePath).replace('.', '')
-    const httpMethod = HTTP_METHODS.includes(extension) ? extension : 'get'
+    const method = HTTP_METHODS.includes(extension) ? extension : 'get'
 
     const extensionsToRouteTypes = new Proxy({
       'page': PageRoute,
@@ -101,48 +86,37 @@ export default class Routes extends EventTarget {
       }
     })
 
-    console.verbose('[FILES] Creating route', route, extension)
+    console.verbose('[FILES] Creating route', pattern, extension)
 
-    const _route = new LazyLoadedRoute(extensionsToRouteTypes[extension], filePath)
+    // Get a bound refernece to the lazily loaded route’s handler.
+    const handler = (new LazilyLoadedRoute(extensionsToRouteTypes[extension], filePath)).handler
 
-    console.verbose('[FILES] Adding route', httpMethod, route, filePath, _route)
+    console.verbose('[FILES] Adding route', method, pattern, filePath, handler)
 
-    // Add handler to server.
-    // TODO: (major-refactor) What’s this.app supposed to be? Is this the best place for it?
-    this.app[httpMethod](route, _route.handler.bind(_route))
+    this.routes[pattern] = {
+      method,
+      handler
+    }
 
     // Debug: show state of handlers.
-    // console.log(this.app.routes.forEach(route => console.log(route.handlers)))
+    console.log('Latest state of routes:')
+    for (const route of this.routes) {
+      console.log(route)
+    }
   }
 
   // Create the routes and add them to the server.
   // The ESM Loaders will automatically handle any processing that needs to
   // happen during the import process.
   async createRoutes () {
-    const extensions = Object.keys(this.filesByExtension)
-    for await (const extension of extensions) {
-      const filesOfType = this.filesByExtension[extension]
-      for await (const filePath of filesOfType) {
-        this.createRoute(filePath)
+    const extensions = Object.keys(this.filesByExtensionCategoryType.allRoutes)
+
+    for (const extension of extensions) {
+      const filePaths = this.filesByExtensionCategoryType.allRoutes[extension]
+      for (const filePath of filePaths) {
+        await this.createRoute(filePath)
       }
     }
-
-    // TODO: Move these elsewhere! This is just to get things up and running for now.
-    const staticFolder = path.join(this.basePath, '#static')
-    if (fs.existsSync(staticFolder)) {
-      this.app.use('/', serveStaticMiddleware(staticFolder, {
-        // TODO: Only turn on dev mode if not in PRODUCTION
-        dev: true
-      }))
-    }
-
-    // Get the handler from the Polka instance and create a secure site using it.
-    // (Certificates are automatically managed by @small-tech/https).
-    const { handler } = this.app
-
-    this.server = https.createServer(this.options, handler)
-    this.server.listen(443, () => {
-      console.info(`⬢ NodeKit\n\n  💾 ${this.basePath}\n  🌍 https://${this.hostname}\n`)
-    })
   }
 }
+

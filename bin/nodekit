@@ -11,12 +11,12 @@ if [ ! -z "$PRODUCTION" ]; then
   QUIET=true NODE_OPTIONS='--require=./suppress-experimental.cjs' node \
     --enable-source-maps --experimental-modules --experimental-specifier-resolution=node \
     --experimental-vm-modules --experimental-loader \
-    ./production/processes/loader.js ./production/processes/main.js "$@"
+    ./src/production/processes/loader.js ./src/production/processes/main.js "$@"
 else
   # Development mode
   QUIET=true NODE_OPTIONS='--require=./suppress-experimental.cjs' node \
     --enable-source-maps --experimental-modules --experimental-specifier-resolution=node \
     --experimental-vm-modules --experimental-loader \
-    ./development/processes/loader.js ./development/processes/main.js "$@"
+    ./src/development/processes/loader.js ./src/development/processes/main.js "$@"
 fi
 

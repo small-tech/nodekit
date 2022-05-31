@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////
 //
-// NodeKit command-line interface (args)
+// NodeKit command-line interface (production mode)
 //
 // Copyright ⓒ 2021-present, Aral Balkan
 // Small Technology Foundation
@@ -10,10 +10,8 @@
 ////////////////////////////////////////////////////////////
 
 import sade from 'sade'
-import packageInfo from '../../package.json' assert {type: 'json'}
-
+import packageInfo from '../../../package.json' assert {type: 'json'}
 import serveCommand from './commands/serve.js'
-import enableCommand from './commands/enable.js'
 
 export default class CommandLineInterface {
   constructor () {
@@ -24,7 +22,7 @@ export default class CommandLineInterface {
     // otherwise it will hang due to the open broadcast channel between the
     // loader process and the main process.
     this.commands._version = function () { 
-      console.log(`NodeKit version ${this.ver}`)
+      console.log(`NodeKit version ${this.ver} – Production Mode`)
       process.exit(0)
     }
 
@@ -34,15 +32,9 @@ export default class CommandLineInterface {
   
     this.commands
       .command('serve [pathToServe]', '', {default: true})
-      .option('--working-directory', 'Working directory NodeKit was launched from. Defaults to current directory (.)', '.')
+      .option('--working-directory', 'The working directory NodeKit was launched from. Defaults to current directory (.)', '.')
       .describe('Start server as regular process.')
       .action(serveCommand)
-    
-    this.commands
-      .command('enable')
-      .describe('Install server systemd service and start it at hostname using globally-trusted TLS certificates.')
-      .option('--skip-domain-reachability-check', 'Do not run pre-flight check for domain reachability.')
-      .action(enableCommand)
   }
 
   parse (args) {
