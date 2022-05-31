@@ -34,7 +34,7 @@ export default class CommandLineInterface {
   
     this.commands
       .command('serve [pathToServe]', '', {default: true})
-      .option('--base-path', 'The path pathToServe is relative to', '/')
+      .option('--working-directory', 'Working directory NodeKit was launched from. Defaults to current directory (.)', '.')
       .describe('Start server as regular process.')
       .action(serveCommand)
     

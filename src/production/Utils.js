@@ -6,25 +6,30 @@ import process from 'process'
 
 console.verbose = process.env.VERBOSE ? function () { console.log(...arguments) } : () => {}
 
-// The base path used by the NodeKit server to find files in the served app.
-export function calculateBasePath(basePath = process.cwd()) {
-  // You can place your source files either in the project
-  // folder directly or in a subfolder called src.
+// Calculate the base path used by the NodeKit server to find files in the served app.
+export function setBasePath (workingDirectory, pathToServe) {
+  // Resolve the path to serve so that it works both when run as
+  // nodekit <path to serve> from anywhere and, from the source folder, as
+  // bin/nodekit <path to serve>.
+  let basePath = path.resolve(workingDirectory, pathToServe)
 
   if (!fs.existsSync(basePath)) {
-    throw new Error(`Basepath ${basePath} does not exist`)
+    throw new Error(`Basepath (${basePath}) does not exist`)
   }
 
+  // You can place your source files either in the project
+  // folder directly or in a subfolder called src. Use the 
+  // latter if it exists.
   const srcFolder = path.join(basePath, 'src')
-  const finalBasePath = fs.existsSync(srcFolder) ? srcFolder : basePath
+  basePath = fs.existsSync(srcFolder) ? srcFolder : basePath
 
   // Set the basePath as an environment variable so the ESM Module Loader
   // can access it also. It can use it to ensure that it saves the route
   // cache for compiled Svelte files using the same route key that we’re
   // using. (The loader otherwise cannot know what basePath was supplied.)
-  process.env.basePath = finalBasePath
+  process.env.basePath = basePath
 
-  return finalBasePath
+  return basePath
 }
 
 // Linux has an archaic security restriction dating from the mainframe/dumb-terminal era where

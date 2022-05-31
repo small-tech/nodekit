@@ -1,6 +1,8 @@
 ////////////////////////////////////////////////////////////
 //
-// Routes
+// Routes (production server)
+//
+// (Work-in-progress: currently hardcoded to production.)
 //
 // Copyright ⓒ 2021-present, Aral Balkan
 // Small Technology Foundation
@@ -35,6 +37,7 @@ class CustomEvent extends Event {
 }
 
 export default class Routes extends EventTarget {
+  initialised = false
   routes
   dependencyMap
   broadcastChannel
@@ -50,79 +53,30 @@ export default class Routes extends EventTarget {
     // We use a regular broadcast channel to communicate with the ESM Loader,
     // which is really just another worker process.
     this.broadcastChannel = new LoaderAndMainProcessBroadcastChannel()
-
     this.broadcastChannel.onmessage = event => {
-
-      if (!process.env.PRODUCTION) {
-        // Store the dependencyMap.
-        // (Is sending it over like this efficient?)
-        if (event.data.type === 'dependencyMap') {
-          // console.log('[Main process broadcast channel] Received dependency map')
-          this.dependencyMap = event.data.dependencyMap
-          return
-        }
-        
-        this.dependencyMap = event.data.dependencyMap
-        this.previousVersionsOfRoutes[event.data.route] = this.routes[event.data.route]
-      }
-
       this.routes[event.data.route] = event.data.contents
     }
   }
 
   async initialise () {
     this.files = new Files(this.basePath)
-    this.filesByExtension = await this.files.initialise()
+    // Start listening for file events after initialisation for
+    // performance reasons (since we ignore events prior to initialisation anyway).
+    this.filesByExtensionCategoryType = await this.files.initialise()
+    this.files.addEventListener('file', this.handleFileChange)
+
     this.createRoutes()
+
+    this.initialised = true
   }
-
-
-  notifyAllAffectedPagesOfChangeIn (itemPath) {
-    // Dependencies can be N levels deep. We follow dependencies
-    // up until we find a page and then notify it that it should reload itself.
-    const dependencies = this.dependencyMap.get(itemPath)
-
-    for (const dependency of dependencies) {
-      if (!dependency.endsWith('.page')) {
-        // Recurse until we hit a page.
-        this.notifyAllAffectedPagesOfChangeIn(dependency)
-      } else {
-        // Notify page.
-        this.dispatchEvent(new CustomEvent('hotReload', {
-          detail: {
-            type: 'reload',
-            path: dependency,
-            dueToDependencyChange: true,
-          }
-        }))  
-      }
-    }
-  }
-
 
   async handleFileChange(itemType, eventType, itemPath) {
     if (this.initialised) {
-      if (process.env.PRODUCTION) {
-        // In production, simply exit (systemd will handle the restart).
-        console.log(`${itemType.charAt(0).toUpperCase()+itemType.slice(1)} ${eventType} (${itemPath}), exiting to trigger auto-restart in production.`)
-        process.exit(1)
-      } else {
-        // In development, we implement hot replacement for CSS
-        // and live reload for everything else. 
-        console.verbose('[handleFileChange]', itemPath, eventType, itemPath)
-
-        if (itemType === 'file' && eventType === 'changed' && itemPath.endsWith('.page')) {
-          this.dispatchEvent(new CustomEvent('hotReload', {
-            detail: {
-              type: 'reload',
-              path: itemPath  
-            }
-          }))
-        } else {
-          this.notifyAllAffectedPagesOfChangeIn(itemPath)
-        }
-      }
+      // In production, simply exit (systemd will handle the restart).
+      console.log(`${itemType.charAt(0).toUpperCase()+itemType.slice(1)} ${eventType} (${itemPath}), exiting to trigger auto-restart in production.`)
+      process.exit(1)
     } else {
+      // Note: this should never be reached. Remove?
       console.verbose('[handleFileChange]', itemPath, 'ignoring', 'not initialised')
     }
   }
@@ -130,7 +84,6 @@ export default class Routes extends EventTarget {
   async createRoute (filePath) {
     const self = this
     const routes = this.routes
-    const previousVersionsOfRoutes = this.previousVersionsOfRoutes
     const basePath = this.basePath
     const context = this.context
 
