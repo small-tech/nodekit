@@ -4,7 +4,7 @@ import path from 'path'
 import fs from 'fs'
 import { compile } from 'svelte/compiler'
 
-import { classNameFromRoute, parseSource } from '../../Utils'
+import { classNameFromRoutePattern, parseSource } from '../../Utils'
 
 export default function sveltePlugin (route) {
   console.verbose('[SveltePlugin] Building route', route)
@@ -48,7 +48,7 @@ export default function sveltePlugin (route) {
           if (args.path.endsWith('.page')) {
             // This is what the class will be named in the page. By hardcoding it,
             // we can write the code in the page wrapper to initialise it.
-            compilerOptions.name = classNameFromRoute(route)
+            compilerOptions.name = classNameFromRoutePattern(route)
           }
           let { js, warnings } = compile(normalisedSource, compilerOptions)
           let contents = js.code + `//# sourceMappingURL=` + js.map.toUrl()

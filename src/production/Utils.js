@@ -59,9 +59,9 @@ export function ensurePrivilegedPortsAreDisabled () {
 // Converts a route in the form of, e.g.,
 // '/some_thing/with/underscores-and-hyphens' to
 // SomeThingWithUnderscoresAndHyphensPage
-export function classNameFromRoute (route) {
-  console.log('class name from route', route)
-  const className = route
+export function classNameFromRoutePattern (pattern) {
+  console.log('class name from route pattern', pattern)
+  const className = pattern
     .split('/').join('*')
     .split('-').join('*')
     .split('_').join('*')

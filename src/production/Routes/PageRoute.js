@@ -1,21 +1,23 @@
 import HttpRoute from './HttpRoute'
 import { renderPage } from '../../page-template'
 import nodeScriptBundler from '../esbuild/NodeScriptBundler'
-import { classNameFromRoute } from '../Utils'
+import { classNameFromRoutePattern } from '../Utils'
 
 export default class PageRoute extends HttpRoute {
-  constructor (handlerOrFilePath) {
+  constructor (pattern, handlerOrFilePath) {
     super(handlerOrFilePath)
     
-    console.log('PageRoute constructor', handlerOrFilePath)
+    console.log('PageRoute constructor', handlerOrFilePath, pattern)
     
-    this.className = classNameFromRoute(handlerOrFilePath) 
+    this.className = classNameFromRoutePattern(pattern) 
   }
 
   async loadHandler () {
     this.page = (await import(this.filePath)).default
 
     const routeCache = routes[route] // TODO: Get this from global Routes
+
+    console.log('routeCache', routeCache)
 
     if (routeCache.nodeScript && !routeCache.nodeScriptHandler) {
       routeCache.nodeScriptHandler = nodeScriptBundler(routeCache.nodeScript, basePath)

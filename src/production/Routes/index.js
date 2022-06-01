@@ -94,9 +94,9 @@ export default class Routes extends EventTarget {
     console.verbose('[FILES] Creating route', pattern, extension)
 
     // Get a bound refernece to the lazily loaded route’s handler.
-    const routeType = extensionsToRouteTypes[extension]
-    console.log('...', extension, routeType)
-    const handler = (new LazilyLoadedRoute(routeType, filePath)).handler
+    const RouteType = extensionsToRouteTypes[extension]
+    console.log('...', extension, RouteType)
+    const handler = (new LazilyLoadedRoute(pattern, RouteType, filePath)).handler
 
     console.verbose('[FILES] Adding route', method, pattern, filePath, handler)
 
