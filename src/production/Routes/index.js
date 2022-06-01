@@ -25,7 +25,7 @@ import { routePatternFromFilePath, HTTP_METHODS } from '../Utils'
 import HttpRoute from './HttpRoute'
 import PageRoute from './PageRoute'
 import SocketRoute from './WebSocketRoute'
-import LazilyLoadedRoute from './LazyLoadedRoute'
+import LazilyLoadedRoute from './LazilyLoadedRoute'
 
 export default class Routes extends EventTarget {
   initialised = false
@@ -79,17 +79,24 @@ export default class Routes extends EventTarget {
     const extensionsToRouteTypes = new Proxy({
       'page': PageRoute,
       'socket': SocketRoute
-    }, {
-      get: () => {
+    }, 
+    {
+      get (target, property, _receiver) {
         // The default type if not page or socket.
-        return HttpRoute
+        if (!Object.keys(target).includes(property)) {
+          return HttpRoute            
+        } else {
+          return Reflect.get(...arguments)
+        }
       }
     })
 
     console.verbose('[FILES] Creating route', pattern, extension)
 
     // Get a bound refernece to the lazily loaded route’s handler.
-    const handler = (new LazilyLoadedRoute(extensionsToRouteTypes[extension], filePath)).handler
+    const routeType = extensionsToRouteTypes[extension]
+    console.log('...', extension, routeType)
+    const handler = (new LazilyLoadedRoute(routeType, filePath)).handler
 
     console.verbose('[FILES] Adding route', method, pattern, filePath, handler)
 
