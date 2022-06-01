@@ -100,8 +100,9 @@ export default class Routes extends EventTarget {
 
     // Debug: show state of handlers.
     console.log('Latest state of routes:')
-    for (const route of this.routes) {
-      console.log(route)
+    console.log(this.routes)
+    for (const [pattern, route] of Object.entries(this.routes)) {
+      console.log(pattern, ':', route)
     }
   }
 

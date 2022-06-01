@@ -13,6 +13,8 @@
 console.verbose = process.env.VERBOSE ? function () { console.log(...arguments) } : () => {}
 
 import os from 'os'
+import fs from 'fs'
+import path from 'path'
 import { _findPath } from 'module'
 import polka from 'polka'
 import Routes from './Routes'
@@ -74,16 +76,17 @@ export default class Server extends EventTarget {
   }
 
   async initialise () {
-    this.routes = new Routes()
-    await this.routes.initialise()
+    this.routes = await (new Routes()).initialise()
+    
+    console.log(this.routes)
 
     // Add dynamic routes to server.
-    for (const route of this.routes) {
-      this.app[route.method](route.pattern, route.handler)
+    for (const [pattern, route] of Object.entries(this.routes)) {
+      this.app[route.method](pattern, route.handler)
     }
     
     // Add static routes to server.
-    const staticFolder = path.join(this.basePath, '#static')
+    const staticFolder = path.join(process.env.basePath, '#static')
     if (fs.existsSync(staticFolder)) {
       this.app.use('/', serveStaticMiddleware(staticFolder))
 
