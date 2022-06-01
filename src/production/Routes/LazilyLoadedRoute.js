@@ -20,8 +20,8 @@ export default class LazilyLoadedRoute {
   }
   
   // Override this method in subclasses to customise lazy loading and rendering logic.
-  async lazilyLoadedHandler (request, response) {
-    throw new Error(`LazilyLoadedRoute abstract base class handler called. You must override the lazilyLoadedHandler() method in your concrete subclass.`, request, response)
+  async lazilyLoadedHandler (request, response, next) {
+    throw new Error(`LazilyLoadedRoute abstract base class handler called. You must override the lazilyLoadedHandler() method in your concrete subclass.`, request, response, next)
   }
 }
 

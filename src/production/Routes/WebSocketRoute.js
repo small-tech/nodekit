@@ -7,18 +7,24 @@ export default class WebSocketRoute extends LazilyLoadedRoute {
   connections
 
   /**
-   * Create a route instance with with the provided handler function directly
-   * or lazily from the provided file path for the handler function when
-   * when the loadHandler() method is called.
+   * Create a lazily-loaded WebSocket route instance with the provided file path.
    * 
-   * @param {function|string} handler 
+   * @param {function|string} filePath 
    */
-  constructor (handler) {
-    super(handler)
+  constructor (filePath) {
+    super(filePath)
     this.connections = []
   }
-
+  
   async lazilyLoadedHandler (request, response, next) {
+    console.verbose('WS next', next)
+    if (!this.__handler) {
+      this.__handler = (await import(this.filePath)).default
+    }
+    this._handler(request, response, next)
+  }
+
+  async _handler (request, response, next) {
     if (request.method === 'GET' && request.ws) {
       console.verbose('[WebSocketRoute Handler]', request.method, request.originalUrl)
       const ws = await request.ws()
@@ -63,7 +69,7 @@ export default class WebSocketRoute extends LazilyLoadedRoute {
       })
 
       // Call the actual handler.
-      this._handler(socket, request, response)
+      this.__handler(socket, request, response)
     } else {
       // This is not a socket route, call next in case there is an HTTP route
       // at the same path that wants to handle the request.

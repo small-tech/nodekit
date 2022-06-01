@@ -12,7 +12,6 @@ export default function sveltePlugin (route) {
     name: 'NodeScript',
     setup(build) {
       build.onLoad({ filter: /(\.svelte|\.component|\.page|\.layout)$/ }, async (args) => {
-        console.log('args', args)
         // This converts a message in Svelte's format to esbuild's format
         let convertMessage = ({ message, start, end }) => {
           let location

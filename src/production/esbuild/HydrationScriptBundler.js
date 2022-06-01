@@ -8,12 +8,11 @@ import sveltePlugin from './plugins/SveltePlugin'
 
 export async function createHydrationScriptBundle (relativePagePath, route) {
   console.verbose('  • Compiling hydration script for', relativePagePath)
-  console.verbose(' --> cwd', process.cwd())
   console.profileTime(`  • Hydration script compiled: ${relativePagePath}`)
   let result
   try {
     result = await esbuild.build({
-      entryPoints: [relativePagePath.replace('../../../', '')],
+      entryPoints: [relativePagePath],
       bundle: true,
       format: 'esm',
       // Do not write out, we will consume the generated source from here.
