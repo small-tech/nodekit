@@ -4,16 +4,16 @@ export default class HttpRoute {
    * or lazily from the provided file path for the handler function when
    * when the loadHandler() method is called.
    * 
-   * @param {function|string} handler 
+   * @param {function|string} handlerOrFilePath 
    */
-   constructor (handler) {
+   constructor (handlerOrFilePath) {
     // If the handler function is passed in directly, assign it immediately.
     // If not, we expect the file path to the source code that we will load
     // in lazily when the route is first hit.
-    if (typeof handler === 'Function') {
-      this._handler = handler
+    if (typeof handlerOrFilePath === 'Function') {
+      this._handler = handlerOrFilePath
     } else {
-      this.filePath = handler
+      this.filePath = handlerOrFilePath
     }
   }
 

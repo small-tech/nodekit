@@ -4,9 +4,12 @@ import nodeScriptBundler from '../esbuild/NodeScriptBundler'
 import { classNameFromRoute } from '../Utils'
 
 export default class PageRoute extends HttpRoute {
-  constructor (handler, route) {
-    super(handler)
-    this.className = classNameFromRoute(route) 
+  constructor (handlerOrFilePath) {
+    super(handlerOrFilePath)
+    
+    console.log('PageRoute constructor', handlerOrFilePath)
+    
+    this.className = classNameFromRoute(handlerOrFilePath) 
   }
 
   async loadHandler () {

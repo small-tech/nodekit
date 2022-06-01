@@ -60,6 +60,7 @@ export function ensurePrivilegedPortsAreDisabled () {
 // '/some_thing/with/underscores-and-hyphens' to
 // SomeThingWithUnderscoresAndHyphensPage
 export function classNameFromRoute (route) {
+  console.log('class name from route', route)
   const className = route
     .split('/').join('*')
     .split('-').join('*')
