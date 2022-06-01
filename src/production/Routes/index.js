@@ -39,8 +39,8 @@ export default class Routes extends EventTarget {
     // which is really just another worker process.
     this.broadcastChannel = new LoaderAndMainProcessBroadcastChannel()
     this.broadcastChannel.onmessage = event => {
-      console.verbose('About to update contents of route', event.data.pattern)
-      this.routes[event.data.pattern].contents = event.data.contents
+      console.verbose('About to update contents of route', event.data.pattern, event.data.contents)
+      Object.assign(this.routes[event.data.pattern], event.data.contents)
     }
   }
 
