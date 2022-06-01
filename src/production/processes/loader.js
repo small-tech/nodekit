@@ -188,12 +188,12 @@ export const load = (async function (url /* string */, context, defaultLoad) {
 // Compiles Svelte-related sources (including .pages, etc.)
 async function compileSource(filePath) {
   const source = await fsPromises.readFile(filePath, 'utf8')
-  const routeRelativePath = path.relative(this.__dirname, filePath)
+  const routeRelativePath = path.relative(/* __dirname */ process.cwd(), filePath)
 
   // Transform an absolute file system path to a web server route.
-  const route = routePatternFromFilePath(filePath)
+  const pattern = routePatternFromFilePath(filePath)
 
-  console.verbose(`[LOADER] Compiling ${route}`)
+  console.verbose(`[LOADER] Compiling ${pattern}`)
 
   const { normalisedSource, nodeScript } = parseSource(source)
 
@@ -201,10 +201,10 @@ async function compileSource(filePath) {
   let routeDetails = null
   if (filePath.endsWith('.page')) {
     // Compile client-side hydration script.
-    const hydrationScript = await createHydrationScriptBundle(routeRelativePath, route)
+    const hydrationScript = await createHydrationScriptBundle(routeRelativePath, pattern)
 
     routeDetails = {
-      route,
+      pattern,
       contents: {
         routeRelativePath,
         nodeScript,
