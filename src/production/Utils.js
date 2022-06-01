@@ -77,6 +77,14 @@ export function classNameFromRoute (route) {
 // Source code parsing.
 //
 
+/**
+ * Extract the string matched by the regex and return both the resulting string
+ * and the matched string.
+ * 
+ * @param {string} source 
+ * @param {RegExp} regExp 
+ * @returns 
+ */
 export function extract(source, regExp) {
   const result = regExp.exec(source)
   return result ? {
@@ -85,8 +93,17 @@ export function extract(source, regExp) {
   } : { normalisedSource: source, extracted: '' }
 }
 
+/**
+ * Matches NodeScript data blocks.
+ */
 const nodeScriptRegExp = /\<data\>(.*?)\<\/data\>/s
 
+/**
+ * Parses the source and returns the normalised source and the NodeScript.
+ * 
+ * @param {string} source 
+ * @returns {{normalisedSource: string, nodeScript: string}}
+ */
 export function parseSource(source) {
   // Currently, all we do is extract the node script block and return it separately.
   const { normalisedSource, extracted: nodeScript } = extract(source, nodeScriptRegExp)
@@ -105,10 +122,10 @@ export const DEPENDENCY_EXTENSIONS = ['component', 'svelte', 'js']
 export const ALL_ROUTE_EXTENSIONS = BACKEND_EXTENSIONS.concat(FRONTEND_EXTENSIONS)
 
 export const extensionCategories = {
-  backend: BACKEND_EXTENSIONS,
-  frontend: FRONTEND_EXTENSIONS,
-  dependency: DEPENDENCY_EXTENSIONS,
-  all: ALL_ROUTE_EXTENSIONS
+  backendRoutes: BACKEND_EXTENSIONS,
+  frontendRoutes: FRONTEND_EXTENSIONS,
+  dependencies: DEPENDENCY_EXTENSIONS,
+  allRoutes: ALL_ROUTE_EXTENSIONS
 }
 
 export const supportedExtensionsRegExp = `\.(${ALL_ROUTE_EXTENSIONS.join('|')})$`

@@ -19,7 +19,7 @@ import { _findPath } from 'module'
 import chokidar from 'chokidar'
 
 import { extensionCategories, extensionOfFilePath } from './Utils'
-const extensionCategoryTypes = Object.keys(extensionCategories)
+const extensionCategoryNames = Object.keys(extensionCategories)
 
 class CustomEvent extends Event {
   detail
@@ -112,16 +112,22 @@ export default class Files extends EventTarget {
   addFile(filePath) {
     const extension = extensionOfFilePath(filePath)
 
-    for (const extensionCategoryType of extensionCategoryTypes) {
-      if (extensionCategories[extensionCategoryType].includes(extension)) {
+    for (const extensionCategoryName of extensionCategoryNames) {
+      const extensionCategory = extensionCategories[extensionCategoryName]
+      
+      console.log(extensionCategoryName, extensionCategory)
+
+      if (extensionCategory.includes(extension)) {
         // This might be the first time a file of this extension is encountered.
         // If so, create the category before attempting to add to it.
-        const extensionCategory = this.filesByExtensionCategoryType[extensionCategoryType]
-        if (!extensionCategory[extension]) {
-          extensionCategory[extension] = []
+        console.log(this.filesByExtensionCategoryType)
+        const filesByExtension = this.filesByExtensionCategoryType[extensionCategoryName]
+        console.log('files by extension', filesByExtension)
+        if (!filesByExtension[extension]) {
+          filesByExtension[extension] = []
         }
 
-        extensionCategory[extension].push(filePath)
+        filesByExtension[extension].push(filePath)
 
         this.notifyListeners('route', 'added', extension, filePath)
       }  
