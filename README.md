@@ -14,7 +14,7 @@ _Because creating a modern web site should be simple if your aim isn’t to do s
 
 ## System requirements
 
-  - Node 16.x+ LTS.
+  - Node 16.4+ LTS.
   - Linux
 
 ### For deployment:
@@ -53,6 +53,16 @@ During development, you can also run NodeKit from the source folder like this:
 
 ```shell
 bin/nodekit [path to serve]
+```
+
+## Production
+
+In production mode, NodeKit runs as a systemd service.
+
+You can start NodeKit in production mode by setting the `PRODUCTION` environment variable to a non-empty value. e.g.,
+
+```shell
+PRODUCTION=true bin/nodekit examples/simple-chat/
 ```
 
 > 💡 By default, NodeKit will be as quiet as possible in the console and only surface warnings and errors.
