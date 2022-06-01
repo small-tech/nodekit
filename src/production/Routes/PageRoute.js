@@ -1,40 +1,45 @@
-import HttpRoute from './HttpRoute'
+import LazilyLoadedRoute from './LazilyLoadedRoute'
+
 import { renderPage } from '../../page-template'
 import nodeScriptBundler from '../esbuild/NodeScriptBundler'
-import { classNameFromRoutePattern } from '../Utils'
+import { classNameFromFilePath } from '../Utils'
 
-export default class PageRoute extends HttpRoute {
-  constructor (pattern, handlerOrFilePath) {
-    super(handlerOrFilePath)
+export default class PageRoute extends LazilyLoadedRoute {
+  loaded = false
+  page = null
+  nodeScript = null
+  nodeScriptHandler = null
+  
+  constructor (filePath) {
+    super(filePath)
     
-    console.log('PageRoute constructor', handlerOrFilePath, pattern)
-    
-    this.className = classNameFromRoutePattern(pattern) 
+    console.log('PageRoute constructor', filePath)
+    this.className = classNameFromFilePath(this.pattern) 
   }
 
-  async loadHandler () {
-    this.page = (await import(this.filePath)).default
+  // A page is rendered in real time, possibly with server-side data.
+  async lazilyLoadedHandler (request, response) {
+    if (!this.loaded) {
+      this.page = (await import(this.filePath)).default
 
-    const routeCache = routes[route] // TODO: Get this from global Routes
-
-    console.log('routeCache', routeCache)
-
-    if (routeCache.nodeScript && !routeCache.nodeScriptHandler) {
-      routeCache.nodeScriptHandler = nodeScriptBundler(routeCache.nodeScript, basePath)
+      if (this.nodeScript && !this.nodeScriptHandler) {
+        this.nodeScriptHandler = await nodeScriptBundler(this.nodeScript, process.env.basePath)
+      }
+    
+      this.loaded = true
     }
-  }
-
-  async handler (request, response) {
+    
     // Run NodeScript module (if any) in its own V8 Virtual Machine context.
     let data = undefined
-    if (routeCache.nodeScript) {
+    if (this.nodeScript) {
       // Run the nodeScript.
-      data = await routeCache.nodeScriptHandler(request, response)
+      data = await this.nodeScriptHandler(request, response)
     }
 
     // Render the page, passing the server-side data as a property.
-    const { html, css } = this.page.render({data})
-    const renderedHtml = renderPage(route, className, html, css.code, hydrationScript, data)
+    const { html, css } = this.page.render({ data })
+    const renderedHtml = renderPage(this.pattern, this.className, html, css.code, this.hydrationScript, data)
     response.end(renderedHtml)
   }
 }
+

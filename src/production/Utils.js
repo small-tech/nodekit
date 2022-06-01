@@ -56,24 +56,6 @@ export function ensurePrivilegedPortsAreDisabled () {
   }
 }
 
-// Converts a route in the form of, e.g.,
-// '/some_thing/with/underscores-and-hyphens' to
-// SomeThingWithUnderscoresAndHyphensPage
-export function classNameFromRoutePattern (pattern) {
-  console.log('class name from route pattern', pattern)
-  const className = pattern
-    .split('/').join('*')
-    .split('-').join('*')
-    .split('_').join('*')
-    .split(':').join('*')
-    .split('*')
-    .map(fragment => fragment.charAt(0).toUpperCase() + fragment.slice(1))
-    .join('')
-    + 'Page'
-
-  return className === 'Page' ? 'IndexPage' : className
-}
-
 //
 // Source code parsing.
 //
@@ -139,6 +121,10 @@ export function extensionOfFilePath (filePath) {
   return path.extname(filePath).replace('.', '')
 }
 
+export function classNameFromFilePath (filePath) {
+  return classNameFromRoutePattern(routePatternFromFilePath(filePath))
+}
+
 export function routePatternFromFilePath (filePath) {
   const basePath = process.env.basePath
 
@@ -149,6 +135,24 @@ export function routePatternFromFilePath (filePath) {
     .replace(/\[(.*?)\]/g, ':$1')            // Replace properties. e.g., [prop] becomes :prop.
     .replace(indexWithExtensionRegExp, '')   // Remove index path fragments (and their extensions).
     .replace(extensionRegExp, '')            // Remove extension.
+}
+
+// Converts a route in the form of, e.g.,
+// '/some_thing/with/underscores-and-hyphens' to
+// SomeThingWithUnderscoresAndHyphensPage
+export function classNameFromRoutePattern (pattern) {
+  console.log('class name from route pattern', pattern)
+  const className = pattern
+    .split('/').join('*')
+    .split('-').join('*')
+    .split('_').join('*')
+    .split(':').join('*')
+    .split('*')
+    .map(fragment => fragment.charAt(0).toUpperCase() + fragment.slice(1))
+    .join('')
+    + 'Page'
+
+  return className === 'Page' ? 'IndexPage' : className
 }
 
 // Format the NodeKit app path and the Svelte exports path in a way

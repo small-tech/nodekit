@@ -1,4 +1,4 @@
-export function renderPage(_route, className, html, css, hydrationScript, data) {
+export function renderPage(_pattern, className, html, css, hydrationScript, data) {
   return `
   <!DOCTYPE html>
     <html lang='en'>

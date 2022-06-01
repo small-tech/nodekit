@@ -1,9 +1,9 @@
-import HttpRoute from './HttpRoute'
+import LazilyLoadedRoute from './LazilyLoadedRoute'
 
 // Represents one WebSocket route.
 // The handler wraps the actual handler to decorate it with a
 // broadcast method.
-export default class WebSocketRoute extends HttpRoute {
+export default class WebSocketRoute extends LazilyLoadedRoute {
   connections
 
   /**
@@ -18,7 +18,7 @@ export default class WebSocketRoute extends HttpRoute {
     this.connections = []
   }
 
-  async handler (request, response, next) {
+  async lazilyLoadedHandler (request, response, next) {
     if (request.method === 'GET' && request.ws) {
       console.verbose('[WebSocketRoute Handler]', request.method, request.originalUrl)
       const ws = await request.ws()
@@ -28,7 +28,7 @@ export default class WebSocketRoute extends HttpRoute {
       const _connections = this.connections
 
       const socket = new Proxy({}, {
-        get: function (obj, prop) {
+        get: function (_obj, prop) {
           // Add helper methods to ws.
           switch (prop) {
             case 'broadcast':
@@ -42,7 +42,7 @@ export default class WebSocketRoute extends HttpRoute {
                 // Return the number of connections sent to.
                 return _connections.length - 1
               })
-            break
+            // break // unreachable
 
             case 'all':
               // Send to everyone (including the current client)
@@ -53,7 +53,7 @@ export default class WebSocketRoute extends HttpRoute {
                 // Return the number of connections sent to.
                 return _connections.length
               })
-            break
+            // break // unreachable
 
             default:
               // For everything else, proxy to the WebSocket object.
@@ -71,3 +71,4 @@ export default class WebSocketRoute extends HttpRoute {
     }
   }
 }
+

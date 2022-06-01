@@ -14,18 +14,15 @@
 // Conditional logging.
 console.verbose = process.env.VERBOSE ? function () { console.log(...arguments) } : () => {}
 
-import { _findPath } from 'module'
-import fs from 'fs'
 import path from 'path'
+import { _findPath } from 'module'
 import Files from '../Files.js'
 import LoaderAndMainProcessBroadcastChannel from '../LoaderAndMainProcessBroadcastChannel.js'
-
-import { routePatternFromFilePath, HTTP_METHODS } from '../Utils'
+import { routePatternFromFilePath} from '../Utils'
 
 import HttpRoute from './HttpRoute'
 import PageRoute from './PageRoute'
 import SocketRoute from './WebSocketRoute'
-import LazilyLoadedRoute from './LazilyLoadedRoute'
 
 export default class Routes extends EventTarget {
   initialised = false
@@ -47,14 +44,18 @@ export default class Routes extends EventTarget {
   }
 
   async initialise () {
+    // Get the files in the site being served.
     this.files = new Files()
+    this.filesByExtensionCategoryType = await this.files.initialise()
+
     // Start listening for file events after initialisation for
     // performance reasons (since we ignore events prior to initialisation anyway).
-    this.filesByExtensionCategoryType = await this.files.initialise()
     this.files.addEventListener('file', this.handleFileChange)
 
-    await this.createRoutes()
+    // Create the routes from the files structure.
+    this.createRoutes()
 
+    // Flag that we’re initialised (this affects event broadcasts).
     this.initialised = true
     
     return this.routes
@@ -71,58 +72,26 @@ export default class Routes extends EventTarget {
     }
   }
 
-  async createRoute (filePath) {
-    const pattern = routePatternFromFilePath(filePath)
-    const extension = path.extname(filePath).replace('.', '')
-    const method = HTTP_METHODS.includes(extension) ? extension : 'get'
-
-    const extensionsToRouteTypes = new Proxy({
-      'page': PageRoute,
-      'socket': SocketRoute
-    }, 
-    {
-      get (target, property, _receiver) {
-        // The default type if not page or socket.
-        if (!Object.keys(target).includes(property)) {
-          return HttpRoute            
-        } else {
-          return Reflect.get(...arguments)
-        }
-      }
-    })
-
-    console.verbose('[FILES] Creating route', pattern, extension)
-
-    // Get a bound refernece to the lazily loaded route’s handler.
-    const RouteType = extensionsToRouteTypes[extension]
-    console.log('...', extension, RouteType)
-    const handler = (new LazilyLoadedRoute(pattern, RouteType, filePath)).handler
-
-    console.verbose('[FILES] Adding route', method, pattern, filePath, handler)
-
-    this.routes[pattern] = {
-      method,
-      handler
-    }
-
-    // Debug: show state of handlers.
-    console.log('Latest state of routes:')
-    console.log(this.routes)
-    for (const [pattern, route] of Object.entries(this.routes)) {
-      console.log(pattern, ':', route)
-    }
-  }
-
-  // Create the routes and add them to the server.
+    // Create the routes and add them to the server.
   // The ESM Loaders will automatically handle any processing that needs to
   // happen during the import process.
-  async createRoutes () {
+  createRoutes () {
     const extensions = Object.keys(this.filesByExtensionCategoryType.allRoutes)
 
     for (const extension of extensions) {
       const filePaths = this.filesByExtensionCategoryType.allRoutes[extension]
       for (const filePath of filePaths) {
-        await this.createRoute(filePath)
+        const extension = path.extname(filePath).replace('.', '')
+
+        // If a specialised route type doesn’t exist for the given extension,
+        // default to the base HttpRoute type.
+        const RouteType = {
+          'page': PageRoute,
+          'socket': SocketRoute
+        }[extension] || HttpRoute
+
+        const pattern = routePatternFromFilePath(filePath)
+        this.routes[pattern] = new RouteType(filePath)
       }
     }
   }
