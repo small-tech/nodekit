@@ -141,7 +141,6 @@ export function routePatternFromFilePath (filePath) {
 // '/some_thing/with/underscores-and-hyphens' to
 // SomeThingWithUnderscoresAndHyphensPage
 export function classNameFromRoutePattern (pattern) {
-  console.log('class name from route pattern', pattern)
   const className = pattern
     .split('/').join('*')
     .split('-').join('*')

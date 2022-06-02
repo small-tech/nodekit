@@ -12,8 +12,6 @@ export default class PageRoute extends LazilyLoadedRoute {
   
   constructor (filePath) {
     super(filePath)
-    
-    console.log('PageRoute constructor', filePath)
     this.className = classNameFromFilePath(this.pattern) 
   }
 

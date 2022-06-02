@@ -115,14 +115,10 @@ export default class Files extends EventTarget {
     for (const extensionCategoryName of extensionCategoryNames) {
       const extensionCategory = extensionCategories[extensionCategoryName]
       
-      console.log(extensionCategoryName, extensionCategory)
-
       if (extensionCategory.includes(extension)) {
         // This might be the first time a file of this extension is encountered.
         // If so, create the category before attempting to add to it.
-        console.log(this.filesByExtensionCategoryType)
         const filesByExtension = this.filesByExtensionCategoryType[extensionCategoryName]
-        console.log('files by extension', filesByExtension)
         if (!filesByExtension[extension]) {
           filesByExtension[extension] = []
         }

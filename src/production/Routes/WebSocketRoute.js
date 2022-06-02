@@ -17,7 +17,6 @@ export default class WebSocketRoute extends LazilyLoadedRoute {
   }
   
   async lazilyLoadedHandler (request, response, next) {
-    console.verbose('WS next', next)
     if (!this.__handler) {
       this.__handler = (await import(this.filePath)).default
     }

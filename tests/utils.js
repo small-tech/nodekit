@@ -40,7 +40,6 @@ ${restOfPage}
 `
 
 test('basepath', t => {
-  console.log('>>>> ', process.cwd())
   const relativePathToEmptyProject = 'tests/fixtures/emptyProject'
   const absolutePathToEmptyProject = path.resolve(relativePathToEmptyProject)
 
