@@ -20,6 +20,7 @@ import { _findPath } from 'module'
 import polka from 'polka'
 import Routes from './Routes'
 import https from '@small-tech/https'
+import JSDB from '@small-tech/jsdb'
 
 // Temporarily using my own fork where sirv only responds to GET requests that
 // are not WebSocket requests (so as not to mask POST, WebSocket, etc., requests
@@ -90,7 +91,10 @@ export default class Server extends EventTarget {
     if (fs.existsSync(staticFolder)) {
       this.app.use('/', serveStaticMiddleware(staticFolder))
     }
-
+    
+    // Set up the global JavaScript Database (JSDB) instance.
+    globalThis.db = JSDB.open(path.join(basePath, '.db'))
+    
     // Get the handler from the Polka instance and create a secure site using it.
     // (Certificates are automatically managed by @small-tech/https).
     const { handler } = this.app

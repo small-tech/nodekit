@@ -6,6 +6,15 @@ import process from 'process'
 
 console.verbose = process.env.VERBOSE ? function () { console.log(...arguments) } : () => {}
 
+// Returns the path that NodeKit configuration data is stored in.
+export function configurationPath () {
+  const thePath = path.join(os.homedir(), '.small-tech.org', 'nodekit')
+  if (!fs.existsSync(thePath)) {
+    fs.mkdirSync(thePath, { recursive: true })
+  }
+  return thePath
+}
+
 // Calculate the base path used by the NodeKit server to find files in the served app.
 export function setBasePath (workingDirectory, pathToServe) {
   // Resolve the path to serve so that it works both when run as

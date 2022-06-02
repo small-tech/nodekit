@@ -1,5 +1,6 @@
 import { test, withoutWhitespace } from './helpers'
 
+import os from 'os'
 import fs from 'fs'
 import path from 'path'
 import * as utils from '../src/production/Utils'
@@ -70,6 +71,16 @@ test('basepath', t => {
   
   // TODO: Also test non-default working directory.
   // TODO: Also test that process.env.basePath is set.
+
+  t.end()
+})
+
+test ('configuration path', t => {
+  const expectedConfigurationPath = path.join(os.homedir(), '.small-tech.org', 'nodekit')
+  const actualConfigurationPath = utils.configurationPath()
+  
+  t.equal(actualConfigurationPath, expectedConfigurationPath, 'configuration path is as expected')
+  t.ok(fs.existsSync(actualConfigurationPath), 'configuration path exists on file system')
 
   t.end()
 })
