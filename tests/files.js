@@ -22,10 +22,10 @@ function sort(filesByExtension) {
 
 test('production', async t => {
   process.env.PRODUCTION = true
+  
+  process.env.basePath = path.join(fixturesPath, 'files')
 
-  const domainProjectPath = path.join(fixturesPath, 'files')
-  const files = new Files(domainProjectPath)
-
+  const files = new Files()
   const allFileCollections = await files.initialise()
 
   const expectedBackendRouteFilesByExtension = sort({

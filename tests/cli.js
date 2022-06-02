@@ -41,7 +41,6 @@ test('version', t => {
 
 test('command handlers exist', t => {
   t.equals(commands.tree.serve.handler, serveCommand, 'Serve command handler exists.')
-  t.equals(commands.tree.enable.handler, enableCommand, 'Enable command handler exists.')
   t.end()
 })
 
