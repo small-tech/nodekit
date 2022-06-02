@@ -9,7 +9,7 @@ import packageInfo from '../package.json' assert {type: 'json'}
 
 test('nodekit binary', t => {
   const output = execFileSync(path.resolve('bin/nodekit'), ['--version'], {timeout: 1000})
-  t.equals(output.toString().trim(), `NodeKit version ${packageInfo.version}`)
+  t.equals(output.toString().trim(), `NodeKit version ${packageInfo.version} – Production Mode`)
   t.end()
 })
 

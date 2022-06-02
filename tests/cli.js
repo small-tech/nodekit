@@ -1,8 +1,8 @@
 import { test } from './helpers'
 
-import CLI from '../lib/cli/index.js'
-import serveCommand from '../lib/cli/commands/serve.js'
-import enableCommand from '../lib/cli/commands/enable.js'
+import CLI from '../src/production/cli/index.js'
+import serveCommand from '../src/production/cli/commands/serve.js'
+import enableCommand from '../src/production/cli/commands/enable.js'
 
 import packageInfo from '../package.json' assert {type: 'json'}
 
@@ -26,7 +26,7 @@ test('version', t => {
   console.log = message => {
     // We’re only interested in the first message. Revert console.log().
     console.log = originalConsoleLog
-    t.equals(message, `NodeKit version ${packageInfo.version}`)
+    t.equals(message, `NodeKit version ${packageInfo.version} – Production Mode`)
   }
 
   process.exit = code => {

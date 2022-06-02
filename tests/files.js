@@ -9,7 +9,7 @@ const fixturesPath = path.join(__dirname, 'fixtures')
 
 const testFixturesDirectory = path.join(process.cwd(), 'tests', 'fixtures')
 
-import Files from '../lib/Files.js'
+import Files from '../src/production/Files'
 
 function sort(filesByExtension) {
   // Chokidar’s file system scan does not always return the files in the same order.

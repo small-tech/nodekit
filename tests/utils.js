@@ -2,7 +2,7 @@ import { test, withoutWhitespace } from './helpers'
 
 import fs from 'fs'
 import path from 'path'
-import * as utils from '../lib/Utils'
+import * as utils from '../src/production/Utils'
 
 import http from 'http'
 

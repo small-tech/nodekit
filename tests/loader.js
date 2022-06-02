@@ -1,6 +1,6 @@
 import path from 'path'
 import { test } from './helpers'
-import { context, resolve, load } from '../lib/processes/loader'
+import { context, resolve, load } from '../src/production/processes/loader'
 import fsPromises from 'fs/promises'
 import fs from 'fs'
 import os from 'os'
