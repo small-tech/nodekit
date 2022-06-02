@@ -218,7 +218,9 @@ test('development', async t => {
 })
 
 test('chokidar error handling', async t => {
-  const files = new Files('/')
+  process.env.basePath = '/'
+  const files = new Files()
   await t.rejects(async () => await files.initialise(), /EACCES/, 'attempting to watch root should throw EACCES')
   files.close()
 })
+
