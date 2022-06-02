@@ -40,28 +40,37 @@ ${restOfPage}
 `
 
 test('basepath', t => {
-  const initialPath = path.resolve('tests/fixtures/emptyProject')
-  const initialPathWithSrcFolder = path.resolve('tests/fixtures/emptyProjectWithSrcFolder')
+  console.log('>>>> ', process.cwd())
+  const relativePathToEmptyProject = 'tests/fixtures/emptyProject'
+  const absolutePathToEmptyProject = path.resolve(relativePathToEmptyProject)
+
+  const relativePathToProjectWithSrcFolder = 'tests/fixtures/emptyProjectWithSrcFolder'
+  const absolutePathToProjectWithSrcFolder = path.resolve(relativePathToProjectWithSrcFolder)
   
   // Since these are empty folders, they will not be held in the 
   // git repository. So we ensure they exist and create them if they do not
   // our test doesn’t fail erroneously.
-  if (!fs.existsSync(initialPath)) {
-    fs.mkdirSync(initialPath)
+  if (!fs.existsSync(absolutePathToEmptyProject)) {
+    fs.mkdirSync(absolutePathToEmptyProject)
   }
   
-  if (!fs.existsSync(initialPathWithSrcFolder)) {
-    fs.mkdirSync(path.join(initialPathWithSrcFolder, 'src'), {recursive: true})
+  if (!fs.existsSync(absolutePathToProjectWithSrcFolder)) {
+    fs.mkdirSync(path.join(absolutePathToProjectWithSrcFolder, 'src'), {recursive: true})
   }
   
-  const nonExistentPath = 'this-path-does-not-exist'
+  const relativeNonExistentPath = 'this-path-does-not-exist'
+  const absoluteNonExistentPath = path.resolve(relativeNonExistentPath)
 
-  const basePath = utils.calculateBasePath(initialPath)
-  const basePathWithSourceFolder = utils.calculateBasePath(initialPathWithSrcFolder)
+  const defaultWorkingDirectory = '.'
+  const basePath = utils.setBasePath(defaultWorkingDirectory, relativePathToEmptyProject)
+  const basePathWithSourceFolder = utils.setBasePath(defaultWorkingDirectory, relativePathToProjectWithSrcFolder)
 
-  t.equal(basePath, initialPath)
-  t.equal(basePathWithSourceFolder, path.join(initialPathWithSrcFolder, 'src'))
-  t.throws(() => utils.calculateBasePath(nonExistentPath), error => { return error.message === `Basepath ${nonExistentPath} does not exist`}, 'Non existent paths throw.')
+  t.equal(basePath, absolutePathToEmptyProject, 'base path to empty project is correct')
+  t.equal(basePathWithSourceFolder, path.join(absolutePathToProjectWithSrcFolder, 'src'), 'base path to project with src folder is correct')
+  t.throws(() => utils.setBasePath(defaultWorkingDirectory, relativeNonExistentPath), error => { return error.message === `Basepath (${absoluteNonExistentPath}) does not exist`}, 'Non existent paths throw.')
+  
+  // TODO: Also test non-default working directory.
+  // TODO: Also test that process.env.basePath is set.
 
   t.end()
 })
