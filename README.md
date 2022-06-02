@@ -14,7 +14,7 @@ _Because creating a modern web site should be simple if your aim isn’t to do s
 
 ## System requirements
 
-  - Node 16.4+ LTS.
+  - Node 18+ LTS.
   - Linux
 
 ### For deployment:
@@ -289,10 +289,6 @@ And hit _https://localhost_ to see the latest public timeline from Aral’s mast
 > 💾 This example is available in _examples/make-fetch-happen_. You can also find a version that demonstrates importing a third-party module called [node-fetch](https://github.com/node-fetch/node-fetch) and using that instead in _examples/_third-party-import-in-nodescript-node-fetch_.
 
 > 💾 There’s also version of this example that implements a streaming timeline in _examples/streaming-fediverse-posts_.
-
-> 💡 Fetch is not a native part of Node.js yet but it will be soon. NodeKit currently includes [undici’s](https://github.com/nodejs/undici) [fetch implementation](https://github.com/nodejs/undici#undicifetchinput-init-promise). This is [in the process of being included in Node.js core.](https://github.com/nodejs/node/pull/41749). Once it is, NodeKit will simply remove the third-party library and replace the reference with the internal one and your apps should continue to work as before.
->
-> If you notice any issues with the fetch functionality, please report them on [undici’s issue tracker](https://github.com/nodejs/undici/issues) and you will help make Node.js and NodeKit better in the process. (Thank you.)
 
 ## NodeScript
 

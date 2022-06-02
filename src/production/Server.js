@@ -18,8 +18,6 @@ import path from 'path'
 import { _findPath } from 'module'
 import vm from 'vm'
 
-import { fetch } from 'undici'
-
 import polka from 'polka'
 import Routes from './Routes'
 import { configurationPath } from './Utils'
