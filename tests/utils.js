@@ -102,9 +102,9 @@ test ('privileged ports', async t => {
 
 test ('class name from route', t => {
   t.equal(
-    utils.classNameFromRoute('/some_route/with/underscores-and-hyphens:and-a-parameter/or:two'), 'SomeRouteWithUnderscoresAndHyphensAndAParameterOrTwoPage'
+    utils.classNameFromRoutePattern('/some_route/with/underscores-and-hyphens:and-a-parameter/or:two'), 'SomeRouteWithUnderscoresAndHyphensAndAParameterOrTwoPage'
   )
-  t.equal(utils.classNameFromRoute('/'), 'IndexPage')
+  t.equal(utils.classNameFromRoutePattern('/'), 'IndexPage')
   t.end()
 })
 
