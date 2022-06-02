@@ -87,6 +87,8 @@ The best way to get started is to play with the examples.
   - Make Fetch Happen: `examples/make-fetch-happen`
   - Streaming Fediverse Posts: `examples/streaming-fediverse-posts`
   - Non-SSR Svelte Compiled Component Workaround (Particles): `examples/non-ssr-svelte-compiled-component-workaround-particles`
+  
+_Note:_ The `examples/non-ssr-svelte-source-component-boring-avatars` example is currently broken (also in main).
 
 e.g., to launch the Simple Chat example, run:
 
