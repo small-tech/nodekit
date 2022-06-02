@@ -26,7 +26,7 @@ test('production', async t => {
   process.env.basePath = path.join(fixturesPath, 'files')
 
   const files = new Files()
-  const allFileCollections = await files.initialise()
+  const filesByExtensionCategoryType = await files.initialise()
 
   const expectedBackendRouteFilesByExtension = sort({
     socket: [
@@ -111,10 +111,10 @@ test('production', async t => {
     ]
   })
 
-  t.equals(JSON.stringify(sort(allFileCollections.all)), JSON.stringify(expectedAllRouteFilesByExtension), 'all route files as expected')
-  t.equals(JSON.stringify(sort(allFileCollections.backend)), JSON.stringify(expectedBackendRouteFilesByExtension), 'backend route files as expected')
-  t.equals(JSON.stringify(sort(allFileCollections.frontend)), JSON.stringify(expectedFrontendRouteFilesByExtension), 'frontend route files as expected')
-  t.equals(JSON.stringify(sort(allFileCollections.dependency)), JSON.stringify(expectedDependencyFilesByExtension), 'all dependency files as expected')
+  t.equals(JSON.stringify(sort(filesByExtensionCategoryType.allRoutes)), JSON.stringify(expectedAllRouteFilesByExtension), 'all route files as expected')
+  t.equals(JSON.stringify(sort(filesByExtensionCategoryType.backendRoutes)), JSON.stringify(expectedBackendRouteFilesByExtension), 'backend route files as expected')
+  t.equals(JSON.stringify(sort(filesByExtensionCategoryType.frontendRoutes)), JSON.stringify(expectedFrontendRouteFilesByExtension), 'frontend route files as expected')
+  t.equals(JSON.stringify(sort(filesByExtensionCategoryType.dependencies)), JSON.stringify(expectedDependencyFilesByExtension), 'all dependency files as expected')
 
   delete(process.env.PRODUCTION)
 })
