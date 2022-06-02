@@ -1,25 +1,12 @@
 // Compiles and links the passed NodeScript.
 import vm from 'vm'
 import esbuild from 'esbuild'
-import { fetch } from 'undici'
-
-// The virtual machine context used to run NodeScript in.
-const context = vm.createContext({
-  // NodeKit globals.
-  db: globalThis.db,
-  // The app itself for advanced uses.
-  app: globalThis.app,
-  // Node.js globals.
-  console, URLSearchParams, URL, process,
-  // (Fetch is part of undici right now but slated to be part
-  // of Node 16 under an experimental flag and Node 18 without.
-  // Once that lands, we can replace this with the standard
-  // implementation.)
-  fetch
-})
 
 export default async function nodeScriptBundler (nodeScript, basePath) {
   let buildResult
+  
+  // TODO: Make this a singleton? 
+  const context = globalThis.context
 
   // Note: throws. Catch in caller.
   buildResult = await esbuild.build({

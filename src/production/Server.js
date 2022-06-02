@@ -16,9 +16,13 @@ import os from 'os'
 import fs from 'fs'
 import path from 'path'
 import { _findPath } from 'module'
+import vm from 'vm'
+
+import { fetch } from 'undici'
 
 import polka from 'polka'
 import Routes from './Routes'
+import { configurationPath } from './Utils'
 import https from '@small-tech/https'
 import JSDB from '@small-tech/jsdb'
 
@@ -93,7 +97,27 @@ export default class Server extends EventTarget {
     }
     
     // Set up the global JavaScript Database (JSDB) instance.
-    globalThis.db = JSDB.open(path.join(basePath, '.db'))
+    const databaseDirectory = path.join(configurationPath(), 'database')
+    const db = JSDB.open(databaseDirectory)
+
+    // The virtual machine context used to run NodeScript in.
+    // TODO: Pull this out into its own singleton or utility function?
+    globalThis.context = vm.createContext({
+      // NodeKit globals.
+      db,
+
+      // The app itself for advanced uses.
+      app: this.app,
+
+      // Node.js globals.
+      console, URLSearchParams, URL, process,
+
+      // (Fetch is part of undici right now but slated to be part
+      // of Node 16 under an experimental flag and Node 18 without.
+      // Once that lands, we can replace this with the standard
+      // implementation.)
+      fetch
+    })
     
     // Get the handler from the Polka instance and create a secure site using it.
     // (Certificates are automatically managed by @small-tech/https).
