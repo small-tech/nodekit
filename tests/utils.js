@@ -125,8 +125,8 @@ test ('parseSource', t => {
 })
 
 test ('routeFromFilePath', t => {
-  const basePath = utils.calculateBasePath()
-
+  const basePath = process.env.basePath
+  
   const supportedExtensions = ['get', 'head', 'patch', 'options', 'connect', 'delete', 'trace', 'post', 'put', 'page', 'socket']
 
   // Some manual tests of actual routes in the Domain app (https://github.com/small-tech/domain).
@@ -146,7 +146,7 @@ test ('routeFromFilePath', t => {
   }
 
   for (const expectation of expectations) {
-    t.equal(utils.routeFromFilePath(expectation[0]), expectation[1], expectation[0])
+    t.equal(utils.routePatternFromFilePath(expectation[0]), expectation[1], expectation[0])
   }
 
   t.end()
