@@ -81,20 +81,20 @@ PRODUCTION=true bin/nodekit examples/simple-chat/
 
 The best way to get started is to play with the examples.
 
-  - Hello Count: `examples/hello-count`
-  - Persisted Hello Count: `examples/persisted-hello-count`
-  - Simple Chat: `examples/simple-chat`
-  - Make Fetch Happen: `examples/make-fetch-happen`
-  - Streaming Fediverse Posts: `examples/streaming-fediverse-posts`
-  - Non-SSR Svelte Compiled Component Workaround (Particles): `examples/non-ssr-svelte-compiled-component-workaround-particles`
+  - Hello Count: _examples/hello-count_
+  - Persisted Hello Count: _examples/persisted-hello-count_
+  - Simple Chat: _examples/simple-chat_
+  - Make Fetch Happen: _examples/make-fetch-happen_
+  - Streaming Fediverse Posts: _examples/streaming-fediverse-posts_
+  - Non-SSR Svelte Compiled Component Workaround (Particles): _examples/non-ssr-svelte-compiled-component-workaround-particles_
   
-_Note:_ The `examples/non-ssr-svelte-source-component-boring-avatars` example is currently broken (also in main).
-
 e.g., to launch the Simple Chat example, run:
 
 ```shell
 nodekit examples/simple-chat
 ```
+
+_Note:_ The `examples/non-ssr-svelte-source-component-boring-avatars` example is currently broken (also in main). Also, remember to run `npm install` on any examples that have a _package.json_ file in them.
 
 ## Tutorials
 
@@ -102,7 +102,7 @@ nodekit examples/simple-chat
 
 Let’s quickly create and test your first “Hello, world!” NodeKit site.
 
-Create a file called `index.page` and add the following content to it:
+Create a file called _index.page_ and add the following content to it:
 
 ```html
 <h1>Hello, world!</h1>
@@ -302,11 +302,11 @@ NodeScript is a superset of [Svelte](https://svelte.dev) that includes support f
 
 ## APIs and working with data
 
-For many projects, you should be able to keep your both your client and server code in the same `.page` file using NodeScript.
+For many projects, you should be able to keep your both your client and server code in the same _.page_ file using NodeScript.
 
-However, if you have an API or purely data-related routes, you can create server-side routes by creating files with any valid HTTP1/1.1 method lowercased as the file extension (i.e., `.get`, `.post`, `.patch`, `.head`, etc.)
+However, if you have an API or purely data-related routes, you can create server-side routes by creating files with any valid HTTP1/1.1 method lowercased as the file extension (i.e., _.get_, _.post_, _.patch_, _.head_, etc.)
 
-Also, you can create a WebSocket route simply by creating a `.socket` file.
+Also, you can create a WebSocket route simply by creating a _.socket_ file.
 
 e.g.,
 
@@ -322,11 +322,11 @@ my-project
      ╰ index.socket
 ```
 
-Optionally, to organise larger projects, you can encapsulate your site within a `src` folder. If a `src` folder does exist, NodeKit will only serve routes from that folder and not from the project root.
+Optionally, to organise larger projects, you can encapsulate your site within a _src_ folder. If a _src_ folder does exist, NodeKit will only serve routes from that folder and not from the project root.
 
 e.g.,
 
-```text
+__`text
 my-project
   ├ src
   │  ├ index.page
@@ -362,11 +362,11 @@ All HTTP request methods are supported.
 
 You create an HTTP route by create a JavaScript file named with the HTTP request method you want to respond to.
 
-For example, to respond to GET requests at `/books`, you would create a file named `books.get` in the root of your source folder.
+For example, to respond to GET requests at _/books_, you would create a file named _books.get_ in the root of your source folder.
 
 The content of HTTP routes is an ESM module that exports a standard Node route request handler that takes [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) and [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse) arguments.
 
-For example, your `books.get` route might look like this:
+For example, your _books.get_ route might look like this:
 
 ```js
 export default (request, response) => {
@@ -377,7 +377,7 @@ export default (request, response) => {
 
 ## WebSocket routes
 
-WebSocket routes are defined in files ending with the `.socket` extension.
+WebSocket routes are defined in files ending with the _.socket_ extension.
 
 They resemble HTTP routes but get the socket passed in as an extra initial parameter.
 
@@ -447,7 +447,7 @@ NodeKit has an integrated [JSDB](https://github.com/small-tech/jsdb) database th
 
 JSDB is a transparent, in-memory, streaming write-on-update JavaScript database for the Small Web that persists to a JavaScript transaction log.
 
-If you’ve created at least one table on the database, you can find it in the `.db` folder. Tables in JSDB are simply JavaScript objects or arrays and JSDB writes to plain old JavaScript files.
+If you’ve created at least one table on the database, you can find it in the _.db_ folder. Tables in JSDB are simply JavaScript objects or arrays and JSDB writes to plain old JavaScript files.
 
 [Learn more about JSDB.](https://github.com/small-tech/jsdb)
 
@@ -479,7 +479,7 @@ Will compile the NodeKit page and make it available for HTTP GET requests at:
 /books/:id/pages/:page
 ```
 
-So you can access the route via, say, `https://my.site/books/3/pages/10`.
+So you can access the route via, say, _https://my.site/books/3/pages/10_.
 
 You can also specify the same routes using folder structures. For example, the following directory structure will result in the same route as above:
 
@@ -491,7 +491,7 @@ my-site
              ╰ [page].page
 ```
 
-Note that you could also have set the name of the page to `index_[page].page`. Using just `[page].page` for a parameterised index page is a shorthand.
+Note that you could also have set the name of the page to _index_[page].page_. Using just _[page].page_ for a parameterised index page is a shorthand.
 
 You can decide which strategy to follow based on the structure of your app. If, for example, you could access not just the pages but the references and images of a book, it might make sense to use a folder structure:
 
@@ -553,9 +553,9 @@ my-project
       ╰ contacts.post
 ```
 
-In all of the above versions, HTTP GET calls to `/contacts` will find `contacts.page` and HTTP POST calls to `/contacts` will find `contacts.post`.
+In all of the above versions, HTTP GET calls to _/contacts_ will find _contacts.page_ and HTTP POST calls to _/contacts_ will find _contacts.post_.
 
-_(If you wanted your `contacts.post` route to be accessible from `/api/contacts` instead, you would just remove the `#` and make it a regular folder.)_
+_(If you wanted your __contacts.post__ route to be accessible from __/api/contacts__ instead, you would just remove the __#__ and make it a regular folder.)_
 
 ## Static files
 
@@ -579,7 +579,7 @@ Default command.
 
 > 💡 `nodekit serve [path to serve]` and `nodekit [path to serve]` are equivalent.
 
-Note that if do not specify a path to serve, the default directory (`./`) is assumed.
+Note that if do not specify a path to serve, the default directory (_./_) is assumed.
 
 ### --version
 
@@ -595,7 +595,7 @@ To build a distribution bundle for NodeKit, run:
 ./build
 ```
 
-You will find the distribution under the `dist/` folder.
+You will find the distribution under the _dist/_ folder.
 
 To run NodeKit from the distribution folder, use the following syntax:
 
@@ -603,7 +603,7 @@ To run NodeKit from the distribution folder, use the following syntax:
 ./nodekit [path to serve]
 ```
 
-> 💡 It’s usually easier just to run `bin/nodekit [path to serve]` without building or, to test the distribution build, the `./quick-install` script as that will run build for you and install the nodekit command into your path so you can run it as `nodekit [path to serve]`
+> 💡 It’s usually easier just to run `bin/nodekit [path to serve]` without building or, to test the distribution build, the _./quick-install_ script as that will run build for you and install the nodekit command into your path so you can run it as `nodekit [path to serve]`
 
 ## Debugging
 
@@ -706,9 +706,9 @@ To update NodeKit to the latest version:
 > of the main branch as I’m experimenting with different ways to support this
 > use case as we speak.
 
-  - Non-SSR Svelte Source Component (Boring Avatars): `examples/non-ssr-svelte-source-component-boring-avatars`
-  - Non-SSR Svelte Source Component (Tree): `examples/non-ssr-svelte-source-component-tree`
-  - Non-SSR Svelte Compiled Component Workaround (Particles): `examples/non-ssr-svelte-compiled-component-workaround-particles`
+  - Non-SSR Svelte Source Component (Boring Avatars): _examples/non-ssr-svelte-source-component-boring-avatars_
+  - Non-SSR Svelte Source Component (Tree): _examples/non-ssr-svelte-source-component-tree_
+  - Non-SSR Svelte Compiled Component Workaround (Particles): _examples/non-ssr-svelte-compiled-component-workaround-particles_
 
 ## To do or not to do?
 
@@ -789,7 +789,7 @@ In addition to the ones already implemented:
 
 ## Layouts
 
-It’s common to want a shared header and footer on pages on the same site (or in different sections of a site). You can control the layout of your pages using `.layout` files.
+It’s common to want a shared header and footer on pages on the same site (or in different sections of a site). You can control the layout of your pages using _.layout_ files.
 
 | File name | Type | Behaviour |
 | --------- | ---- | --------- |
@@ -804,7 +804,7 @@ Generic API routes are useful when the same route is going to be called from the
 
 But what if you wanted to get the list of books from your database just to render them in your Books page?
 
-For that use case you, can create a `.data` file, which is essentially an HTTP GET route for data that is tightly coupled to a single page.
+For that use case you, can create a _.data_ file, which is essentially an HTTP GET route for data that is tightly coupled to a single page.
 
 __books.data__
 ```js
@@ -846,7 +846,7 @@ Specifically, NodeScript extends Svelte to enable you to easily server-side rend
 
 While you can define your [HTTP routes](#http-routes) in separate files, you can also define them inline, right inside your pages.
 
-So, for example, instead of a separate `books.get` route, your `books.page` could look like this:
+So, for example, instead of a separate _books.get_ route, your _books.page_ could look like this:
 
 ```svelte
 <data>
@@ -873,7 +873,7 @@ So, for example, instead of a separate `books.get` route, your `books.page` coul
 </ul>
 ```
 
-In the above example, when someone hits `/books`:
+In the above example, when someone hits _/books_:
 
 1. The `get` handler will run and retrieve a list of the books from the integrated database. (The reference to `db` is globally accessible from all routes.)
 
@@ -883,7 +883,7 @@ In the above example, when someone hits `/books`:
 
 Once the page has loaded, it will be hydrated and the script in the `<script>` tag will run in the browser, setting up an interval that will refresh the list of books every minute.
 
-Note that when doing the `fetch` request, we specify `/books/data` as the URL. This is an automatically generated HTTP GET route that you can call for exactly this sort of purpose.
+Note that when doing the `fetch` request, we specify _/books/data_ as the URL. This is an automatically generated HTTP GET route that you can call for exactly this sort of purpose.
 
 Also note that the behaviour of inline data request handlers is the same as for the external ones.
 
@@ -899,7 +899,7 @@ __TODO: Migrations are currently not supported in JSDB.__
 
 The integrated [JSDB](https://github.com/small-tech/jsdb) database supports migrations.
 
-A migration is simply a JavaScript file with a `.migration` extension.
+A migration is simply a JavaScript file with a _.migration_ extension.
 
 The naming convention is:
 
@@ -911,9 +911,9 @@ NodeKit will run your migrations in order and update the `version` property of t
 
 ## Middleware
 
-NodeKit supports Connect-style middleware. All you have to do is define your middleware in a JavaScript file with a `.middleware` extension.
+NodeKit supports Connect-style middleware. All you have to do is define your middleware in a JavaScript file with a _.middleware_ extension.
 
-For example, to allow all Cross Origin Requests (CORS), save the following middleware in a file called `allow-all-cors.middleware` anywhere in your project (that’s not in the `#static` folder):
+For example, to allow all Cross Origin Requests (CORS), save the following middleware in a file called _allow-all-cors.middleware_ anywhere in your project (that’s not in the _#static_ folder):
 
 ```js
 module.exports = (request, response, next) => {
@@ -929,7 +929,7 @@ __Tentative: THIS FEATURE MIGHT BE REMOVED.__
 
 By default, NodeKit uses a very basic outermost HTML template and expects you to use [layouts](#layouts) and the <a href='https://svelte.dev/docs#svelte_head'>&lt;svelte:head&gt;</a> element to inject anything you might need into `document.head`.
 
-That said, you can override this template by providing a `Layout.html` in your main source folder.
+That said, you can override this template by providing a _Layout.html_ in your main source folder.
 
 When creating a custom Layout template, you must include the special placeholders that tell NodeKit where to include different parts of a page.
 
@@ -1015,7 +1015,7 @@ With NodeKit, you deploy your application using Git.
 
 Add your production site’s git repository as your production remote in git.
 
-For example, say you’re hosting it on small-web.org and your project/domain is called `your-project`. To deploy:
+For example, say you’re hosting it on small-web.org and your project/domain is called _your-project_. To deploy:
 
 ```shell
 git remote add production https://your-project.small-web.org/source/self.git
