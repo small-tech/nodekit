@@ -14,9 +14,10 @@ if [ ! -z "$PRODUCTION" ]; then
     ./src/production/processes/loader.js ./src/production/processes/main.js "$@"
 else
   # Development mode
-  QUIET=true NODE_OPTIONS='--require=./suppress-experimental.cjs' node \
-    --enable-source-maps --experimental-modules --experimental-specifier-resolution=node \
-    --experimental-vm-modules --experimental-loader \
-    ./src/development/processes/loader.js ./src/development/processes/main.js "$@"
+  echo 'Development mode not implemented yet. Run production mode by setting PRODUCTION=true.'
+  # QUIET=true NODE_OPTIONS='--require=./suppress-experimental.cjs' node \
+  #   --enable-source-maps --experimental-modules --experimental-specifier-resolution=node \
+  #   --experimental-vm-modules --experimental-loader \
+  #   ./src/development/processes/loader.js ./src/development/processes/main.js "$@"
 fi
 
