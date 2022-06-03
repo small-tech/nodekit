@@ -124,7 +124,7 @@ export default class Files extends EventTarget {
         }
 
         filesByExtension[extension].push(filePath)
-
+        
         this.notifyListeners('route', 'added', extension, filePath)
       }  
     }
@@ -140,7 +140,7 @@ export default class Files extends EventTarget {
         }
       }))
     } else {
-      console.verbose('[notifyListeners]', itemPath, 'ignoring', 'not initialised')
+      // console.verbose('[notifyListeners]', itemPath, 'ignoring', 'not initialised')
     }
   }
 

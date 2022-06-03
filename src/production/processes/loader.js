@@ -205,6 +205,7 @@ async function compileSource(filePath) {
 
     routeDetails = {
       pattern,
+      filePath,
       contents: {
         routeRelativePath,
         nodeScript,

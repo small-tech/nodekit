@@ -18,7 +18,7 @@ import path from 'path'
 import { _findPath } from 'module'
 import Files from '../Files.js'
 import LoaderAndMainProcessBroadcastChannel from '../LoaderAndMainProcessBroadcastChannel.js'
-import { routePatternFromFilePath} from '../Utils'
+import { routePatternFromFilePath, extensionOfFilePath } from '../Utils'
 
 import HttpRoute from './HttpRoute'
 import PageRoute from './PageRoute'
@@ -39,8 +39,9 @@ export default class Routes extends EventTarget {
     // which is really just another worker process.
     this.broadcastChannel = new LoaderAndMainProcessBroadcastChannel()
     this.broadcastChannel.onmessage = event => {
-      console.verbose('About to update contents of route', event.data.pattern, event.data.contents)
-      Object.assign(this.routes[event.data.pattern], event.data.contents)
+      console.verbose('About to update contents of route', event.data.pattern, event.data.contents, event.data.filePath)
+
+      Object.assign(this.routes[extensionOfFilePath(event.data.filePath)][event.data.pattern], event.data.contents)
     }
   }
 
@@ -73,12 +74,12 @@ export default class Routes extends EventTarget {
     }
   }
 
-    // Create the routes and add them to the server.
+  // Create the routes and add them to the server.
   // The ESM Loaders will automatically handle any processing that needs to
   // happen during the import process.
   createRoutes () {
     const extensions = Object.keys(this.filesByExtensionCategoryType.allRoutes)
-
+    
     for (const extension of extensions) {
       const filePaths = this.filesByExtensionCategoryType.allRoutes[extension]
       for (const filePath of filePaths) {
@@ -90,11 +91,15 @@ export default class Routes extends EventTarget {
           'page': PageRoute,
           'socket': SocketRoute
         }[extension] || HttpRoute
-
+        
+        if (this.routes[extension] === undefined) {
+          this.routes[extension] = []
+        }
         const pattern = routePatternFromFilePath(filePath)
-        this.routes[pattern] = new RouteType(filePath)
+        this.routes[extension][pattern] = new RouteType(filePath)
       }
     }
+    console.log('Routes', this.routes)
   }
 }
 

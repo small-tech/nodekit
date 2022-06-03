@@ -27,6 +27,8 @@ import JSDB from '@small-tech/jsdb'
 // Temporarily using my own fork where sirv only responds to GET requests that
 // are not WebSocket requests (so as not to mask POST, WebSocket, etc., requests
 // that may be on the same path).
+import serveStaticMiddleware from '@small-tech/sirv'
+
 import { tinyws } from 'tinyws'
 
 export default class Server extends EventTarget {
@@ -81,17 +83,21 @@ export default class Server extends EventTarget {
   }
 
   async initialise () {
-    this.routes = await (new Routes()).initialise()
-    
-    // Add dynamic routes to server.
-    for (const [pattern, route] of Object.entries(this.routes)) {
-      this.app[route.method](pattern, route.handler)
-    }
-    
     // Add static routes to server.
+    // Note: in Polka all middleware must come before regular routes.
     const staticFolder = path.join(process.env.basePath, '#static')
     if (fs.existsSync(staticFolder)) {
       this.app.use('/', serveStaticMiddleware(staticFolder))
+    }
+    
+    this.routes = await (new Routes()).initialise()
+    
+    // Add dynamic routes to server.
+    for (const routesOfType of Object.values(this.routes)) {
+      for (const [pattern, route] of Object.entries(routesOfType)) {
+        console.verbose('Adding route', route.method, pattern, route.handler)
+        this.app[route.method](pattern, route.handler)
+      }
     }
     
     // Set up the global JavaScript Database (JSDB) instance.
@@ -124,6 +130,7 @@ export default class Server extends EventTarget {
     this.server = https.createServer(this.options, handler)
     this.server.listen(443, () => {
       console.info(`⬢ NodeKit\n\n  💾 ${process.env.basePath}\n  🌍 https://${this.hostname}\n`)
+      console.info(this.app.routes)
     })
   }
 }
