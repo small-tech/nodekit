@@ -634,7 +634,9 @@ bin/nodekit-inspect [path to serve]
 
 ## Testing
 
-Tests are written in [tape-with-promises](https://github.com/small-tech/tape-with-promises). Coverage is provided by [c8](https://github.com/bcoe/c8).
+Tests are written in [Tape With Promises](https://github.com/small-tech/tape-with-promises), run using [ESM Tape Runner](https://github.com/small-tech/esm-tape-runner), and displayed using [Tap Monkey](https://github.com/small-tech/tap-monkey/).
+
+Coverage is provided by [c8](https://github.com/bcoe/c8).
 
 Run tests:
 
@@ -648,6 +650,7 @@ Run coverage:
 npm run -s coverage
 ```
 
+💡️ The `-s` just silences the npm logs for cleaner output.
 
 ## Technical design
 
@@ -668,26 +671,6 @@ Additionally, NodeKit relies on a number of core dependencies for its essential 
 | [node-git-server](https://github.com/gabrielcsapo/node-git-server) | Git server for hosting your source code. Used in deployments. |
 | [isomorphic-git](https://isomorphic-git.org/) | Git client used in deployments on development and for handling auto-updates on production.|
 | [sade](https://github.com/lukeed/sade) | A small command-line interface (CLI) framework that uses [mri](https://github.com/lukeed/mri) for its argument parsing. |
-
-## Testing
-
-__NodeKit aims to have 100% code coverage.__ (This does not mean that it will be bug free. It just means that any bugs that may exist will be well tested!) :P
-
-Tests are written in [Tape With Promises](https://github.com/small-tech/tape-with-promises) and displayed using [Tap Monkey](https://github.com/small-tech/tap-monkey/).
-
-Run tests:
-
-```shell
-npm run -s test
-```
-
-Run coverage:
-
-```shell
-npm run -s coverage
-```
-
-💡️ The `-s` just silences the npm logs for cleaner output.
 
 ## Frequently-Asked Questions (FAQs)
 
@@ -715,7 +698,7 @@ But I will fucking haunt you in your nightmares.
 
 Also, it’s not nice. Don’t.
 
-### Are these really frequently asked questions or a political statement?
+### Is this really a Frequently Asked Questions section or a political statement?
 
 Can’t it be both?
 
