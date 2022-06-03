@@ -1,6 +1,19 @@
+<data>
+  export default (request, response) => {
+    return { 
+      subtraction: {
+        firstOperand: 10, 
+        secondOperand: 4
+      }
+    }
+  }
+</data>
+
 <h1>Components</h1>
 
 <script>
+  export let data
+
   import Addition from './Addition.component'
   import Subtraction from './Subtraction.component'
 </script>
@@ -9,7 +22,7 @@
 <Addition firstOperand=2 secondOperand=2/>
 <Addition firstOperand=12 secondOperand=2/>
 
-<Subtraction firstOperand=10 secondOperand=4/>
+<Subtraction firstOperand={data.subtraction.firstOperand} secondOperand={data.subtraction.secondOperand}/>
 
 <style>
   * :global(body) {

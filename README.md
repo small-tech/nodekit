@@ -1,44 +1,31 @@
 # ![NodeKit logo](./nodekit-logo.svg) NodeKit
 
 > ## 💀 __Warning:__ NodeKit is in a very early state. It is not feature-complete.
+> 
+> Sections marked with ⚠️ represent features that are not working yet in the main branch. See the [prototype](https://github.com/small-tech/nodekit/tree/prototype) branch a preview of the functionality that is slowly being implemented in a maintainable manner here in the main branch.
 >
-> You can have a play but proceed at your own risk. ___Here be dragons, etc.___
+> Please feel free to have a play but proceed at your own risk. ___Here be dragons, etc.___
 
 ## A [Small Web](https://small-tech.org/research-and-development) server.
 
-NodeKit is a web server with an integrated application framework that makes web development _even easier_ than it was in the early days.
+NodeKit is a [small web](https://small-tech.org/research-and-development/) server for people, not corporations.
 
-Enjoy buildl-free web development with a modern stack built on top of [Node.js](https://nodejs.org/en/), [experimental ESM loaders](https://nodejs.org/docs/latest-v16.x/api/esm.html#loaders), [NodeScript](#nodescript) (a superset of [Svelte](https://svelte.dev)), and [esbuild](https://esbuild.github.io/).
+It has a modern integrated application framework that makes web development _even easier_ than it was in the early days. (Our goal is not to go backwards to some mythical time in the past when things were good but to go forward differently.)
 
-_Because creating a modern web site should be simple if your aim isn’t to do something nasty to people._
+NodeKit offers build-free web development with a modern stack built on top of [Node.js](https://nodejs.org/en/), [experimental ESM loaders](https://nodejs.org/docs/latest-v16.x/api/esm.html#loaders), [NodeScript](#nodescript) (a superset of [Svelte](https://svelte.dev)), and [esbuild](https://esbuild.github.io/).
 
-## Contents
+And you can use it in production to host your small web sites.
 
- This readme is split into two parts:
-
-   - [How things are](#how-things-are)
-   - [How things will be](#how-things-will-be)
-
- The first describes the current state of the project and what you can do with it now. The second, which you can think of as a design document, describes where I want to take it.
-
-> &nbsp;
-> &nbsp;
-> ## 🤓👍 You are now entering the present…
-> &nbsp;
-> &nbsp;
-
-# How things are
-
-> __Status:__ not feature complete and rapidly evolving.
-
-## This section describes the current state of the project and the codebase.
-
-__Instructions and examples in this section should work.__ If you’re having a play and notice something doesn’t work as described here, please open an issue if you can.
+_Because creating a modern web site should be simple if your aim isn’t to do nasty things to people._
 
 ## System requirements
 
-  - Node 16.x+ LTS.
+  - Node 18+ LTS.
   - Linux
+
+### For production servers:
+
+  - systemd
 
 ## Install
 
@@ -54,7 +41,7 @@ __Instructions and examples in this section should work.__ If you’re having a 
       cd nodekit
       ```
 
-  3. Install.
+  3. ⚠️ Install.
 
       ```shell
       ./install
@@ -62,7 +49,7 @@ __Instructions and examples in this section should work.__ If you’re having a 
 
 ## Getting started
 
-You can run NodeKit using the following syntax:
+⚠️ You can run NodeKit using the following syntax:
 
 ```shell
 nodekit [path to serve]
@@ -72,6 +59,26 @@ During development, you can also run NodeKit from the source folder like this:
 
 ```shell
 bin/nodekit [path to serve]
+```
+
+> ⚠️ __2022-06-03:__ Currently, you must start NodeKit in production mode using the development syntax:
+> 
+> ```shell
+> PRODUCTION=true bin/nodekit [path to serve]
+> ```
+> 
+> (Development mode has not yet been implemented in the main branch and the build script has not been updated yet either.
+> 
+> If you want to play around with development mode, please `checkout` and play with the [prototype branch](https://github.com/small-tech/nodekit/tree/prototype).
+
+## Production
+
+In production mode, ⚠️ NodeKit runs as a systemd service.
+
+You can start NodeKit in production mode by setting the `PRODUCTION` environment variable to a non-empty value. e.g.,
+
+```shell
+PRODUCTION=true bin/nodekit examples/simple-chat/
 ```
 
 > 💡 By default, NodeKit will be as quiet as possible in the console and only surface warnings and errors.
@@ -90,28 +97,33 @@ bin/nodekit [path to serve]
 
 The best way to get started is to play with the examples.
 
-  - Hello Count: `examples/hello-count`
-  - Persisted Hello Count: `examples/persisted-hello-count`
-  - Simple Chat: `examples/simple-chat`
-  - Make Fetch Happen: `examples/make-fetch-happen`
-  - Streaming Fediverse Posts: `examples/streaming-fediverse-posts`
-  - Non-SSR Svelte Compiled Component Workaround (Particles): `examples/non-ssr-svelte-compiled-component-workaround-particles`
-
+  - Hello Count: _examples/hello-count_
+  - Persisted Hello Count: _examples/persisted-hello-count_
+  - Simple Chat: _examples/simple-chat_
+  - Make Fetch Happen: _examples/make-fetch-happen_
+  - Streaming Fediverse Posts: _examples/streaming-fediverse-posts_
+  - Non-SSR Svelte Compiled Component Workaround (Particles): _examples/non-ssr-svelte-compiled-component-workaround-particles_
+  
 e.g., to launch the Simple Chat example, run:
 
 ```shell
 nodekit examples/simple-chat
 ```
 
-> Early bird warning: NodeKit doesn’t currently watch for changes to the source and automatically reload your routes when you update them. For the time being, you will have to manually restart the server any time you make a change. (Yes, this is going to change quite radically in the coming days and weeks.) 😉
+💡️ Remember to run `npm install` on any examples that have a _package.json_ file in them.
+
+⚠️ The `examples/non-ssr-svelte-source-component-boring-avatars` example is currently broken.
+
 
 ## Tutorials
+
+⚠️ __2022-06-03:__ For the time being, either substitute `PRODUCTION=true bin/nodekit` for `nodekit` in the tutorials or use the [prototype branch](https://github.com/small-tech/nodekit/tree/prototype) to see behaviour that matches what is described below.
 
 ### Hello, world!
 
 Let’s quickly create and test your first “Hello, world!” NodeKit site.
 
-Create a file called `index.page` and add the following content to it:
+Create a file called _index.page_ and add the following content to it:
 
 ```html
 <h1>Hello, world!</h1>
@@ -299,10 +311,6 @@ And hit _https://localhost_ to see the latest public timeline from Aral’s mast
 
 > 💾 There’s also version of this example that implements a streaming timeline in _examples/streaming-fediverse-posts_.
 
-> 💡 Fetch is not a native part of Node.js yet but it will be soon. NodeKit currently includes [undici’s](https://github.com/nodejs/undici) [fetch implementation](https://github.com/nodejs/undici#undicifetchinput-init-promise). This is [in the process of being included in Node.js core.](https://github.com/nodejs/node/pull/41749). Once it is, NodeKit will simply remove the third-party library and replace the reference with the internal one and your apps should continue to work as before.
->
-> If you notice any issues with the fetch functionality, please report them on [undici’s issue tracker](https://github.com/nodejs/undici/issues) and you will help make Node.js and NodeKit better in the process. (Thank you.)
-
 ## NodeScript
 
 With NodeKit, you write your apps using NodeScript.
@@ -311,11 +319,11 @@ NodeScript is a superset of [Svelte](https://svelte.dev) that includes support f
 
 ## APIs and working with data
 
-For many projects, you should be able to keep your both your client and server code in the same `.page` file using NodeScript.
+For many projects, you should be able to keep your both your client and server code in the same _.page_ file using NodeScript.
 
-However, if you have an API or purely data-related routes, you can create server-side routes by creating files with any valid HTTP1/1.1 method lowercased as the file extension (i.e., `.get`, `.post`, `.patch`, `.head`, etc.)
+However, if you have an API or purely data-related routes, you can create server-side routes by creating files with any valid HTTP1/1.1 method lowercased as the file extension (i.e., _.get_, _.post_, _.patch_, _.head_, etc.)
 
-Also, you can create a WebSocket route simply by creating a `.socket` file.
+Also, you can create a WebSocket route simply by creating a _.socket_ file.
 
 e.g.,
 
@@ -331,11 +339,11 @@ my-project
      ╰ index.socket
 ```
 
-Optionally, to organise larger projects, you can encapsulate your site within a `src` folder. If a `src` folder does exist, NodeKit will only serve routes from that folder and not from the project root.
+Optionally, to organise larger projects, you can encapsulate your site within a _src_ folder. If a _src_ folder does exist, NodeKit will only serve routes from that folder and not from the project root.
 
 e.g.,
 
-```text
+__`text
 my-project
   ├ src
   │  ├ index.page
@@ -371,11 +379,11 @@ All HTTP request methods are supported.
 
 You create an HTTP route by create a JavaScript file named with the HTTP request method you want to respond to.
 
-For example, to respond to GET requests at `/books`, you would create a file named `books.get` in the root of your source folder.
+For example, to respond to GET requests at _/books_, you would create a file named _books.get_ in the root of your source folder.
 
 The content of HTTP routes is an ESM module that exports a standard Node route request handler that takes [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) and [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse) arguments.
 
-For example, your `books.get` route might look like this:
+For example, your _books.get_ route might look like this:
 
 ```js
 export default (request, response) => {
@@ -386,7 +394,7 @@ export default (request, response) => {
 
 ## WebSocket routes
 
-WebSocket routes are defined in files ending with the `.socket` extension.
+WebSocket routes are defined in files ending with the _.socket_ extension.
 
 They resemble HTTP routes but get the socket passed in as an extra initial parameter.
 
@@ -456,7 +464,7 @@ NodeKit has an integrated [JSDB](https://github.com/small-tech/jsdb) database th
 
 JSDB is a transparent, in-memory, streaming write-on-update JavaScript database for the Small Web that persists to a JavaScript transaction log.
 
-If you’ve created at least one table on the database, you can find it in the `.db` folder. Tables in JSDB are simply JavaScript objects or arrays and JSDB writes to plain old JavaScript files.
+If you’ve created at least one table on the database, you can find it in the _.db_ folder. Tables in JSDB are simply JavaScript objects or arrays and JSDB writes to plain old JavaScript files.
 
 [Learn more about JSDB.](https://github.com/small-tech/jsdb)
 
@@ -488,7 +496,7 @@ Will compile the NodeKit page and make it available for HTTP GET requests at:
 /books/:id/pages/:page
 ```
 
-So you can access the route via, say, `https://my.site/books/3/pages/10`.
+So you can access the route via, say, _https://my.site/books/3/pages/10_.
 
 You can also specify the same routes using folder structures. For example, the following directory structure will result in the same route as above:
 
@@ -500,7 +508,7 @@ my-site
              ╰ [page].page
 ```
 
-Note that you could also have set the name of the page to `index_[page].page`. Using just `[page].page` for a parameterised index page is a shorthand.
+Note that you could also have set the name of the page to _index_[page].page_. Using just _[page].page_ for a parameterised index page is a shorthand.
 
 You can decide which strategy to follow based on the structure of your app. If, for example, you could access not just the pages but the references and images of a book, it might make sense to use a folder structure:
 
@@ -562,9 +570,9 @@ my-project
       ╰ contacts.post
 ```
 
-In all of the above versions, HTTP GET calls to `/contacts` will find `contacts.page` and HTTP POST calls to `/contacts` will find `contacts.post`.
+In all of the above versions, HTTP GET calls to _/contacts_ will find _contacts.page_ and HTTP POST calls to _/contacts_ will find _contacts.post_.
 
-_(If you wanted your `contacts.post` route to be accessible from `/api/contacts` instead, you would just remove the `#` and make it a regular folder.)_
+_(If you wanted your __contacts.post__ route to be accessible from __/api/contacts__ instead, you would just remove the __#__ and make it a regular folder.)_
 
 ## Static files
 
@@ -588,7 +596,7 @@ Default command.
 
 > 💡 `nodekit serve [path to serve]` and `nodekit [path to serve]` are equivalent.
 
-Note that if do not specify a path to serve, the default directory (`./`) is assumed.
+Note that if do not specify a path to serve, the default directory (_./_) is assumed.
 
 ### --version
 
@@ -596,7 +604,7 @@ Displays the version number.
 
 _Currently does not exit the process unless when run from the distribution build._
 
-## Building NodeKit
+## ⚠️ Building NodeKit
 
 To build a distribution bundle for NodeKit, run:
 
@@ -604,7 +612,7 @@ To build a distribution bundle for NodeKit, run:
 ./build
 ```
 
-You will find the distribution under the `dist/` folder.
+You will find the distribution under the _dist/_ folder.
 
 To run NodeKit from the distribution folder, use the following syntax:
 
@@ -612,9 +620,9 @@ To run NodeKit from the distribution folder, use the following syntax:
 ./nodekit [path to serve]
 ```
 
-> 💡 It’s usually easier just to run `bin/nodekit [path to serve]` without building or, to test the distribution build, the `./quick-install` script as that will run build for you and install the nodekit command into your path so you can run it as `nodekit [path to serve]`
+> 💡 It’s usually easier just to run `bin/nodekit [path to serve]` without building or, to test the distribution build, the _./quick-install_ script as that will run build for you and install the nodekit command into your path so you can run it as `nodekit [path to serve]`
 
-## Debugging
+## ⚠️ Debugging
 
 To run NodeKit with the Node debugger (`node --inspect`), start it using:
 
@@ -624,433 +632,21 @@ bin/nodekit-inspect [path to serve]
 
 > 💡 If you use VSCodium, you can add breakpoints in your code and attach to the process using the Attach command in the Run and Debug panel.
 
-> &nbsp;
-> &nbsp;
-> ## 🤓✋ You are now leaving the present and entering the future…
-> &nbsp;
-> &nbsp;
+## Testing
 
-# How things will be
+Tests are written in [tape-with-promises](https://github.com/small-tech/tape-with-promises). Coverage is provided by [c8](https://github.com/bcoe/c8).
 
-> ## __⚠️ This section is aspirational. Please treat it as a _design document_.__ More than likely _nothing in this section will work as stated._ Please _DO NOT_ file any bugs about anything in this section.
-
-__TODO: Only one of these lists should exist. Prune/edit as necessary.__
-
-## System requirements
-
-  - Node 16.x+ LTS.
-  - For development: Linux
-  - For deployment: Linux with systemd
-
-## Core design decisions
-
-  - A server.
-  - Node.js only.
-  - No build step.
-  - No scaffolding/project generators.
-  - Runs on both development and production.
-  - < 60 seconds to get started in both development and production.
-  - Optimise for server-side rendering.
-  - TLS everywhere by default.
-  - File-based router that uses (experimental) ES Module Loaders.
-  - Integrated database as first-class citizen.
-  - Convention over configuration.
-  - Forgiving (will render a simple static HTML file if you want).
-  - Own scripting syntax (NodeScript) for pages that extends Svelte to make it trivial to include data from your database in your server-side rendered pages.
-  - Integrated git server for deployments and app auto updates.
-
-## Features
-
-  - Single-line install on development/staging/production.
-  - Always uses latest Node.js LTS (you don’t need to have Node.js installed).
-  - Automatic TLS (https) on development/staging/production.
-  - NodeScript, a superset of Svelte, lets you define your pages, including server-side data fetching for automatic client-side hydration.
-  - Use any svelte component in your interfaces.
-  - File-based routing made as elegant and flexible as possible using Node ES Module loaders.
-  - Integrated database ([JSDB](https://github.com/small-tech/jsdb)).
-  - Simple data exchange and server-side rendering (REST and WebSockets).
-  - No scaffolding (no `npm init my-project-template`, just start, it’s easy).
-  - No build stage.
-  - Integrated git server for deployments and app auto updates.
-  - Small as possible in size and dependencies.
-  - As opinionated as possible.
-  - Deploy on any VPS (e.g., using [Domain](https://github.com/small-tech/domain)) or own your own hardware (e.g., a Raspberry Pi).
-
-## Install
+Run tests:
 
 ```shell
-  wget -qO- https://nodekit.small-web.org/install | bash
+npm -s test
 ```
 
-The NodeKit installer installs two files onto your system. The first is the NodeKit bundle. This is a JavaScript file that contains NodeKit. The other is the version of Node.js [LTS](https://nodejs.org/en/about/releases/) that it has been tested with (this will be kept current with the latest LTS release).
-
-___NoteKit has one prerequisite:__ if you want to deploy to a production machine or if you want to update NodeKit itself, you must have a recent version of [git](https://git-scm.com/) installed on your system. Needless to say, in the 2020s, most developers will already have a machine that meets this requirement and NodeKit will warn you if you don’t and prompt you to install it._
-
-## Update
-
-To update NodeKit to the latest version:
-
-  - __In development,__ run:
-    ```shell
-    nodekit update
-    ```
-  - __On production,__ you don’t have to do anything as NodeKit will automatically update itself and its companion Node.js binary as and when necessary.
-
-## Examples
-
-> Note: using third-party Svelte components in NodeKit is sketchy at the moment
-> ([see this](https://github.com/sveltejs/svelte/issues/6584)).
-> The last example should work but it uses a roundabout way to instantiate the
-> component. The first two examples may or may not work depending on the state
-> of the main branch as I’m experimenting with different ways to support this
-> use case as we speak.
-
-  - Non-SSR Svelte Source Component (Boring Avatars): `examples/non-ssr-svelte-source-component-boring-avatars`
-  - Non-SSR Svelte Source Component (Tree): `examples/non-ssr-svelte-source-component-tree`
-  - Non-SSR Svelte Compiled Component Workaround (Particles): `examples/non-ssr-svelte-compiled-component-workaround-particles`
-
-## To do or not to do?
-
-__THIS EXAMPLE IS INCOMPLETE AND OUTDATED: FIX OR REMOVE__
-
-Let’s create a server-side rendered, dynamic to-do list web app:
-
-1. You’ve already seen that NodeKit does not require scaffolding. Just create a folder and start building your site or app:
-
-    ```shell
-    mkdir todo
-    cd todo
-    touch index.page
-    ```
-
-2. Open _index.page_ in your editor and add the following code into it:
-
-    ```svelte
-    <data>
-      export default (request, response) => {
-        return db.todos
-      }
-    </data>
-
-    <post>
-      export default (request, response) => {
-        db.todos.push(request.params.todo)
-        request.end()
-      }
-    </post>
-
-    <script>
-      export let data
-    </script>
-
-    <ul>
-      {#each data.todo as todo, index}
-        <li>
-          <label>
-            <input type='checkbox' value={todo.description}>
-          </label>
-        </li>
-      {/each}
-    </ul>
-
-    <label>New todo:</label>
-    <textarea />
-    <button>Add</button>
-    ```
-
-3. Run NodeKit.
-
-    ```shell
-    nodekit
-    ```
-
-Hit https://localhost and you will see your new NodeKit app. Go ahead and add some todos and check them off and reload the page to see them persist.
-
-Take a moment to let it sink in that with just the above code, we created an app that:
-
-  - Is server-side rendered with the latest list of to-dos from a database.
-  - Is hydrated on the client and updates the list of to-dos every minute.
-  - Enables you to add and check off to-dos and persists them in the database.
-  - Includes all the server and client side code in a single file.
-
-We were able to do all that mainly thanks to NodeKit’s use of [NodeScript](#nodescript), which extends [Svelte](https://svelte.dev) to make creating server-side rendered applications as simple as possible, the integrated [JavaScript Database (JSDB)](https://github.com/small-tech/jsdb), and [esbuild](https://esbuild.github.io/), which is working behind the scenes to bundle the client-side hydration scripts.
-
-If you want to learn more about the inner workings of NodeKit, look at the list of its [core dependencies](#core-dependencies) in the [Technical Design](#technical-design) section.
-
-## Valid file types
-
-In addition to the ones already implemented:
-
-| Extension | Type | Behaviour |
-| --------- | ---- | --------- |
-| .data     | A server-side data handler for a page | A handler that is called on the server while a page is being server-side rendered. Its return value is set as the `data` prop of the page. |
-
-
-## Layouts
-
-It’s common to want a shared header and footer on pages on the same site (or in different sections of a site). You can control the layout of your pages using `.layout` files.
-
-| File name | Type | Behaviour |
-| --------- | ---- | --------- |
-| Layout.page | NodeKit layout (supports NodeScript) | Any sibling or child pages are slotted into this component during page compilation. |
-| Layout.reset | Empty file | Flags to compiler to not use a layout for sibling or child pages. (If a Page.layout file is present in a child directory, it will take precedence from that level on.) |
-
-## Data routes
-
-A generic HTTP route that returns some piece of data is generally considered to be part of your site’s Application Programming Interface (API).
-
-Generic API routes are useful when the same route is going to be called from the browser by a number of different pages.
-
-But what if you wanted to get the list of books from your database just to render them in your Books page?
-
-For that use case you, can create a `.data` file, which is essentially an HTTP GET route for data that is tightly coupled to a single page.
-
-__books.data__
-```js
-export default (request, response) => {
-  const books = db.books.get()
-  return {books}
-}
-```
-
-__books.page__
-
-```svelte
-<script>
-  export let data
-
-  setInterval(() => {
-    // Refresh the list of books every minute.
-    data = await (await fetch('/books/data')).json()
-  }, 60000)
-</script>
-
-<h1>Books</h1>
-<ul>
-  {#each data.books as book}
-    <li><a href='{book.link}'>{book.title}</a></li>
-  {/each}
-</ul>
-```
-
-Note that the data route is almost identical to the HTTP GET route. The main difference is that unlike regular request handlers, which call `response.end()`, your data handler shares the same path as a page (which is rendered in response to a HTTP GET request) and so your data handler must `return` its value.
-
-(You cannot end the response in your GET handler as NodeKit still needs to take the data you’ve returned and render the page.)
-
-## Pages
-
-A NodeKit page is written in NodeScript, which is an extension of Svelte.
-
-Specifically, NodeScript extends Svelte to enable you to easily server-side render your routes. As pages are being rendered, you can, for example, get data from the integrated [JSDB](https://github.com/small-tech/jsdb) database and include it in the rendered page. Once the page is rendered, if JavaScript is available on the client, the page will be hydrated.
-
-While you can define your [HTTP routes](#http-routes) in separate files, you can also define them inline, right inside your pages.
-
-So, for example, instead of a separate `books.get` route, your `books.page` could look like this:
-
-```svelte
-<data>
-  export default (request, response) => {
-    const books = db.books.get()
-    return {books}
-  }
-</data>
-
-<script>
-  export let data
-
-  setInterval(() => {
-    // Refresh the list of books every minute.
-    data = await (await fetch('/books/data')).json()
-  }, 60000)
-</script>
-
-<h1>Books</h1>
-<ul>
-  {#each data.books as book}
-    <li><a href='{book.link}'>{book.title}</a></li>
-  {/each}
-</ul>
-```
-
-In the above example, when someone hits `/books`:
-
-1. The `get` handler will run and retrieve a list of the books from the integrated database. (The reference to `db` is globally accessible from all routes.)
-
-2. While the page is being rendered, the value of `data` will have the value returned from the `get` route.
-
-3. As the page is being rendered, the value of data will be used to display the list of books in the unordered list.
-
-Once the page has loaded, it will be hydrated and the script in the `<script>` tag will run in the browser, setting up an interval that will refresh the list of books every minute.
-
-Note that when doing the `fetch` request, we specify `/books/data` as the URL. This is an automatically generated HTTP GET route that you can call for exactly this sort of purpose.
-
-Also note that the behaviour of inline data request handlers is the same as for the external ones.
-
-## Database
-
-In addition to the already implemented features:
-
-NodeKit supports [migrations](#migrations) on the integrated database.
-
-## Migrations
-
-__TODO: Migrations are currently not supported in JSDB.__
-
-The integrated [JSDB](https://github.com/small-tech/jsdb) database supports migrations.
-
-A migration is simply a JavaScript file with a `.migration` extension.
-
-The naming convention is:
-
-`version-N.migration`
-
-Where `N` is the database version you are defining. `N` starts at zero (for the initial database setup and increases by 1 each time).
-
-NodeKit will run your migrations in order and update the `version` property of the database accordingly.
-
-## Middleware
-
-NodeKit supports Connect-style middleware. All you have to do is define your middleware in a JavaScript file with a `.middleware` extension.
-
-For example, to allow all Cross Origin Requests (CORS), save the following middleware in a file called `allow-all-cors.middleware` anywhere in your project (that’s not in the `#static` folder):
-
-```js
-module.exports = (request, response, next) => {
-  response.header('Access-Control-Allow-Origin', '*')
-  response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
-  next()
-}
-```
-
-## The HTML Template
-
-__Tentative: THIS FEATURE MIGHT BE REMOVED.__
-
-By default, NodeKit uses a very basic outermost HTML template and expects you to use [layouts](#layouts) and the <a href='https://svelte.dev/docs#svelte_head'>&lt;svelte:head&gt;</a> element to inject anything you might need into `document.head`.
-
-That said, you can override this template by providing a `Layout.html` in your main source folder.
-
-When creating a custom Layout template, you must include the special placeholders that tell NodeKit where to include different parts of a page.
-
-For example:
-
-```html
-<!DOCTYPE html>
-<html lang='en'>
-<head>
-  <meta charset='UTF-8'>
-  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-  <link rel="icon" href="data:,">
-  <title>{title}</title>
-  <style>{css}</style>
-</head>
-<body>
-  {page}
-</body>
-</html>
-```
-
-## Build
-
-_Just kidding._ NodeKit does not have a build stage. It is a server you run on both on your development machine and in production.
-
-NodeKit will automatically build and rebuild things as and when necessary. You don’t have to worry about it. It’s really how web development should be.
-
-## Production
-
-Setting up a production server is almost easy as running NodeKit on your development machine.
-
-### Prerequisites:
-
-  1. [systemd](https://systemd.io/)
-  1. Either [wget](https://www.gnu.org/software/wget/) or [curl](https://curl.se/) (so you can download the installer)
-  2. A recent version of [git](https://git-scm.com/)
-
-### Process:
-
-On your production machine (a VPS works well for this):
-
-  1. [Install NodeKit.](#installation)
-  2. Start the server as a service:
-     ```shell
-     nodekit enable
-     ```
-  3. Hit your server’s domain in the browser.
-
-_Note the server password you’re shown when your server starts in your password manager (e.g., 1password) as you will need it later when [deploying to your server](#deployment)._
-
-The `enable` command runs NodeKit as a systemd service on your server.
-
-Once NodeKit is running as a service, it will automatically restart should your app or server crash.
-
-NodeKit will also periodically check for updates to itself.
-
-## Other prerequisites (common to setting up any server) and how to avoid them
-
-Setting up any production machine involves the following non-trivial prerequisites:
-
-  - commissioning a server (e.g., a VPS or running off your own hardware, which could be a Raspberry Pi)
-  - registering a domain name
-  - setting up your DNS information to point your domain name to your server
-
-If you want to get up and running with a NodeKit production machine in under a minute, you can set one up on [small-web.org](https://small-web.org).
-
-You can also run [Domain](https://github.com/small-tech/domain) – the same software that powers [small-web.org](https://small-web.org) – yourself. Some ideas:
-
-  - Run a private instance for your family or maybe the school or other organisation you work for.
-  - Run a non-commercial instance for a municipality or other community.
-  - Run a commercial service open to the public at large.
-
-If you do use, enjoy, and benefit from NodeKit and/or Domain, please consider becoming [a patron of Small Technology Foundation](https://small-tech.org/fund-us) to enable us to keep working on them.
-
-## Deployment
-
-Once your production server is up and running, you need some way to deploy your application to it.
-
-With NodeKit, you deploy your application using Git.
-
-### Using git directly
-
-Add your production site’s git repository as your production remote in git.
-
-For example, say you’re hosting it on small-web.org and your project/domain is called `your-project`. To deploy:
+Run coverage:
 
 ```shell
-git remote add production https://your-project.small-web.org/source/self.git
-git push production main
+npm run -s coverage
 ```
-
-Before allowing you to push, NodeKit will ask you for your server’s password.
-
-You can get your servers password by running the following command on your server:
-
-```shell
-nodekit password
-```
-
-(If you used Domain to set up your server, you should have been shown your password during the setup process. Please store your server’s password in a password manager like 1password.)
-
-### Using NoteKit’s aliases
-
-If you like, you can also declare your production remote and deploy using a couple of aliases NodeKit provides to save you a few keystrokes:
-
-```shell
-nodekit remote add your-project.small-web.org
-nodekit deploy
-```
-
-Once you’ve defined your git remote (either directly via git, or via NodeKit), you can use the `nodekit deploy` alias to carry out a `git push production main`.
-
-## Setting up a production server with pull updates
-
-When setting up a production server, you can ask that it regularly polls for source changes on a public git remote.
-
-You would do this if you want other people to be able to deploy your app using NodeKit and/or Domain and get auto updates whenever you make a new release.
-
-When you push updates to your repository, their instances will get automatically updated the next time they poll your repository for changes.
-
-_(Using [Domain](https://github.com/small-tech/domain), anyone can install any NodeKit app simply by providing its URL.)_
 
 
 ## Technical design
@@ -1075,21 +671,23 @@ Additionally, NodeKit relies on a number of core dependencies for its essential 
 
 ## Testing
 
-__NodeKit has 100% code coverage.__ (This does not mean that it is bug free. It just means that any bugs that may exist are well tested!) :P
+__NodeKit aims to have 100% code coverage.__ (This does not mean that it will be bug free. It just means that any bugs that may exist will be well tested!) :P
 
-Tests are written in [uvu](https://github.com/lukeed/uvu).
+Tests are written in [Tape With Promises](https://github.com/small-tech/tape-with-promises) and displayed using [Tap Monkey](https://github.com/small-tech/tap-monkey/).
 
 Run tests:
 
 ```shell
-npm test
+npm run -s test
 ```
 
 Run coverage:
 
 ```shell
-npm run coverage
+npm run -s coverage
 ```
+
+💡️ The `-s` just silences the npm logs for cleaner output.
 
 ## Frequently-Asked Questions (FAQs)
 

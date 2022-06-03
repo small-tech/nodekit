@@ -2,4 +2,22 @@
 
 set -e
 
-QUIET=true NODE_OPTIONS='--require=./suppress-experimental.cjs' node --enable-source-maps --experimental-modules --experimental-specifier-resolution=node --experimental-vm-modules --experimental-loader ./loader.js bin/nodekit.js "$@"
+# Production and development modes have separate loader and main processes.
+# (Production mode is far simpler and is kept separate for security and 
+# maintenability reasons.)
+
+if [ ! -z "$PRODUCTION" ]; then
+  # Production mode
+  QUIET=true NODE_OPTIONS='--require=./suppress-experimental.cjs' node \
+    --enable-source-maps --experimental-modules --experimental-specifier-resolution=node \
+    --experimental-vm-modules --experimental-loader \
+    ./src/production/processes/loader.js ./src/production/processes/main.js "$@"
+else
+  # Development mode
+  echo 'Development mode not implemented yet. Run production mode by setting PRODUCTION=true.'
+  # QUIET=true NODE_OPTIONS='--require=./suppress-experimental.cjs' node \
+  #   --enable-source-maps --experimental-modules --experimental-specifier-resolution=node \
+  #   --experimental-vm-modules --experimental-loader \
+  #   ./src/development/processes/loader.js ./src/development/processes/main.js "$@"
+fi
+

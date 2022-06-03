@@ -7,7 +7,7 @@
   "license": "AGPL-version-3.0",
   "private": false,
   "engines": {
-    "node": ">= 16.0.0",
+    "node": ">= 18.0.0",
     "npm": ">= 8.0.0"
   },
   "homepage": "https://github.com/small-tech/nodekit",
@@ -34,8 +34,8 @@
   },
   "contributors": [],
   "scripts": {
-    "test": "node --experimental-modules --experimental-specifier-resolution=node --experimental-loader ./loader.js node_modules/uvu/bin.js tests -i fixtures",
-    "coverage": "c8 npm test"
+    "test": "PRODUCTION=true esm-tape-runner 'tests/(bin|utils|cli|files|loader).js' NODE_OPTIONS='--require=./suppress-experimental.cjs' --enable-source-maps --experimental-modules --experimental-specifier-resolution=node --experimental-vm-modules --experimental-loader ./src/production/processes/loader.js | tap-monkey",
+    "coverage": "PRODUCTION=true c8 esm-tape-runner 'tests/(bin|utils|cli|files|loader).js' NODE_OPTIONS='--require=./suppress-experimental.cjs' --enable-source-maps --experimental-modules --experimental-specifier-resolution=node --experimental-vm-modules --experimental-loader ./src/production/processes/loader.js | tap-monkey"
   },
   "dependencies": {
     "@small-tech/https": "^3.0.3",
@@ -47,11 +47,12 @@
     "sade": "^1.8.1",
     "svelte": "^3.46.2",
     "tinyws": "^0.1.0",
-    "undici": "^4.13.0",
-    "uvu": "^0.5.3",
     "ws": "^8.4.2"
   },
   "devDependencies": {
+    "@small-tech/esm-tape-runner": "^2.0.0",
+    "@small-tech/tap-monkey": "^1.4.0",
+    "@small-tech/tape-with-promises": "^1.0.1",
     "c8": "^7.11.0"
   }
 }

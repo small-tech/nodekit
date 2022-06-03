@@ -5,21 +5,33 @@
 // Requires Node to be started with:
 // NODE_OPTIONS='--require=./suppress-experimental.cjs'
 //
-// Courtesy of Corey Farrell
-// https://github.com/nodejs/node/issues/30810#issue-533506790
+// Original method by Corey Farrell worked up to Node 16.x.
+// (https://github.com/nodejs/node/issues/30810#issue-533506790)
+//
+// Current method based on the method used in Yarn works in Node 17+.
+// (https://github.com/yarnpkg/berry/blob/2cf0a8fe3e4d4bd7d4d344245d24a85a45d4c5c9/packages/yarnpkg-pnp/sources/loader/applyPatch.ts#L414-L435)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-const {emitWarning} = process;
+const originalEmit = process.emit;
 
-process.emitWarning = (warning, ...args) => {
-	if (args[0] === 'ExperimentalWarning') {
-		return
-	}
+process.emit = function (name, data, ..._args) {
+  if (
+    name === 'warning' &&
+    typeof data === 'object' &&
+    data.name === 'ExperimentalWarning' &&
+    (
+      data.message.includes('--experimental-loader') ||
+      data.message.includes('Custom ESM Loaders is an experimental feature') ||
+			data.message.includes('The Node.js specifier resolution flag is experimental') ||
+			data.message.includes('Importing JSON modules is an experimental feature') ||
+      data.message.includes('VM Modules is an experimental feature') ||
+      data.message.includes('The Fetch API is an experimental feature')
+    )
+  ) {
+    return false
+  }
 
-	if (args[0] && typeof args[0] === 'object' && args[0].type === 'ExperimentalWarning') {
-		return
-	}
-
-	return emitWarning(warning, ...args)
+  return originalEmit.apply(process, arguments)
 }
+
