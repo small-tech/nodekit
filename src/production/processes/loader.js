@@ -41,8 +41,6 @@ const _javaScriptAliases = [
   '.socket'
 ]
 
-const dependencyMap = new Map()
-
 const _allAliases = _svelteAliases.concat(_javaScriptAliases)
 
 const svelteAliases = truthyHashmapFromArray(_svelteAliases)
