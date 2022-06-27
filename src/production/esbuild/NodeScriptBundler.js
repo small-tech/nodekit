@@ -25,8 +25,8 @@ export default async function nodeScriptBundler (nodeScript, basePath) {
   const bundle = buildResult.outputFiles[0].text
   const module = new vm.SourceTextModule(bundle, { context })
 
-  await module.link(async (specifier, referencingModule) => {
-    return new Promise(async (resolve, reject) => {
+  await module.link(async (specifier, _referencingModule) => {
+    return new Promise(async (resolve, _reject) => {
       console.verbose('Linking: ', specifier)
 
       const module = await import(specifier)
