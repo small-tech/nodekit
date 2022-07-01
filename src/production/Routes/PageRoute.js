@@ -39,7 +39,7 @@ export default class PageRoute extends LazilyLoadedRoute {
       try {
         data = await this.nodeScriptHandler(request, response)
       } catch (error) {
-        console.error(`[NodeScript error]`)
+        // Display helpful error messages on runtime NodeScript errors.
         const errorStack = error.stack.toString()
         const errorLocation = /page:(\d*?):(\d*?)\)/.exec(errorStack)
         const errorLineOffset = parseInt(errorLocation[1])
@@ -50,31 +50,35 @@ export default class PageRoute extends LazilyLoadedRoute {
         const errorColumnIndex = errorColumnOffset - 1
         
         const errorSourceLines = this.nodeScriptSource.split('\n')
-        console.log(errorSourceLines)
         const errorSourceLookAround = 3 // lines
         const errorLineStartIndex = Math.max(errorLineIndex-errorSourceLookAround, 0)
-        const errorLineEndIndex = Math.min(errorLineIndex+errorSourceLookAround, errorSourceLines.length)
+        const errorLineEndIndex = Math.min(errorLineIndex+errorSourceLookAround, errorSourceLines.length - 1)
         
-        console.log('line, start, end', errorLineIndex, errorLineStartIndex, errorLineEndIndex)
+        const red = '<span style="color: red; font-weight: 800;">'
+        const endRed = '</span>'
 
         let detailedErrorLocation = ''
-        for (let i = errorLineStartIndex; i < errorLineEndIndex; i++) {
+        for (let i = errorLineStartIndex; i <= errorLineEndIndex; i++) {
+          const lineNumber = `${i+1}: `
           if (i === errorLineIndex) {
-            detailedErrorLocation += '<span style="color: black;">' + errorSourceLines[i] + '</span>\n'
-            detailedErrorLocation += `${'-'.repeat(errorColumnIndex)}^\n`
+            detailedErrorLocation +=  red + lineNumber + errorSourceLines[i] + endRed + '\n'
+            const spaceTakenByLineNumber = lineNumber.length
+            detailedErrorLocation += red + `${' '.repeat(spaceTakenByLineNumber + errorColumnIndex)}🢁` + endRed + '\n'
           } else {
-            detailedErrorLocation += '<span style="color: grey;">' + errorSourceLines[i] + '</span>\n'
+            detailedErrorLocation += '<span style="color: grey;">' + lineNumber + errorSourceLines[i] + '</span>\n'
           }
         }
         
-        // console.error(this.nodeScriptSource)
-        // console.error(error)
-
-        const nodeScriptError = new Error('NodeScript execution failure')
-        nodeScriptError.stack = '// <strong>' + this.filePath.replace(process.env.basePath + path.sep, '') + '</strong> (linked NodeScript bundle)\n\n'
+        const nodeScriptError = new Error('NodeScript runtime error')
+        const errorFileName = this.filePath.replace(process.env.basePath + path.sep, '')
+        nodeScriptError.stack = '// <strong>' + errorFileName + '</strong> (linked NodeScript bundle)\n\n'
           + detailedErrorLocation + '\n' 
           + error.stack
         
+        console.error(`// ${errorFileName} (linked NodeScript bundle)\n`)
+        console.error(detailedErrorLocation.replace(/<span.*?>/g, '').replace(/<\/span>/g, '').replace(/<strong>/g, '').replace(/<\/strong>/g, ''))
+        console.error(error)
+
         throw nodeScriptError
       }
     }

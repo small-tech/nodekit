@@ -45,6 +45,8 @@ export default class Server extends EventTarget {
 
     // Create the app.
     const errorTemplate = `
+      <html lang="en">
+      <head><meta charset="utf-8"></head>
       <h1>{CODE}</h1>
       <h2>{ERROR}</h2>
       <pre><code>{STACK}</code></pre>
