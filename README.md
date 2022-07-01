@@ -464,7 +464,7 @@ NodeKit has an integrated [JSDB](https://github.com/small-tech/jsdb) database th
 
 JSDB is a transparent, in-memory, streaming write-on-update JavaScript database for the Small Web that persists to a JavaScript transaction log.
 
-If you’ve created at least one table on the database, you can find it in the _.db_ folder. Tables in JSDB are simply JavaScript objects or arrays and JSDB writes to plain old JavaScript files.
+You can find the databases for your projects in the _~/.small-tech.org/nodekit/database_ folder. Each project gets its own folder in there with a name based on the absolute path to your project on your disk (e.g., if a NodeKit project is stored in _/var/home/aral/projects/my-project_, its database will be in a folder named _var.home.aral.projects.my-project_ in the main database folder.) Tables in JSDB are simply JavaScript objects or arrays and JSDB writes to plain old JavaScript files.
 
 [Learn more about JSDB.](https://github.com/small-tech/jsdb)
 
