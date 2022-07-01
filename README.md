@@ -223,7 +223,7 @@ Yep, that’s the magic of the integrated JavaScript Database (JSDB) in NodeKit.
 
 If you don’t believe me, restart the server and note that the count is still there.
 
-If you _still_ don’t believe me (wow, what a cynic), open the _.db/greetings.js_ table in a text editor and take a look. You should see something like this:
+If you _still_ don’t believe me (wow, what a cynic), look in the _.small-tech.org/nodekit/database_ folder and you should see a folder there that mirrors the path of your project (e.g., if your project is in _/var/home/aral/projects/greetings_, the folder will be _var.home.aral.projects.greetings_). Inside your project’s database folder, you should see a _greetings.js_ file. Open it up in a text editor and take a look. You should see something like this:
 
 ```js
 export const _ = { 'count': 18 };

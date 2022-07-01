@@ -102,8 +102,11 @@ export default class Server extends EventTarget {
       }
     }
     
-    // Set up the global JavaScript Database (JSDB) instance.
-    const databaseDirectory = path.join(configurationPath(), 'database')
+    // Set up the global JavaScript Database (JSDB) instance at a directory
+    // that is a unique identifier based on the absolute path that the project
+    // is in. This should enable all projects to have unique databases.
+    const projectIdentifier = process.env.basePath.replace(/\//g, '.').slice(1)
+    const databaseDirectory = path.join(configurationPath(), 'database', projectIdentifier)
     const db = JSDB.open(databaseDirectory)
 
     // The virtual machine context used to run NodeScript in.
