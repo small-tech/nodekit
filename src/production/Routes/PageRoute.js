@@ -9,6 +9,7 @@ export default class PageRoute extends LazilyLoadedRoute {
   page = null
   nodeScript = null
   nodeScriptHandler = null
+  nodeScriptSource = null
   
   constructor (filePath) {
     super(filePath)
@@ -21,7 +22,9 @@ export default class PageRoute extends LazilyLoadedRoute {
       this.page = (await import(this.filePath)).default
 
       if (this.nodeScript && !this.nodeScriptHandler) {
-        this.nodeScriptHandler = await nodeScriptBundler(this.nodeScript, process.env.basePath)
+        const _ = await nodeScriptBundler(this.nodeScript, process.env.basePath, this.filePath)
+        this.nodeScriptHandler = _.module
+        this.nodeScriptSource = _.source
       }
     
       this.loaded = true
@@ -31,9 +34,16 @@ export default class PageRoute extends LazilyLoadedRoute {
     let data = undefined
     if (this.nodeScript) {
       // Run the nodeScript.
-      data = await this.nodeScriptHandler(request, response)
+      try {
+        data = await this.nodeScriptHandler(request, response)
+      } catch (error) {
+        console.error(`[NodeScript error]`)
+        console.error(this.nodeScriptSource)
+        console.error(error.stack)
+        throw error
+      }
     }
-
+    
     // Render the page, passing the server-side data as a property.
     const { html, css } = this.page.render({ data })
     const renderedHtml = renderPage(this.pattern, this.className, html, css.code, this.hydrationScript, data)

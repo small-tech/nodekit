@@ -1,8 +1,9 @@
 // Compiles and links the passed NodeScript.
 import vm from 'vm'
 import esbuild from 'esbuild'
+import path from 'path'
 
-export default async function nodeScriptBundler (nodeScript, basePath) {
+export default async function nodeScriptBundler (nodeScript, basePath, sourceFilePath) {
   let buildResult
   
   // TODO: Make this a singleton? 
@@ -22,8 +23,10 @@ export default async function nodeScriptBundler (nodeScript, basePath) {
     write: false
   })
 
+  const identifier = `nodescript error in ${sourceFilePath.replace(basePath + path.sep, '')}`
+
   const bundle = buildResult.outputFiles[0].text
-  const module = new vm.SourceTextModule(bundle, { context })
+  const module = new vm.SourceTextModule(bundle, { context, identifier })
 
   await module.link(async (specifier, _referencingModule) => {
     return new Promise(async (resolve, _reject) => {
@@ -54,5 +57,11 @@ export default async function nodeScriptBundler (nodeScript, basePath) {
   // the module is available from the module.namespace reference.
   await module.evaluate()
 
-  return module.namespace.default
+  // Return the module (which, in the case of NodeScript, is a function
+  // that is ready to be called and the source for the module. The latter
+  // can be used to display the exact error location for runtime errors.)
+  return {
+    module: module.namespace.default,
+    source: bundle
+  }
 }
