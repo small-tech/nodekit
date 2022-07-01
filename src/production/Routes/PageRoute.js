@@ -56,6 +56,12 @@ export default class PageRoute extends LazilyLoadedRoute {
         
         const red = '<span style="color: red; font-weight: 800;">'
         const endRed = '</span>'
+        const black = '<span style="color: black; font-weight: 800;">'
+        const endBlack = '</span>'
+        const endGrey = endRed
+        const grey = '<span style="color: grey;">'
+        const strong = '<strong>'
+        const endStrong = '</strong>'
 
         let detailedErrorLocation = ''
         for (let i = errorLineStartIndex; i <= errorLineEndIndex; i++) {
@@ -65,16 +71,23 @@ export default class PageRoute extends LazilyLoadedRoute {
             const spaceTakenByLineNumber = lineNumber.length
             detailedErrorLocation += red + `${' '.repeat(spaceTakenByLineNumber + errorColumnIndex)}🢁` + endRed + '\n'
           } else {
-            detailedErrorLocation += '<span style="color: grey;">' + lineNumber + errorSourceLines[i] + '</span>\n'
+            detailedErrorLocation += grey + lineNumber + errorSourceLines[i] + endGrey + '\n'
           }
         }
         
+        const originalErrorStack = error.stack
+        const originalErrorStackLines = originalErrorStack.split('\n')
+        originalErrorStackLines[0] = `${black}${originalErrorStackLines[0]}${endBlack}`
+        const formattedOriginalErrorStack = originalErrorStackLines.join('\n')
+        
         const nodeScriptError = new Error('NodeScript runtime error')
         const errorFileName = this.filePath.replace(process.env.basePath + path.sep, '')
-        nodeScriptError.stack = '// <strong>' + errorFileName + '</strong> (linked NodeScript bundle)\n\n'
+        nodeScriptError.stack = '// ' + strong + errorFileName + endStrong + ' (linked NodeScript bundle)\n\n'
           + detailedErrorLocation + '\n' 
-          + error.stack
+          + formattedOriginalErrorStack
         
+        // Also display the error in the console (but without the HTML formatting).
+        console.error('Error: NodeScript runtime error\n')
         console.error(`// ${errorFileName} (linked NodeScript bundle)\n`)
         console.error(detailedErrorLocation.replace(/<span.*?>/g, '').replace(/<\/span>/g, '').replace(/<strong>/g, '').replace(/<\/strong>/g, ''))
         console.error(error)
