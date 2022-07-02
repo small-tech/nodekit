@@ -190,6 +190,9 @@ test ('loaderPaths', async t => {
       import: './compiler.mjs',
       require: './compiler.js'
     },
+    './action': {
+      types: './types/runtime/action/index.d.ts'
+    },
     './animate': {
       types: './types/runtime/animate/index.d.ts',
       import: './animate/index.mjs',
