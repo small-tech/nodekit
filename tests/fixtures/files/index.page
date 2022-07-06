@@ -1,4 +1,4 @@
-<data>
+<get>
   // db is a global reference to the app’s database that
   // we inherit from the server’s context.
 
@@ -26,7 +26,7 @@
       app: request.query.app || 'Place'
     }
   }
-</data>
+</get>
 
 <script>
   import Remote from '@small-tech/remote'
@@ -45,7 +45,7 @@
 
   // This is the data that’s automatically populated during
   // server-side render by NodeKit. (It’s what’s returned
-  // from the <data></data> section, above.)
+  // from the <get></get> section, above.)
   export let data
 
   const PAYMENT_PROVIDERS = {

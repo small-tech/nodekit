@@ -1,4 +1,4 @@
-<data>
+<get>
   // console.log(globalThis.app.routes)
   export default (request, response) => {
     return {
@@ -9,7 +9,7 @@
       }
     }
   }
-</data>
+</get>
 
 <script>
   import Hello from './hello.component'

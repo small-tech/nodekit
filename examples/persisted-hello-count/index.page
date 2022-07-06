@@ -1,4 +1,4 @@
-<data>
+<get>
   if (db.greetings === undefined) {
     db.greetings = { count: 1 }
   }
@@ -6,7 +6,7 @@
   export default () => {
     return {count: db.greetings.count++}
   }
-</data>
+</get>
 
 <script>
   export let data

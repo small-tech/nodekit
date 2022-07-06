@@ -1,11 +1,11 @@
-<data>
+<get>
   export default async () => {
     const response = await fetch('https://mastodon.ar.al/api/v1/timelines/public')
     const publicTimeline = await response.json()
 
     return publicTimeline
   }
-</data>
+</get>
 
 <script>
   import { onMount } from 'svelte'

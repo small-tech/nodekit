@@ -1,11 +1,15 @@
-<data>
+<get>
   //////////////////////////////////////////////////////////////////
   //
-  // Note: you can perform any asynchronous actions here.
-  // ===== Just export the result as as a property called data
-  //       and that will be available to you on the client.
+  // The return value of the exported default function
+  // will be available to you on the client in the
+  // data variable you export from your <script> block.
   //
-  // Injected properties that you have available:
+  // You can also perform asynchronous actions here (e.g., fetching
+  // data from a web service) if you mark the exported function as\
+  // async.
+  //
+  // Injected properties you have available:
   //
   // - request: the Node request object.
   //
@@ -17,7 +21,7 @@
       message: ['this', 'could', 'be', 'from', 'a', 'database']
     }
   }
-</data>
+</get>
 
 <script>
   import Inner from './Inner.component'

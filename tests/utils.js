@@ -7,7 +7,7 @@ import * as utils from '../src/production/Utils'
 
 import http from 'http'
 
-const nodeScriptRegExp = /\<data\>(.*?)\<\/data\>/s
+const nodeScriptRegExp = /\<get\>(.*?)\<\/get\>/s
 
 const nodeScript = `
 export default function (request, response) {
@@ -16,9 +16,9 @@ export default function (request, response) {
 `
 
 const nodeScriptIncludingDataTags = `
-<data>
+<get>
   ${nodeScript}
-</data>
+</get>
 `
 
 const topOfPage = `
@@ -26,7 +26,7 @@ const topOfPage = `
 `
 
 const restOfPage = `
-</data>
+</get>
 
 <script>
   export let data

@@ -1,10 +1,10 @@
-<data>
+<get>
   let count = 1
 
   export default () => {
     return {count: count++}
   }
-</data>
+</get>
 
 <script>
   export let data

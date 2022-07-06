@@ -144,13 +144,13 @@ Let’s do something that no other web server can do now, shall we?
 Change your _index.page_ to read:
 
 ```html
-<data>
+<get>
   let count = 1
 
   export default () => {
     return {count: count++}
   }
-</data>
+</get>
 
 <script>
   export let data
@@ -167,11 +167,11 @@ Now run `nodekit` and refresh the page to see the counter increase.
 
 > #### How does it work?
 >
-> A page in NodeKit is written in [NodeScript](#nodescript), which is a superset of [Svelte](https://svelte.dev).
+> A page in NodeKit is written in a superset of [Svelte](https://svelte.dev) that can contain [NodeScript](#nodescript).
 >
-> In addition to what Svelte can do, NodeScript gives you the ability to add server-side code to your pages in a `<data>` block.
+> (That’s NodeScript in the bit of code you see in the `<get>` block.)
 >
-> The default function you export from it is evaluated every time the route is requested and anything it returns is injected into the `data` variable you exported from your `<script>` block.
+> The default function you export from a NodeScript block is evaluated on the server every time the page route is requested via a `GET` request and the value it returns is injected into a `data` variable you export from your `<script>` block.
 >
 > The rest of the example is simply client-side Svelte.
 >
@@ -192,7 +192,7 @@ So let’s fix that.
 Update your code to match this:
 
 ```html
-<data>
+<get>
   if (db.greetings === undefined) {
     db.greetings = { count: 1 }
   }
@@ -200,7 +200,7 @@ Update your code to match this:
   export default () => {
     return {count: db.greetings.count++}
   }
-</data>
+</get>
 
 <script>
   export let data
@@ -239,7 +239,9 @@ There’s so much more to JSDB that you can learn about in [the JSDB documentati
 
 ## Make Fetch Happen
 
-While you can import any Node module that you install in your app from within the data block of your pages, there are are commonly used global APIs that you can use without importing. You saw one of those, the JavaScript Database (JSDB), above, that’s available as `db`. Similarly, the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) is available for use from your data blocks as `fetch`.
+While you can import any Node module that you install in your app from within the `<get>…</get>` block of your page, there are are commonly used global APIs that you can use without importing. You’ve already seen one of those, the JavaScript Database (JSDB), which is available via the global `db` reference. 
+
+Similarly, the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) is available for use from your NodeScript blocks as `fetch`.
 
 Here’s an example of how to use the Fetch API to get the list of public posts from a [Mastodon](https://joinmastodon.org/) instance.
 
@@ -250,12 +252,12 @@ And this is the JSON endpoint with the public timeline data: https://mastodon.ar
 Take a look at both to understand what we’re working with before creating a new folder called _make-fetch-happen_ with a file called _index.page_ in it. Then add the following code to that file:
 
 ```svelte
-<data>
+<get>
   export default async () => {
     const response = await fetch('https://mastodon.ar.al/api/v1/timelines/public')
     return await response.json()
   }
-</data>
+</get>
 
 <script>
   export let data
@@ -313,9 +315,13 @@ And hit _https://localhost_ to see the latest public timeline from Aral’s mast
 
 ## NodeScript
 
-With NodeKit, you write your apps using NodeScript.
+With NodeKit, your pages are a superset of [Svelte](https://svelte.dev) and can contain NodeScript.
 
-NodeScript is a superset of [Svelte](https://svelte.dev) that includes support for server-side rendering and simple data exchange between the client and the server.
+NodeScript is defined in a `<get>…</get>` block on your page and any code contained in the block is executed on the server during server-side render of the page.
+
+Your NodeScript should export a default function that returns a value. The returned value will be available to your client in a variable called `data` that you should export from the `<script>…</script>` block of the page.
+
+See the code samples above for usage examples.
 
 ## APIs and working with data
 
@@ -343,7 +349,7 @@ Optionally, to organise larger projects, you can encapsulate your site within a 
 
 e.g.,
 
-__`text
+```text
 my-project
   ├ src
   │  ├ index.page
@@ -411,6 +417,62 @@ export default (socket, request, response) => {
 > 💡 Since we’re not using the `request` or `response` objects in this route, we could have just left them off of the function signature.
 
 And a simple _index.page_ route that uses it:
+
+```svelte
+<socket>
+  export default (socket, request, response) => {
+    socket.addEventListener('message', event => {
+      socket.send(event.data)
+    })
+  }
+</socket>
+
+<script>
+  import { onMount } from 'svelte'
+
+  let messageField
+
+  let socket
+  let message = ''
+  let messages = []
+
+  onMount(() => {
+    // Initialise the web socket
+    socket = new WebSocket(`wss:///`)
+
+    socket.addEventListener('open', event => {
+      socket.send('Hello, there!')
+    })
+
+    socket.addEventListener('message', event => {
+      messages = [...messages, event.data]
+    })
+  })
+</script>
+
+<h1>WebSocket Echo Demo</h1>
+
+<form id='messageForm' on:submit|preventDefault={event => {
+  socket.send(message)
+  message = ''
+  messageField.focus()
+}}>
+  <label>Message:
+    <input type='text' bind:this={messageField} bind:value={message}>
+  </label>
+  <button type='submit'>Send</button>
+</form>
+
+<h2>Received messages</h2>
+
+<ul id='received'>
+  {#each messages as message}
+    <li>{message}</li>
+  {/each}
+</ul>
+```
+
+And, just like with inline `<get>…</get>` routes, you can also inline WebSocket routes so they share the same route as the page. So all the code for the example, above, can be added to the same page:
 
 ```svelte
 <script>

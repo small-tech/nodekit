@@ -1,4 +1,4 @@
-<data>
+<get>
   export default (request, response) => {
     const defaultSettings = {
       payment: {},
@@ -33,7 +33,7 @@
 
     return { config }
   }
-</data>
+</get>
 
 <script>
   // @hmr:keep-all

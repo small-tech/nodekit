@@ -1,4 +1,4 @@
-<data>
+<get>
   export default (request, response) => {
     return { 
       subtraction: {
@@ -7,7 +7,7 @@
       }
     }
   }
-</data>
+</get>
 
 <h1>Components</h1>
 

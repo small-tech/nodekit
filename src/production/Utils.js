@@ -86,9 +86,9 @@ export function extract(source, regExp) {
 }
 
 /**
- * Matches NodeScript data blocks.
+ * Matches NodeScript get blocks.
  */
-const nodeScriptRegExp = /\<data\>(.*?)\<\/data\>/s
+const nodeScriptRegExp = /\<get\>(.*?)\<\/get\>/s
 
 /**
  * Parses the source and returns the normalised source and the NodeScript.
